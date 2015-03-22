@@ -151,7 +151,6 @@ abstract class device
 
 	} /* end class motion sensor */
 
-<<<<<<< HEAD
     abstract class microwave {
         public int wattage;
 
@@ -195,10 +194,7 @@ abstract class device
             time = minutes + seconds / 60;
             return true;
         }
-    } /* end class microwave
+    } /* end class microwave*/
 
-=======
-	
-	
->>>>>>> origin/master
-} /* end class Device */
+}
+ /* end class Device */
