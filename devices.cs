@@ -1,4 +1,4 @@
-abstract public class device
+abstract class device
 {
     public int deviceType;
     public int deviceID;
@@ -17,7 +17,7 @@ abstract public class device
     }
 	
 
-	abstract public class sprinkler
+	abstract class sprinkler
 	{
 
 	public bool sprinkler_status;
@@ -39,7 +39,7 @@ abstract public class device
 	
 	} /* end class Sprinkler */
 
-	abstract public class alarmSystem
+	abstract class alarmSystem
 	{
 
 	public bool alarm_system_status;
@@ -81,7 +81,7 @@ abstract public class device
 	}
 	} /* end class Alarm System */
 
-	abstract public class Lights
+	abstract class Lights
 	{
 	public bool status;
 	public int brightness_status;
@@ -116,7 +116,7 @@ abstract public class device
 	}
 	} /* end class Lights */
 
-	abstract public class motionSensor
+	abstract class motionSensor
 	{
 	public bool status;
 	public bool motion;
