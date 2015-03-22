@@ -17,8 +17,8 @@ namespace ASSIGN5TEAM2
     {
         static void Main(string[] args)
         {
+			// testing to create new device, and add/set device then prints ID, DeviceName, Room ID, Status.
             GarageDoor boo = new GarageDoor();
-
             boo.addDevice(2, "Garage1", 4, false);
             Console.WriteLine(boo.getid());
             Console.WriteLine(boo.getDeviceName());
@@ -44,6 +44,15 @@ namespace ASSIGN5TEAM2
 
     abstract class sprinkler : device
 	{
+	
+	public override void addDevice(int id2, string devName, int rid, bool state)
+        {
+           //base.addDevice(id, devName, rid, status);
+            id = id2;
+            deviceName = devName;
+            roomID = rid;
+            status = state;
+        }
 
 	public bool sprinkler_status;
 
@@ -66,6 +75,15 @@ namespace ASSIGN5TEAM2
 
 	abstract class alarmSystem : device
 	{
+	
+		public override void addDevice(int id2, string devName, int rid, bool state)
+			{
+			   //base.addDevice(id, devName, rid, status);
+				id = id2;
+				deviceName = devName;
+				roomID = rid;
+				status = state;
+			}
 
 	    public bool alarm_system_status;
 	    public bool arm_status;
@@ -117,6 +135,15 @@ namespace ASSIGN5TEAM2
 
 	abstract class Lights : device
 	{
+		public override void addDevice(int id2, string devName, int rid, bool state)
+        {
+           //base.addDevice(id, devName, rid, status);
+            id = id2;
+            deviceName = devName;
+            roomID = rid;
+            status = state;
+        }
+			
 	    public bool status;
 	    public int brightness_status;
         public override int getid() { return id; }
@@ -159,6 +186,15 @@ namespace ASSIGN5TEAM2
 
 	abstract class motionSensor : device
 	{
+		public override void addDevice(int id2, string devName, int rid, bool state)
+        {
+           //base.addDevice(id, devName, rid, status);
+            id = id2;
+            deviceName = devName;
+            roomID = rid;
+            status = state;
+        }
+	
 	    public bool status;
 	    public bool motion;
         public override int getid() { return id; }
@@ -191,6 +227,15 @@ namespace ASSIGN5TEAM2
 
     abstract class microwave : device
 	{
+		public override void addDevice(int id2, string devName, int rid, bool state)
+        {
+           //base.addDevice(id, devName, rid, status);
+            id = id2;
+            deviceName = devName;
+            roomID = rid;
+            status = state;
+        }
+	
         public int wattage;
 		public double time;
 		public bool on;
@@ -242,6 +287,15 @@ namespace ASSIGN5TEAM2
 
     class GarageDoor : device
     {
+		public override void addDevice(int id2, string devName, int rid, bool state)
+        {
+           //base.addDevice(id, devName, rid, status);
+            id = id2;
+            deviceName = devName;
+            roomID = rid;
+            status = state;
+        }
+	
         // Attributes
         public override int getid() { return id; }
         public override string getDeviceName() { return deviceName; }
@@ -265,6 +319,15 @@ namespace ASSIGN5TEAM2
     
     abstract class HVAC
     {
+		public override void addDevice(int id2, string devName, int rid, bool state)
+        {
+           //base.addDevice(id, devName, rid, status);
+            id = id2;
+            deviceName = devName;
+            roomID = rid;
+            status = state;
+        }
+	
         public int tempCurrent;
 
         public int tempDesired;
@@ -314,6 +377,14 @@ namespace ASSIGN5TEAM2
 
     abstract class doorLocks
     {
+		public override void addDevice(int id2, string devName, int rid, bool state)
+        {
+           //base.addDevice(id, devName, rid, status);
+            id = id2;
+            deviceName = devName;
+            roomID = rid;
+            status = state;
+        }
 
         public override int getid() { return id; }
         public override string getDeviceName() { return deviceName; }
@@ -342,6 +413,16 @@ namespace ASSIGN5TEAM2
 
     abstract class windows
     {
+	
+		public override void addDevice(int id2, string devName, int rid, bool state)
+        {
+           //base.addDevice(id, devName, rid, status);
+            id = id2;
+            deviceName = devName;
+            roomID = rid;
+            status = state;
+        }
+		
         public bool lockable;
 
         public double height;
