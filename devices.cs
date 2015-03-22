@@ -5,10 +5,7 @@ Contributors: Pedro Sorto, Steven Cho, Dong Nan.
 
 abstract class device
 {
-    public int deviceName;
-    public int deviceID;
-	public int roomID;
-	
+  
 	public device()
 	{} 
    
@@ -27,7 +24,7 @@ abstract class device
 		return roomID;
 	}
 
-	abstract class sprinkler
+	abstract class sprinkler : device
 	{
 
 	public bool sprinkler_status;
@@ -49,7 +46,7 @@ abstract class device
 	
 	} /* end class Sprinkler */
 
-	abstract class alarmSystem
+	abstract class alarmSystem : device
 	{
 
 	public bool alarm_system_status;
@@ -91,7 +88,7 @@ abstract class device
 	}
 	} /* end class Alarm System */
 
-	abstract class Lights
+	abstract class Lights : device
 	{
 	public bool status;
 	public int brightness_status;
@@ -126,7 +123,7 @@ abstract class device
 	}
 	} /* end class Lights */
 
-	abstract class motionSensor
+	abstract class motionSensor : device
 	{
 	public bool status;
 	public bool motion;
@@ -151,14 +148,12 @@ abstract class device
 
 	} /* end class motion sensor */
 
-    abstract class microwave {
+    abstract class microwave : device
+	{
         public int wattage;
-
-        public double time;
-
-        public bool on;
-
-        public string[] command;
+		public double time;
+		public bool on;
+		public string[] command;
 
         public microwave() {}
 
