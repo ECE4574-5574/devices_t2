@@ -1,6 +1,6 @@
 /*
 STUB implementation of the device list in C Sharp
-Contributors: Pedro Sorto, Steven Cho, Dong Nan.
+Contributors: Pedro Sorto, Steven Cho, Dong Nan, Aakruthi Gopisetty, Kara Dodenhoff and Danny Mota
 */
 
 using System;
