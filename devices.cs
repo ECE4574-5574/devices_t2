@@ -5,15 +5,16 @@ Contributors: Pedro Sorto, Steven Cho, Dong Nan.
 
 abstract class device
 {
-    public int deviceType;
+    public int deviceName;
     public int deviceID;
-
+	public int roomID;
+	
 	public device()
 	{} 
    
-   abstract public void getType()
+   abstract public void getName()
     {
-		return deviceType;
+		return deviceName;
     }
 
     abstract public void getID()
@@ -21,6 +22,10 @@ abstract class device
 		return deviceID;
     }
 	
+	abstract public void getRoomID()
+	{
+		return roomID;
+	}
 
 	abstract class sprinkler
 	{
@@ -146,5 +151,6 @@ abstract class device
 
 	} /* end class motion sensor */
 
-
+	
+	
 } /* end class Device */
