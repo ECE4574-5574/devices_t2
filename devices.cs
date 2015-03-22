@@ -1,30 +1,33 @@
-/*
-STUB implementation of the device list in C Sharp
-Contributors: Pedro Sorto, Steven Cho, Dong Nan.
-*/
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-abstract class device
+namespace ASSIGN5TEAM2
 {
-  
-	public device()
-	{} 
-   
-   abstract public void getName()
+    class Program
     {
-		return deviceName;
+        static void Main(string[] args)
+        {
+
+        }
+    }
+    abstract class device
+    {
+        protected int id;
+        protected string deviceName;
+        protected int roomID;
+        protected bool status;
+
+        public virtual int getid() { return id; }
+        public virtual string getDeviceName() { return deviceName; }
+        public virtual int getRoomID() { return roomID; }
+        public virtual bool getStatus() { return status; }
+        public virtual void setStatus(bool state) {;}
     }
 
-    abstract public void getID()
-    {
-		return deviceID;
-    }
-	
-	abstract public void getRoomID()
-	{
-		return roomID;
-	}
-
-	abstract class sprinkler : device
+    abstract class sprinkler : device
 	{
 
 	public bool sprinkler_status;
@@ -34,12 +37,12 @@ abstract class device
 	//initialization 
 	}
 
-	abstract public void turnOn
+	public void turnOn()
 	{
 		sprinkler_status = true;
 	}
 	
-	abstract public void turnOff
+	public void turnOff()
 	{
 		sprinkler_status = false;
 	}
@@ -49,102 +52,125 @@ abstract class device
 	abstract class alarmSystem : device
 	{
 
-	public bool alarm_system_status;
-	public bool arm_status;
+	    public bool alarm_system_status;
+	    public bool arm_status;
 
-	public alarmSystem()
-	{}
+        public override int getid() { return id; }
+        public override string getDeviceName() { return deviceName; }
+        public override int getRoomID() { return roomID; }
 
-	abstract public void turnOn()
-	{
-	Console.WriteLine("Alarm is on.");
-	alarm_system_status = true; 
-	}
-	abstract public void turnOff()
-	{
-	Console.WriteLine("Alarm is off.");
-	alarm_system_status = false; 
-	}
+        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setStatus(bool state) { ;}
 
-	abstract public bool getAlarmStatus()
-	{
-	return alarm_system_status;
-	}
+	    public alarmSystem()
+	    {}
 
-	abstract public void armAlarm()
-	{
-	Console.WriteLine("Alarm is armed.");
-	arm_status = true; 
-	}
-	abstract public void disarmAlarm()
-	{
-	Console.WriteLine("Alarm is disarmed.");
-	arm_status = false;
-	}
+	    public void turnOn()
+	    {
+	    Console.WriteLine("Alarm is on.");
+	    alarm_system_status = true; 
+	    }
+	
+        public void turnOff()
+	    {
+	    Console.WriteLine("Alarm is off.");
+	    alarm_system_status = false; 
+	    }
 
-	abstract public bool getArmStatus()
-	{
-	return arm_status;
-	}
+	    public bool getAlarmStatus()
+	    {
+	    return alarm_system_status;
+	    }
+
+	    public void armAlarm()
+	    {
+	    Console.WriteLine("Alarm is armed.");
+	    arm_status = true; 
+	    }
+	
+        public void disarmAlarm()
+	    {
+	    Console.WriteLine("Alarm is disarmed.");
+	    arm_status = false;
+	    }
+
+	    public bool getArmStatus()
+	    {
+	    return arm_status;
+	    }
 	} /* end class Alarm System */
 
 	abstract class Lights : device
 	{
-	public bool status;
-	public int brightness_status;
+	    public bool status;
+	    public int brightness_status;
+        public override int getid() { return id; }
+        public override string getDeviceName() { return deviceName; }
+        public override int getRoomID() { return roomID; }
 
-	public Lights()
-	{
-	}
-
-	abstract public int getBrightness()
-	{
-	return brightness_status;
-	}
-
-	abstract public void setBrightness()
-	{
-	}
-
-	abstract public void turnOn()
-	{
-	status = true;
-	}
+        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setStatus(bool state) { ;}
 
 
-	abstract public void turnOff()
-	{
-	status = false;
-	}
+	    public Lights()
+	    {
+	    }
 
-	abstract public bool getStatus()
-	{
-	return status;
-	}
+	    public int getBrightness()
+	    {
+	    return brightness_status;
+	    }
+
+	    public void setBrightness()
+	    {
+	    }
+
+	    public void turnOn()
+	    {
+	    status = true;
+	    }
+
+
+	    public void turnOff()
+	    {
+	    status = false;
+	    }
+
+	    public bool getStatus()
+	    {
+	    return status;
+	    }
 	} /* end class Lights */
 
 	abstract class motionSensor : device
 	{
-	public bool status;
-	public bool motion;
+	    public bool status;
+	    public bool motion;
+        public override int getid() { return id; }
+        public override string getDeviceName() { return deviceName; }
+        public override int getRoomID() { return roomID; }
 
-	public motionSensor()
-	{}
+        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setStatus(bool state) { ;}
 
-	abstract public int getMotion()
-	{
-	return motion;
-	}
 
-	abstract public void turnOnSensor()
-	{
-	status = true;
-	}
+	    public motionSensor()
+	    {}
 
-	abstract public void turnOffSensor()
-	{
-	status = false;
-	}
+	    public bool getMotion()
+	    {
+	    return motion;
+	    }
+
+	    public void turnOnSensor()
+	    {
+	    status = true;
+	    }
+
+	    public void turnOffSensor()
+	    {
+	    status = false;
+	    }
 
 	} /* end class motion sensor */
 
@@ -154,43 +180,74 @@ abstract class device
 		public double time;
 		public bool on;
 		public string[] command;
+        public override int getid() { return id; }
+        public override string getDeviceName() { return deviceName; }
+        public override int getRoomID() { return roomID; }
+
+        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setStatus(bool state) { ;}
+
 
         public microwave() {}
 
-        abstract public string[] GetCommands()
+        public string[] GetCommands()
         {
             return command;
         }
 
-        abstract public  bool SendCommand(string command)
+        public void SendCommand(string command)
         {
-            this.command.Insert(this.command.Count, command);
+           // this.command.Insert(this.command.Count, command);
         }
 
-        abstract public  bool TurnOn()
+        public bool TurnOn()
         {
             on = true;
             return on;
         }
 
-        abstract public  bool TurnOff()
+        public bool TurnOff()
         {
             on = false;
             return on;
         }
 
-        abstract public  bool SetPower(int power)
+        public void SetPower(int power)
         {
             wattage = power;
         }
 
-        abstract public  bool SetTimer(int minutes, int seconds)
+        public bool SetTimer(int minutes, int seconds)
         {   
             time = minutes + seconds / 60;
             return true;
         }
     } /* end class microwave*/
 
+
+    class GarageDoor : device
+    {
+        // Attributes
+        public override int getid() { return id; }
+        public override string getDeviceName() { return deviceName; }
+        public override int getRoomID() { return roomID; }
+
+        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public void open()
+        {
+            // implement opens until max height
+            status = true;
+        }
+
+        public void close()
+        {
+            // implement closes until height is 0
+            status = false;
+        }/* end class GarageDoor */
+
+    }
+
+    
     abstract class HVAC
     {
         public int tempCurrent;
@@ -202,6 +259,13 @@ abstract class device
         public int humidityDesired;
 
         public bool isRunning;
+
+        public override int getid() { return id; }
+        public override string getDeviceName() { return deviceName; }
+        public override int getRoomID() { return roomID; }
+
+        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setStatus(bool state) { ;}
 
         public HVAC() {}
 
@@ -235,9 +299,17 @@ abstract class device
 
     abstract class doorLocks
     {
+
+        public override int getid() { return id; }
+        public override string getDeviceName() { return deviceName; }
+        public override int getRoomID() { return roomID; }
+
+        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setStatus(bool state) { ;}
+
         public bool isLocked;
 
-        public doorlocks() {}
+        public void doorlocks() {}
 
         abstract public bool getLockedStatus()
         {
@@ -262,6 +334,13 @@ abstract class device
         public double width;
 
         public bool open;
+
+        public override int getid() { return id; }
+        public override string getDeviceName() { return deviceName; }
+        public override int getRoomID() { return roomID; }
+
+        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setStatus(bool state) { ;}
 
         //public ArrayList  myDoor/Window;
 
@@ -316,9 +395,8 @@ abstract class device
 
         abstract public void SetWidth(double width)
         {
-            this.height = height;
+            this.width = width;
         }
     } /* end class Windows */
 
 }
- /* end class Device */
