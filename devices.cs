@@ -146,5 +146,49 @@ abstract class device
 
 	} /* end class motion sensor */
 
+    abstract class microwave {
+        public int wattage;
+
+        public double time;
+
+        public bool on;
+
+        public string[] command;
+
+        public microwave() {}
+
+        abstract public string[] GetCommands()
+        {
+            return command;
+        }
+
+        abstract public  bool SendCommand(string command)
+        {
+            this.command.Insert(this.command.Count, command);
+        }
+
+        abstract public  bool TurnOn()
+        {
+            on = true;
+            return on;
+        }
+
+        abstract public  bool TurnOff()
+        {
+            on = false;
+            return on;
+        }
+
+        abstract public  bool SetPower(int power)
+        {
+            wattage = power;
+        }
+
+        abstract public  bool SetTimer(int minutes, int seconds)
+        {   
+            time = minutes + seconds / 60;
+            return true;
+        }
+    } /* end class microwave
 
 } /* end class Device */
