@@ -1,3 +1,8 @@
+/*
+STUB implementation of the device list in C Sharp
+Contributors: Pedro Sorto, Steven Cho, Dong Nan.
+*/
+
 abstract class device
 {
     public int deviceType;
