@@ -20,66 +20,23 @@ abstract public class device
 	abstract public class sprinkler
 	{
 
-	public int sprinkler_model;
+	public bool sprinkler_status;
 
 	public sprinkler()
 	{
 	//initialization 
 	}
 
-	abstract public int getSprinklerModel()
+	abstract public void turnOn
 	{
-	return sprinkler_model;
+		sprinkler_status = true;
 	}
-
-	abstract public class client_sprinkler : Sprinkler
-	{
-
-	public bool water_status;
-	public bool sprinkler_state;
-
-	public client_sprinkler()
-	{}	
-		
-	abstract public bool sendWaterStatus()
-	{
-
-	}
-
-	abstract public bool sendSprinklerState()
-	{
-
-	}
-
-	abstract public void setSprinklerState()
-	{
-
-	}
-	} /* end class Client_Sprinkler */
-
-	abstract public class server_sprinkler : Sprinkler
-	{
 	
-	public server_sprinkler()
-	{}
-
-	abstract public void requestWaterStatus()
+	abstract public void turnOff
 	{
-
+		sprinkler_status = false;
 	}
-
-	abstract public void requestSprinklerState()
-	{
-
-	}
-
-	abstract public void sendSprinklerState()
-	{
-
-	}
-	} /* end class Server_Sprinkler */
-
-
+	
 	} /* end class Sprinkler */
 
 	abstract public class alarmSystem
@@ -124,12 +81,12 @@ abstract public class device
 	}
 	} /* end class Alarm System */
 
-	abstract public class lights
+	abstract public class Lights
 	{
 	public bool status;
 	public int brightness_status;
 
-	public lights()
+	public Lights()
 	{
 	}
 
