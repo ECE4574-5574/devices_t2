@@ -32,23 +32,26 @@ abstract public class device
 	return sprinkler_model;
 	}
 
-	abstract public class Client_Sprinkler : Sprinkler
+	abstract public class client_sprinkler : Sprinkler
 	{
 
-	public Boolean water_status;
-	public Boolean sprinkler_state;
+	public bool water_status;
+	public bool sprinkler_state;
 
-	public  Boolean sendWaterStatus()
+	public client_sprinkler()
+	{}	
+		
+	abstract public bool sendWaterStatus()
 	{
 
 	}
 
-	public  Boolean sendSprinklerState()
+	abstract public bool sendSprinklerState()
 	{
 
 	}
 
-	public  void setSprinklerState()
+	abstract public void setSprinklerState()
 	{
 
 	}
@@ -56,6 +59,7 @@ abstract public class device
 
 	abstract public class server_sprinkler : Sprinkler
 	{
+	
 	public server_sprinkler()
 	{}
 
