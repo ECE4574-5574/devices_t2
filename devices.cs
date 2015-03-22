@@ -196,5 +196,134 @@ abstract class device
         }
     } /* end class microwave*/
 
+    abstract class HVAC
+    {
+        public int tempCurrent;
+
+        public int tempDesired;
+
+        public int humidityCurrent;
+
+        public int humidityDesired;
+
+        public bool isRunning;
+
+        public HVAC() {}
+
+        abstract public int getTemperature()
+        {
+            return tempCurrent;
+        }
+
+        abstract public int setTemperature()
+        {
+            tempCurrent = tempDesired;
+            return tempCurrent;
+        }
+
+        abstract public int getHumidity()
+        {
+            return humidityCurrent;
+        }
+
+        abstract public int setHumidity()
+        {
+            humidityCurrent = humidityDesired;
+            return humidityCurrent;
+        }
+
+        abstract public bool getRunningStatus()
+        {
+            return isRunning;
+        }
+    } /* end class HVAC */
+
+    abstract class doorLocks
+    {
+        public bool isLocked;
+
+        public doorlocks() {}
+
+        abstract public bool getLockedStatus()
+        {
+            return isLocked;
+        }
+
+        abstract public  void toggleDoorLocks()
+        {
+            if (isLocked == true)
+                isLocked = false;
+            else
+                isLocked = true;
+        }
+    } /* end class doorLocks */
+
+    abstract class windows
+    {
+        public bool lockable;
+
+        public double height;
+
+        public double width;
+
+        public bool open;
+
+        //public ArrayList  myDoor/Window;
+
+        //public ArrayList  my;
+        public windows() {}
+
+        abstract public  void Open()
+        {
+            open = true;
+        }
+
+        abstract public  void Close()
+        {
+            open = false;
+        }
+
+        abstract public bool isOpen()
+        {
+            if(open == true)
+                return true;
+            else
+                return false;
+        }
+
+        abstract public  void SetLockable(bool lockable)
+        {
+            if(lockable == true)
+                lockable = false;
+            else
+                lockable = true;
+        }
+
+        abstract public bool isLockable()
+        {
+            return lockable;
+        }
+
+        abstract public double GetWidth()
+        {
+            return width;
+        }
+
+        abstract public double GetHeight()
+        {
+            return height;
+        }
+
+        abstract public void SetHeight(double height)
+        {
+            this.height = height;
+        }
+
+        abstract public void SetWidth(double width)
+        {
+            this.height = height;
+        }
+    } /* end class Windows */
+
 }
  /* end class Device */
