@@ -1,3 +1,8 @@
+/*
+STUB implementation of the device list in C Sharp
+Contributors: Pedro Sorto, Steven Cho, Dong Nan.
+*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,10 +13,20 @@ namespace ASSIGN5TEAM2
 {
     class Program
     {
+        class Program
+    {
         static void Main(string[] args)
         {
+            GarageDoor boo = new GarageDoor();
 
+            boo.addDevice(2, "Garage1", 4, false);
+            Console.WriteLine(boo.getid());
+            Console.WriteLine(boo.getDeviceName());
+            Console.WriteLine(boo.getRoomID());
+            Console.WriteLine(boo.getStatus());
         }
+    }
+	
     }
     abstract class device
     {
