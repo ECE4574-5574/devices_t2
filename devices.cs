@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+//using MySql.Data.MySqlClient;
 namespace ASSIGN5TEAM2
 {
     class DeviceAPI
@@ -47,7 +47,7 @@ namespace ASSIGN5TEAM2
         }
                     */
         }
-        public void accessDevAPI() { ;}
+        //public void accessDevAPI(string query, MySqlConnection connection) { ;}
     }
     class GarageDoor : device
     {
