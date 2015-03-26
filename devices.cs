@@ -47,6 +47,7 @@ namespace ASSIGN5TEAM2
         }
                     */
         }
+        public void accessDevAPI() { ;}
     }
     class GarageDoor : device
     {
