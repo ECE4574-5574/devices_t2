@@ -33,7 +33,7 @@ namespace ASSIGN5TEAM2
         public virtual string getDeviceType() { return deviceType; }
         public virtual bool getStatus() {return status;}
         public virtual void setStatus(bool state) {;}
-        public void add(int id, string devType, bool status)
+        public void add_new_device(int id, string devType, bool status)
         {/*
             stringname = "boo";
             stringname2 = String.Concat("boo" , index);
