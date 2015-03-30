@@ -12,56 +12,66 @@ namespace ASSIGN5TEAM2
 {
     class DeviceAPI
     {
-        
+
     }
-    abstract class device
+    public abstract class device
     {
-        protected int id {get; set;}
-        protected string deviceType { get; set; }
-        protected bool status { get; set; }
-        protected string stringname;
-        protected string stringname2; //concatenated string
-        protected int index;
-        public device()
+        protected int id;
+        protected string deviceName;
+        protected string deviceType;
+        protected int roomid;
+        protected bool status;
+
+        protected string [] parsed;
+        protected device(int id2 = 0, string devName = "Nameless", string devType = "Type" , int rid = 0, bool state = false)
         {
-            id = 0; 
-            deviceType = "New Device";
-            status = false;  // open/close, on/off
+            id = id2;
+            deviceName = devName;
+            deviceType = devType;
+            roomid = rid;
+            status = state;  // open/close, on/off
         }
+        
         public virtual void addDevice(int id, string devType, bool status) { ;}
         public virtual int getid() { return id; }
+        public virtual void setid(int id2) { id = id2; }
+        public virtual int getroomid() { return id; }
+        public virtual void setroomid(int rid2) { roomid = rid2; }
+        public virtual string getDeviceName() { return deviceType; }
+        public virtual void setDeviceName(string devName) { deviceName = devName; }
         public virtual string getDeviceType() { return deviceType; }
-        public virtual bool getStatus() {return status;}
-        public virtual void setStatus(bool state) {;}
-        public void add_new_device(int id, string devType, bool status)
-        {/*
-            stringname = "boo";
-            stringname2 = String.Concat("boo" , index);
-            index++;
-            switch(devType){
-                case "garage": GarageDoor boo = new GarageDoor();
-                break;
-
-                case "lights": lights boo2= new lights();
-                break;   
-        }
-                    */
-        }
+        public virtual void setDeviceType(string devType) { deviceType = devType; }
+        public virtual bool getStatus() { return status; }
+        public virtual void setStatus(bool state) { status = state; }
+        /*
+        public void parser(string jsoncmd)
+        {
+            return 
+        }*/
         //public void accessDevAPI(string query, MySqlConnection connection) { ;}
     }
-    class GarageDoor : device
+    class Garagedoor : device
     {
         // Attributes
-        public override void addDevice(int id2, string devType, bool state)
+      
+        public void addDevice(int id2 = 0, string devName = "Nameless", string devType = "Type" , int rid = 0, bool state = false)
         {
-           //base.addDevice(id, devType, rid, status);
             id = id2;
+            deviceName = devName;
             deviceType = devType;
-            status = state;
+            roomid = rid;
+            status = state;  // true/false, open/close, on/off
         }
-        public override int getid() {return id;}
-        public override string getDeviceType() {return deviceType;}
-        public override bool getStatus(){return status;}  // closed = false, open = true 
+
+        public override int getid() { return id; }
+        public override void setid(int id2) { id = id2; }
+        public override int getroomid() { return id; }
+        public override void setroomid(int rid2) { roomid = rid2; }
+        public override string getDeviceName() { return deviceType; }
+        public override void setDeviceName(string devName) { deviceName = devName; }
+        public override string getDeviceType() { return deviceType; }
+        public override void setDeviceType(string devType) { deviceType = devType; }
+        public override bool getStatus() { return status; }
         public void open()
         {
             // implement opens until max height
@@ -75,25 +85,29 @@ namespace ASSIGN5TEAM2
         }/* end class GarageDoor */
 
     }
-    class CelingFan : device
+    class Ceilingfan : device
     {
         // Attributes
-       
+
         public int speed;
-        public override void addDevice(int id2, string devType, bool state)
+        public void addDevice(int id2 = 0, string devName = "Nameless", string devType = "Type" , int rid = 0, bool state = false, int spd = 0)
         {
-            //base.addDevice(id, devType, rid, status);
             id = id2;
+            deviceName = devName;
             deviceType = devType;
-            status = state;
-        }
+            roomid = rid;
+            status = state;  // open/close, on/off
+            speed = spd;
+    }
         public override int getid() { return id; }
+        public override void setid(int id2) { id = id2; }
+        public override int getroomid() { return id; }
+        public override void setroomid(int rid2) { roomid = rid2; }
+        public override string getDeviceName() { return deviceType; }
+        public override void setDeviceName(string devName) { deviceName = devName; }
         public override string getDeviceType() { return deviceType; }
-        public override bool getStatus() { return status; }  // off = false, on = true 
-        public override void setStatus(bool state)
-        {
-            status = state;
-        }
+        public override void setDeviceType(string devType) { deviceType = devType; }
+        public override bool getStatus() { return status; }
         public int getSpeed()
         {
             return speed; // speed from [,]
@@ -107,7 +121,6 @@ namespace ASSIGN5TEAM2
             // turn on the fan
             status = true;
         }
-
         public void turnOff()
         {
             // turn off the fan
@@ -120,18 +133,26 @@ namespace ASSIGN5TEAM2
     {
         // Attributes
         private int temp; // temperature
-        private int filter_status;
-        private bool icemaker_status;
-        public override void addDevice(int id2, string devType, bool state)
+        //private int filter_status;
+        //private bool icemaker_status;
+        public void addDevice(int id2 = 0, string devName = "Nameless", string devType = "Type", int rid = 0, bool state = false, int temp2 = 0)
         {
-            //base.addDevice(id, devType, rid, status);
             id = id2;
+            deviceName = devName;
             deviceType = devType;
-            status = state;
+            roomid = rid;
+            status = state;  // open/close, on/off
+            temp = temp2;
         }
         public override int getid() { return id; }
+        public override void setid(int id2) { id = id2; }
+        public override int getroomid() { return id; }
+        public override void setroomid(int rid2) { roomid = rid2; }
+        public override string getDeviceName() { return deviceType; }
+        public override void setDeviceName(string devName) { deviceName = devName; }
         public override string getDeviceType() { return deviceType; }
-        public override bool getStatus() { return status; }  // off = false, on = true 
+        public override void setDeviceType(string devType) { deviceType = devType; }
+        public override bool getStatus() { return status; }
         public int getTemp() // return temperature
         {
             return temp;
@@ -150,22 +171,30 @@ namespace ASSIGN5TEAM2
             // turn off device
             status = false;
         }
-        
+
     } /* end class Refrigerator */
 
-    class alarmSystem : device
+    class Alarmsystem : device
     {
         //public bool alarm_system_status;
         //public bool arm_status;
-        public override void addDevice(int id2, string devType, bool state)
+        public void addDevice(int id2 = 0, string devName = "Nameless", string devType = "Type", int rid = 0, bool state = false)
         {
             id = id2;
+            deviceName = devName;
             deviceType = devType;
-            status = state;
+            roomid = rid;
+            status = state;  // open/close, on/off
         }
         public override int getid() { return id; }
+        public override void setid(int id2) { id = id2; }
+        public override int getroomid() { return id; }
+        public override void setroomid(int rid2) { roomid = rid2; }
+        public override string getDeviceName() { return deviceType; }
+        public override void setDeviceName(string devName) { deviceName = devName; }
         public override string getDeviceType() { return deviceType; }
-        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setDeviceType(string devType) { deviceType = devType; }
+        public override bool getStatus() { return status; }
         public void turnOn()
         {
             Console.WriteLine("Alarm is on.");
@@ -179,19 +208,28 @@ namespace ASSIGN5TEAM2
         }
     } /* end class Alarm System */
 
-    class lights : device
+    class Light : device
     {
         private int brightness;
 
-        public override void addDevice(int id2, string devType, bool state)
+        public void addDevice(int id2 = 0, string devName = "Nameless", string devType = "Type", int rid = 0, bool state = false, int bright = 0)
         {
             id = id2;
+            deviceName = devName;
             deviceType = devType;
-            status = state;
+            roomid = rid;
+            status = state;  // open/close, on/off
+            brightness = bright;
         }
         public override int getid() { return id; }
+        public override void setid(int id2) { id = id2; }
+        public override int getroomid() { return id; }
+        public override void setroomid(int rid2) { roomid = rid2; }
+        public override string getDeviceName() { return deviceType; }
+        public override void setDeviceName(string devName) { deviceName = devName; }
         public override string getDeviceType() { return deviceType; }
-        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setDeviceType(string devType) { deviceType = devType; }
+        public override bool getStatus() { return status; } // closed = false, open = true 
 
         public int getBrightness()
         {
@@ -211,253 +249,84 @@ namespace ASSIGN5TEAM2
         }
     } /* end class Lights */
 
-    class motionSensor : device
+    class Motionsensor : device
     {
         private bool motion;
-        public override void addDevice(int id2, string devType, bool state)
+        public void addDevice(int id2 = 0, string devName = "Nameless", string devType = "Type", int rid = 0, bool state = false)
         {
             id = id2;
+            deviceName = devName;
             deviceType = devType;
-            status = state;
+            roomid = rid;
+            status = state;  // open/close, on/off
         }
         public override int getid() { return id; }
+        public override void setid(int id2) { id = id2; }
+        public override int getroomid() { return id; }
+        public override void setroomid(int rid2) { roomid = rid2; }
+        public override string getDeviceName() { return deviceType; }
+        public override void setDeviceName(string devName) { deviceName = devName; }
         public override string getDeviceType() { return deviceType; }
+        public override void setDeviceType(string devType) { deviceType = devType; }
         public override bool getStatus() { return status; }  // closed = false, open = true 
 
         public bool getMotion()
         {
+            //trigger when capture movement
             return motion;
         }
-
         public void turnOn()
         {
             status = true;
         }
-
         public void turnOff()
         {
             status = false;
         }
 
     } /* end class motion sensor */
-
-    class microwave : device
+    class Thermostat : device
     {
-        
-        private int wattage;
-        private double time;
-        private string[] command;
-        public override void addDevice(int id2, string devType, bool state)
-        {
-            id = id2;
-            deviceType = devType;
-            status = state;
-        }
-        public override int getid() { return id; }
-        public override string getDeviceType() { return deviceType; }
-        public override bool getStatus() { return status; }  // closed = false, open = true 
-
-        public microwave() {wattage = 0; time = 0; command = null; }
-
-        public string[] getCommands()
-        {
-            return command;
-        }
-
-        public void SendCommand(string command)
-        {
-            // this.command.Insert(this.command.Count, command);
-        }
-
-        public void TurnOn()
-        {
-            status = true;
-        }
-
-        public void TurnOff()
-        {
-            status = false;
-        }
-
-        public void SetPower(int power)
-        {
-            wattage = power;
-        }
-
-        public void setTimer(int minutes, int seconds)
-        {
-            time = minutes + seconds / 60;
-        }
-    } /* end class microwave*/
-
-    class HVAC :device
-    {
-
-
         private int tempCurrent;
-        private int tempDesired;
         private int humidityCurrent;
-        private int humidityDesired;
-
-        public override void addDevice(int id2, string devType, bool state)
+        public void addDevice(int id2 = 0, string devName = "Nameless", string devType = "Type", int rid = 0, bool state = false, int temp2= 0, int hum2= 0)
         {
             id = id2;
+            deviceName = devName;
             deviceType = devType;
-            status = state;
+            roomid = rid;
+            status = state;  // open/close, on/off
+            tempCurrent = temp2;
+            humidityCurrent = hum2;
         }
         public override int getid() { return id; }
+        public override void setid(int id2) { id = id2; }
+        public override int getroomid() { return id; }
+        public override void setroomid(int rid2) { roomid = rid2; }
+        public override string getDeviceName() { return deviceType; }
+        public override void setDeviceName(string devName) { deviceName = devName; }
         public override string getDeviceType() { return deviceType; }
-        public override bool getStatus() { return status; }  // closed = false, open = true 
+        public override void setDeviceType(string devType) { deviceType = devType; }
+        public override bool getStatus() { return status; } // closed = false, open = true 
 
         public int getTemp()
         {
             return tempCurrent;
         }
-
-        public int setTemp()
+        public void setTemp(int tempDesired)
         {
             tempCurrent = tempDesired;
-            return tempCurrent;
         }
-
         public int getHumidity()
         {
             return humidityCurrent;
         }
 
-        public int setHumidity()
+        public void setHumidity(int humidityDesired)
         {
             humidityCurrent = humidityDesired;
-            return humidityCurrent;
         }
-
     } /* end class HVAC */
-
-    class doorLocks : device  // NOT IN USE
-    {
-        public override void addDevice(int id2, string devType, bool state)
-        {
-            id = id2;
-            deviceType = devType;
-            status = state;
-        }
-        public override int getid() { return id; }
-        public override string getDeviceType() { return deviceType; }
-        public override bool getStatus() { return status; }  // closed = false, open = true 
-
-        private bool isLocked;
-        //public void doorlocks() { }
-
-        public bool getLockedStatus()
-        {
-            return isLocked;
-        }
-
-        public void toggleDoorLocks()
-        {
-            if (isLocked == true)
-                isLocked = false;
-            else
-                isLocked = true;
-        }
-    } /* end class doorLocks */
-
-    class windows : device  // NOT IN USE
-    {
-        private bool lockable;
-        private double height;
-        private double width;
-        public override void addDevice(int id2, string devType, bool state)
-        {
-            id = id2;
-            deviceType = devType;
-            status = state;
-        }
-        public override int getid() { return id; }
-        public override string getDeviceType() { return deviceType; }
-        public override bool getStatus() { return status; }  // closed = false, open = true 
-
-        //public ArrayList  myDoor/Window;
-
-        //public ArrayList  my;
-        public windows() { }
-
-        public void Open()
-        {
-            status = true;
-        }
-
-        public void Close()
-        {
-            status = false;
-        }
-
-        public bool isOpen()
-        {
-            if (status == true)
-                return true;
-            else
-                return false;
-        }
-
-        public void setLockable(bool lockable)
-        {
-            if (lockable == true)
-                lockable = false;
-            else
-                lockable = true;
-        }
-
-        public bool isLockable()
-        {
-            return lockable;
-        }
-
-        public double GetWidth()
-        {
-            return width;
-        }
-
-        public double GetHeight()
-        {
-            return height;
-        }
-
-        public void SetHeight(double height)
-        {
-            this.height = height;
-        }
-
-        public void SetWidth(double width)
-        {
-            this.width = width;
-        }
-    } /* end class Windows */
-    class sprinkler : device  // NOT IN USE
-    {
-        //public bool sprinkler_status;
-
-        public override void addDevice(int id2, string devType, bool state)
-        {
-            //base.addDevice(id, devType, rid, status);
-            id = id2;
-            deviceType = devType;
-            status = state;
-        }
-        public override int getid() { return id; }
-        public override string getDeviceType() { return deviceType; }
-
-        public override bool getStatus() { return status; }  // closed = false, open = true 
-        public void turnOn()
-        {
-            status = true;
-        }
-
-        public void turnOff()
-        {
-            status = false;
-        }
-    } /* end class Sprinkler */
 }
 
 
