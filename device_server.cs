@@ -38,13 +38,14 @@ namespace device_server
 
         private static int MAX_POST_SIZE = 10 * 1024 * 1024; // 10MB
 
+        //initializes the server
         public HttpProcessor(TcpClient s, HttpServer srv)
         {
             this.socket = s;
             this.srv = srv;
         }
 
-
+        //reads string from the stream (in json format)
         private string streamReadLine(Stream inputStream)
         {
             int next_char;
@@ -59,6 +60,7 @@ namespace device_server
             }
             return data;
         }
+        //determines whether to get or post
         public void process()
         {
             inputStream = new BufferedStream(socket.GetStream());
@@ -83,11 +85,11 @@ namespace device_server
                 writeFailure();
             }
             outputStream.Flush();
-            // bs.Flush(); // flush any remaining output
-            inputStream = null; outputStream = null; // bs = null;            
+            inputStream = null; 
+            outputStream = null;         
             socket.Close();
         }
-
+        //makes sure the request is valid
         public void parseRequest()
         {
             String request = streamReadLine(inputStream);
@@ -102,7 +104,7 @@ namespace device_server
 
             Console.WriteLine("starting: " + request);
         }
-
+        //reads the headers
         public void readHeaders()
         {
             Console.WriteLine("readHeaders()");
@@ -124,7 +126,7 @@ namespace device_server
                 int pos = separator + 1;
                 while ((pos < line.Length) && (line[pos] == ' '))
                 {
-                    pos++; // strip any spaces
+                    pos++; //remove any spaces
                 }
 
                 string value = line.Substring(pos, line.Length - pos);
@@ -139,19 +141,22 @@ namespace device_server
         }
 
         private const int BUF_SIZE = 4096;
+
+        //posts the string (in json format) to the server.
         public void handlePOSTRequest()
         {
             
             Console.WriteLine("get post data start");
             int content_len = 0;
             MemoryStream ms = new MemoryStream();
+            //gets length of message
             if (this.httpHeaders.ContainsKey("Content-Length"))
             {
                 content_len = Convert.ToInt32(this.httpHeaders["Content-Length"]);
                 if (content_len > MAX_POST_SIZE)
                 {
                     throw new Exception(
-                        String.Format("POST Content-Length({0}) too big for this simple server",
+                        String.Format("POST Content-Length({0}) too big for this server",
                           content_len));
                 }
                 byte[] buf = new byte[BUF_SIZE];
@@ -187,21 +192,18 @@ namespace device_server
         {
             // this is the successful HTTP response line
             outputStream.WriteLine("HTTP/1.0 200 OK");
-            // these are the HTTP headers...          
+            // these are the HTTP headers          
             outputStream.WriteLine("Content-Type: " + content_type);
             outputStream.WriteLine("Connection: close");
-            // ..add your own headers here if you like
 
-            outputStream.WriteLine(""); // this terminates the HTTP headers.. everything after this is HTTP body..
+            outputStream.WriteLine(""); // this terminates the HTTP headers
         }
 
         public void writeFailure()
         {
             // this is an http 404 failure response
             outputStream.WriteLine("HTTP/1.0 404 File not found");
-            // these are the HTTP headers
             outputStream.WriteLine("Connection: close");
-            // ..add your own headers here
 
             outputStream.WriteLine(""); // this terminates the HTTP headers.
         }
@@ -218,10 +220,10 @@ namespace device_server
         {
             this.port = port;
         }
-
+        //determines if there is a message to be posted or received
         public void listen()
         {
-            listener = new TcpListener(port);
+            listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
             while (is_active)
             {
@@ -232,7 +234,7 @@ namespace device_server
                 Thread.Sleep(1);
             }
         }
-
+        //actually does the checking
         public abstract void handleGETRequest(HttpProcessor p);
         public abstract void handlePOSTRequest(HttpProcessor p, StreamReader inputData);
     }
@@ -245,9 +247,6 @@ namespace device_server
         }
         public override void handleGETRequest(HttpProcessor p)
         {
-
-      
-
             Console.WriteLine("request: {0}", p.http_url);
             p.writeSuccess();
             p.outputStream.WriteLine("<html><body><h1>Device Server</h1>");
@@ -261,15 +260,13 @@ namespace device_server
 
             p.writeSuccess();
             p.outputStream.WriteLine("<html><body><h1>TEST SERVER</h1>");
-         //   p.outputStream.WriteLine("<a href=/test>return</a><p>");
-         //   p.outputStream.WriteLine("postbody: <pre>{0}</pre>", data);
-
-
+       
         }
     }
 
     public class TestMain
     {
+        //initializes and starts thread
         public static int Main(String[] args)
         {
             HttpServer httpServer;
@@ -279,7 +276,7 @@ namespace device_server
             }
             else
             {
-                httpServer = new MyHttpServer(9090);
+                httpServer = new MyHttpServer(8080);
             }
             Thread thread = new Thread(new ThreadStart(httpServer.listen));
             thread.Start();
