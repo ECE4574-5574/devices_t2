@@ -1,3 +1,6 @@
+// Parser and sends to Server API if connection available.  Takes in string and converts to usable variables
+// In this simulation we will use strings from a command line.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
