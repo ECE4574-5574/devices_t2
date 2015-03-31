@@ -13,12 +13,16 @@ namespace ASSIGN5TEAM2
     {
         static void Main(string[] args)
         {
+
+
+
+
             //string json = Console.In.ReadToEnd();
             //WebClient c = new WebClient();
             //var json = c.DownloadString("simharn_url");
             //Houses house = JsonConvert.DeserializeObject<Houses>(json);
 
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://url");
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://5574serverapi.azurewebsites.net/");
             httpWebRequest.ContentType = "text/json";
             httpWebRequest.Method = "POST";
 
