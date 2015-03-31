@@ -1,4 +1,5 @@
 /*
+Declaration of all devices and the unique classes that inherit from device class.
 STUB implementation of the device list in C Sharp
 Contributors: Pedro Sorto, Steven Cho, Dong Nan, Aakruthi Gopisetty, Kara Dodenhoff and Danny Mota
 */
