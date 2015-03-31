@@ -5,34 +5,24 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using System.IO;
 //using MySql.Data.MySqlClient; 
 namespace ASSIGN5TEAM2
 {
-    class DeviceMedium : DeviceAPI
+    class DeviceMedium : device
     {
-        static void Main()
+        static void Main(string[] args)
         {
-     
             //string json = Console.In.ReadToEnd();
             //WebClient c = new WebClient();
             //var json = c.DownloadString("simharn_url");
             //Houses house = JsonConvert.DeserializeObject<Houses>(json);
-            
-           // devices deviceJ = JsonConvert.DeserializeObject<devices>(json);
-            //bool run = true; while loop testing
-            string answer, output;
+
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://url");
+            httpWebRequest.ContentType = "text/json";
+            httpWebRequest.Method = "POST";
 
 
-            string devid, devName, type //garage, light, thermostat, alarmsystem, motionsensor, refrigerator, etc 
-                , roomid, state;
-            string brightness, speed, temp;
-            int conid, conroom , conbri = 0, conspeed = 0, contemp = 0;
-            bool boolVal;
-
-            
-            //Console.WriteLine("Enter devid:");
-            
-            
             /*
             type = dev_types;
             if (type == Lightss)
@@ -71,21 +61,72 @@ namespace ASSIGN5TEAM2
 
             }
             */
+            string answer, output, push;
+            string devid, devName, type, roomid, state; //garage, light, thermostat, alarmsystem, motionsensor, refrigerator, etc 
+            string brightness, speed, temp;
+            int conid, conroom, conbri = 0, conspeed = 0, contemp = 0;
+            bool status;
+            Console.WriteLine("Enter dev_types:");
+            type = Console.ReadLine();
+
+
             switch (type)
             {
-                
+                // assuming no device id we need request (output)
                 case "light":
                     Light boo2 = new Light();
+                    Console.WriteLine("Enter devid:");
+                    devid = Console.ReadLine();
+                    conid = Convert.ToInt32(devid);
+                    Console.WriteLine("Enter dev_name:");
+                    devName = Console.ReadLine();
+                    Console.WriteLine("Enter roomid:");
+                    roomid = Console.ReadLine();
+                    conroom = Convert.ToInt32(roomid);
+                    Console.WriteLine("Enter status:");
+                    state = Console.ReadLine();
+                    if (state == "true")
+                    {
+                        status = true;
+                    }
+                    else
+                    {
+                        status = false;
+                    }
+                    Console.WriteLine("Enter brightness:");
+                    brightness = Console.ReadLine();
+                    conbri = Convert.ToInt32(brightness);
+
                     output = JsonConvert.SerializeObject(boo2);
-                    boo2.addDevice(conid, devName, type, conroom, boolVal, conbri);
+                    boo2.addDevice(conid, devName, type, conroom, status, conbri);
+                    push = JsonConvert.SerializeObject(boo2);
+                    using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                    {
+                        string json = "{\"devid\":\"test\"," +
+                                      "\"devname\":\"bla\"," +
+                                      "\"devtype\":\"bla2\"," +
+                                      "\"roomid\":\"bla3\"." +
+                                      "\"status\":\"bla4\"," +
+                                      "\"brightness\":\"bla5\"}";
+                        streamWriter.Write(json);
+                        streamWriter.Flush();
+                        streamWriter.Close();
+                    }
+
+                    var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                    {
+                        var result = streamReader.ReadToEnd();
+                    }
                     Console.WriteLine(boo2.getid());
                     Console.WriteLine(boo2.getDeviceType());
                     Console.WriteLine(boo2.getStatus());
+                    Console.WriteLine(boo2.getBrightness());
                     break;
                 case "ceilingfan":
                     Ceilingfan boo3 = new Ceilingfan();
                     output = JsonConvert.SerializeObject(boo3);
-                    boo3.addDevice(conid, devName, type, conroom, boolVal);
+                    // boo3.addDevice(output, devName, type, conroom, boolVal);
                     Console.WriteLine(boo3.getid());
                     Console.WriteLine(boo3.getDeviceType());
                     Console.WriteLine(boo3.getStatus());
@@ -93,16 +134,19 @@ namespace ASSIGN5TEAM2
                 case "garage":
                     Garagedoor boo = new Garagedoor();
                     output = JsonConvert.SerializeObject(boo);
-                    boo.addDevice(conid, devName, type, conroom, boolVal);
+                    //get deviceid server api
+                    // boo.addDevice(output, devName, type, conroom, boolVal);
+
                     Console.WriteLine(boo.getid());
                     Console.WriteLine(boo.getDeviceType());
                     Console.WriteLine(boo.getStatus());
-                    break;     
+
+                    break;
 
                 default:
                     break;
             }
-           
+
         }
 
 
