@@ -1,3 +1,6 @@
+// accepts json strings and parses in order to create the respective device objects.
+// contributers: Steven Cho, Nan Dong, Aakruthi Gopisetty
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,107 +8,223 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using System.IO;
 //using MySql.Data.MySqlClient; 
 namespace ASSIGN5TEAM2
 {
-    class DeviceMedium : DeviceAPI
+    class DeviceMedium : device
     {
-        static void Main()
+        static void Main(string[] args)
         {
-     
-            //string json = Console.In.ReadToEnd();
+
+            //string output, push;
+            string devid;
+            string devName, type, state; //garage, light, thermostat, alarmsystem, motionsensor, refrigerator, etc 
+            string brightness, speed, temp;
+            int conid, conbri = 0, conspeed = 0, contemp = 0;
+            bool status;
+
+            string input = Console.In.ReadToEnd();
             //WebClient c = new WebClient();
             //var json = c.DownloadString("simharn_url");
-            //Houses house = JsonConvert.DeserializeObject<Houses>(json);
-            
-           // devices deviceJ = JsonConvert.DeserializeObject<devices>(json);
-            //bool run = true; while loop testing
-            string answer, output;
+            Houses house = JsonConvert.DeserializeObject<Houses>(input);
 
+            string json;
 
-            string devid, devName, type //garage, light, thermostat, alarmsystem, motionsensor, refrigerator, etc 
-                , roomid, state;
-            string brightness, speed, temp;
-            int conid, conroom , conbri = 0, conspeed = 0, contemp = 0;
-            bool boolVal;
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://5574serverapi.azurewebsites.net/");
+            httpWebRequest.ContentType = "text/json";
+            httpWebRequest.Method = "POST";
 
-            
-            //Console.WriteLine("Enter devid:");
-            
+            //var httpResponse;
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
 
-            
-            type = dev_types;
-            if (type == Lightss)
+            Garagedoor boo;
+            Light boo2;
+            Ceilingfan boo3;
+            Thermostat boo4;
+            Alarmsystem boo5;
+            Refrigerator boo7;
+            Motionsensor boo8;
+            devices dlist = new devices();
+            type = dlist.dev_types.ToString();
+            if (type == "Lightss")
             {
-
-                //devid = //deserialize(;
-                conid = Convert.ToInt32(devid);
-                devName = house.light_name;
-                //roomid = house.light_room;
-                //conroom = Convert.ToInt32(roomid);
-                state = house.light_startstate;
-                brightness = house.light_brightness;
+                boo2 = new Light();
+                devName = boo2.light_name;
+                state = boo2.light_startstate;
+                brightness = boo2.light_brightness;
                 conbri = Convert.ToInt32(brightness);
+                if (state == "true")
+                {
+                    status = true;
+                }
+                else
+                {
+                    status = false;
+                }
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    devid = streamReader.ReadToEnd();
+                }
+                conid = Convert.ToInt32(devid);
+                conbri = Convert.ToInt32(brightness);
+                boo2.addDevice(conid, devName, type, status, conbri);
+                json = JsonConvert.SerializeObject(boo2);
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    json = "{\"devid\":\"bla0\"," +
+                                  "\"devname\":\"bla1\"," +
+                                  "\"devtype\":\"bla2\"," +
+                                  "\"status\":\"bla4\"}";
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
             }
-            else if (type == Ceilingfans)
+            else if (type == "Ceilingfans")
             {
-                //devid, 
-                devName = house.cf_name;
-                //roomid = house.dev_id;
-                //conroom = Convert.ToInt32(roomid);
-                state = house.cf_startstate;
-                speed = cf_speed;
+                boo3 = new Ceilingfan();
+                devName = boo3.cf_name;
+                state = boo3.cf_startstate;
+                speed = boo3.cf_speed;
                 conspeed = Convert.ToInt32(speed);
+                if (state == "true")
+                {
+                    status = true;
+                }
+                else
+                {
+                    status = false;
+                }
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    devid = streamReader.ReadToEnd();
+                }
+                conid = Convert.ToInt32(devid);
+                boo3.addDevice(conid, devName, type, status);
+                json = JsonConvert.SerializeObject(boo3);
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    json = "{\"devid\":\"bla0\"," +
+                                  "\"devname\":\"bla1\"," +
+                                  "\"devtype\":\"bla2\"," +
+                                  "\"status\":\"bla4\"}";
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
             }
-            else if (type == "thermostat")
+            else if (type == "Thermostats")
             {
-                devName = house.t_name;
-                //roomid = house.t_room;
-                //conroom = Convert.ToInt32(roomid);
-                state = house.t_startstate;
-                temp = house.t_temp;
+                boo4 = new Thermostat();
+                devName = boo4.t_name;
+                state = boo4.t_startstate;
+                temp = boo4.t_temp;
                 contemp = Convert.ToInt32(temp);
+
             }
-            else
+            else if (type == "Garagedoor")
             {
+                boo = new Garagedoor();
+                devName = boo.gd_name;
+                state = boo.gd_startstate;
+                if (state == "true")
+                {
+                    status = true;
+                }
+                else
+                {
+                    status = false;
+                }
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    devid = streamReader.ReadToEnd();
+                }
+                conid = Convert.ToInt32(devid);
+                boo.addDevice(conid, devName, type, status);
+                json = JsonConvert.SerializeObject(boo);
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    json = "{\"devid\":\"bla0\"," +
+                                  "\"devname\":\"bla1\"," +
+                                  "\"devtype\":\"bla2\"," +
+                                  "\"status\":\"bla4\"," +
+                                  "\"brightness\":\"bla5\"}";
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
 
             }
-
-            switch (type)
+            else if (type == "Alarmsystems")
             {
-                
-                case "light":
-                    Lights boo2 = new Lights();
-                    output = JsonConvert.SerializeObject(boo2);
-                    boo2.addDevice(conid, devName, type, conroom, boolVal, conbri);
-                    Console.WriteLine(boo2.getid());
-                    Console.WriteLine(boo2.getDeviceType());
-                    Console.WriteLine(boo2.getStatus());
-                    break;
-                case "ceilingfan":
-                    Ceilingfan boo3 = new Ceilingfan();
-                    output = JsonConvert.SerializeObject(boo3);
-                    boo3.addDevice(conid, devName, type, conroom, boolVal);
-                    Console.WriteLine(boo3.getid());
-                    Console.WriteLine(boo3.getDeviceType());
-                    Console.WriteLine(boo3.getStatus());
-                    break;
-                case "garage":
-                    Garagedoor boo = new Garagedoor();
-                    output = JsonConvert.SerializeObject(boo);
-                    boo.addDevice(conid, devName, type, conroom, boolVal);
-                    Console.WriteLine(boo.getid());
-                    Console.WriteLine(boo.getDeviceType());
-                    Console.WriteLine(boo.getStatus());
-                    break;     
-
-                default:
-                    break;
+                boo5 = new Alarmsystem();
+                devName = boo5.a_name;
+                state = boo5.a_startstate;
             }
-           
+            else if (type == "Motionsensors")
+            {
+                boo8 = new Motionsensor();
+                devName = boo8.m_name;
+                state = boo8.m_startstate;
+                if (state == "true")
+                {
+                    status = true;
+                }
+                else
+                {
+                    status = false;
+                }
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    devid = streamReader.ReadToEnd();
+                }
+                conid = Convert.ToInt32(devid);
+                boo8.addDevice(conid, devName, type, status);
+                json = JsonConvert.SerializeObject(boo8);
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    json = "{\"devid\":\"bla0\"," +
+                                  "\"devname\":\"bla1\"," +
+                                  "\"devtype\":\"bla2\"," +
+                                  "\"status\":\"bla4\"}";
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+            }
+            else if (type == "Refrigerators")
+            {
+                boo7 = new Refrigerator();
+                devName = boo7.r_name;
+                state = boo7.r_startstate;
+                if (state == "true")
+                {
+                    status = true;
+                }
+                else
+                {
+                    status = false;
+                }
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    devid = streamReader.ReadToEnd();
+                }
+                conid = Convert.ToInt32(devid);
+                boo7.addDevice(conid, devName, type, status);
+                json = JsonConvert.SerializeObject(boo7);
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    json = "{\"devid\":\"bla0\"," +
+                                  "\"devname\":\"bla1\"," +
+                                  "\"devtype\":\"bla2\"," +
+                                  "\"status\":\"bla4\"}";
+                    streamWriter.Write(json);
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                }
+            }
+
         }
-
-
     }
-
 }
