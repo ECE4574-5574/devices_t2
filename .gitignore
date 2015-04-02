@@ -1,0 +1,9 @@
+**/packages/
+*.dll
+*.mdb
+*.pidb
+*.userprefs
+**/obj/
+**/bin/
+**/Components/
+\.keystore$
