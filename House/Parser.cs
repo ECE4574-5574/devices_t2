@@ -9,12 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.IO;
-//using MySql.Data.MySqlClient; 
 namespace ASSIGN5TEAM2
 {
     class DeviceMedium : device
     {
-        static void Main(string[] args)
+        static void ParserMain(string[] args)
         {
 
             //string output, push;

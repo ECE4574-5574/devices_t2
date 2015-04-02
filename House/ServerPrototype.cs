@@ -129,6 +129,7 @@ namespace Server
 		public device handleGETRequest()
 		{
 			srv.handleGETRequest(this);
+            return null;
 		}
 		private const int BUF_SIZE = 4096;
 		//posts the string (in json format) to the server.
@@ -234,7 +235,7 @@ namespace Server
 			//write serialized device to server
 			Console.WriteLine("request: {0}", p.http_url);
 			p.writeSuccess();
-			p.outputStream.WriteLine(JsonConvert.SerializeObject(d));
+			//p.outputStream.WriteLine(JsonConvert.SerializeObject(d));
 			p.outputStream.WriteLine("<html><body><h1>Device Server</h1>");
 
 		}
@@ -260,7 +261,7 @@ namespace Server
 			{
 				httpServer = new MyHttpServer(8080);
 			}
-			device pdevice = args [1];
+			//device pdevice = args [1];
 
 			Thread thread = new Thread(new ThreadStart(httpServer.listen));
 			thread.Start();
