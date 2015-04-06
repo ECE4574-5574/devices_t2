@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api.csproj", "{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "House", "House\House.csproj", "{06B90FEF-286A-4D04-A6EB-318BC88942BA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api.csproj", "{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}"
@@ -18,12 +16,8 @@ Global
 		{06B90FEF-286A-4D04-A6EB-318BC88942BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06B90FEF-286A-4D04-A6EB-318BC88942BA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
