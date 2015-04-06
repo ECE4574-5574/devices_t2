@@ -19,23 +19,25 @@ public class Interfaces
 	Device createDevice(Uri address, string name, string type, UInt64 house_id, UInt64 room_id = 0)
 	{
 		//TODO: Post to Server API to request the device be recorded, and get the device.
-		var device = (Device)Activator.CreateInstance(type);
-		return null;
+		var device = (Device)Activator.CreateInstance(Type.GetType(type));
+		return device;
 	}
 
 	/**
 	 * Function to get a list of devices from the server, given parameters
 	 */
-	List<Device> getDevices(UInt64 houseID, UInt64 RoomID = null)
+	List<Device> getDevices(UInt64 houseID)
 	{
-		if(!RoomID)
-		{
-			//TODO: Query all devices in the house
-		}
-		else
-		{
-			//TODO: Query all devices in a given room.
-		}	
+		var devices = new List<Device>();
+		//TODO: Query all devices in a given house.
+		return devices;
+	}
+
+	List<Device> getDevices(UInt64 houseID, UInt64 roomID)
+	{
+		var devices = new List<Device>();
+		//TODO: Query all devices in a given room.
+		return devices;
 	}
 }
 }
