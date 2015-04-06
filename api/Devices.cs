@@ -1,14 +1,17 @@
 /*
-Declaration of all devices and the unique classes that inherit from device class that hold parameters and 
-characteristics of each device.
-STUB implementation of the device list in C Sharp
-Contributors: Pedro Sorto, Steven Cho, Dong Nan, Aakruthi Gopisetty, Kara Dodenhoff and Danny Mota
+ * Declaration of all devices and the unique classes that inherit from device class that hold parameters and 
+ * characteristics of each device.
+ * Contributors:
+ *   Pedro Sorto
+ *   Steven Cho
+ *   Dong Nan
+ *   Aakruthi Gopisetty
+ *   Kara Dodenhoff
+ *   Danny Mota
+ *   Jason Ziglar <jpz@vt.edu>
 */
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace api
 {
@@ -55,7 +58,18 @@ namespace api
      */
     public abstract class Device
     {
-		public Tuple<UInt64, UInt64> ID
+		public UInt64 HouseID
+		{
+			get;
+			set;
+		}
+		public UInt64 RoomID
+		{
+			get;
+			set;
+		}
+
+		public UInt64 DeviceID
 		{
 			get;
 			set;
@@ -65,7 +79,6 @@ namespace api
 			get;
 			set;
 		}
-
 		public string Type
 		{
 			get;
@@ -73,6 +86,9 @@ namespace api
 		}
     }
 
+	/**
+	 * Class representing a garage door in the house.
+	 */
     public class GarageDoor : Device, IEnableable
     {
         public bool Enabled
@@ -81,6 +97,10 @@ namespace api
             set;
         }
     }
+
+	/**
+	 * A ceiling fan, which
+	 */
     public class CeilingFan : Device, IEnableable, IDiscreteSetting
     {
         // Attributes
