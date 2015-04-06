@@ -15,169 +15,218 @@ using System.Collections.Generic;
 
 namespace api
 {
-    /**
-     * Represents a device which can be enabled or disabled.
-     */
-    interface IEnableable
-    {
-        bool Enabled
-        {
-            get;
-            set;
-        }
-    };
+/**
+ * Represents a device which can be enabled or disabled.
+ */
+interface IEnableable
+{
+	bool Enabled
+	{
+		get;
+		set;
+	}
+};
 
-    /**
-     * Interface defining an object which can accept some number of discrete states
-     */
-    interface IDiscreteSetting
-    {
-        Int64 State
-        {
-            get;
-            set;
-        }
+/**
+ * Interface defining an object which can accept some number of discrete states
+ */
+interface IDiscreteSetting
+{
+	/**
+	 * Discrete State of this device.
+	 */
+	Int64 State
+	{
+		get;
+		set;
+	}
 
-        Int64 MinState();
-        Int64 MaxState();
-    };
+	//! Minimum value this particular device will accept
+	Int64 MinState();
+	//! Maximum value this device will accept
+	Int64 MaxState();
+};
 
-    /**
-     * Interface defining how to set a set point for the behavior of a given Device
-     */
-    interface ISetPointable
-    {
-        Int64 SetPoint
-        {
-            get;
-            set;
-        }
-    }
-    /**
-     * Base class representing the common parameters for any given device. All Devices inherit from this
-     */
-    public abstract class Device
-    {
-		public UInt64 HouseID
-		{
-			get;
-			set;
-		}
-		public UInt64 RoomID
-		{
-			get;
-			set;
-		}
+/**
+ * Interface defining how to set a set point for the behavior of a given Device
+ */
+interface ISetPointable
+{
+	/**
+	 * Target set point of this device. For example, the set point of a thermostat
+	 */
+	Int64 SetPoint
+	{
+		get;
+		set;
+	}
+}
 
-		public UInt64 DeviceID
-		{
-			get;
-			set;
-		}
-		public string Name
-		{
-			get;
-			set;
-		}
-		public string Type
-		{
-			get;
-			set;
-		}
-    }
+/**
+ * Base class representing the common parameters for any given device. All Devices inherit from this
+ */
+public abstract class Device
+{
+	/**
+	 * Identifier for the house this device is contained within
+	 */
+	public UInt64 HouseID
+	{
+		get;
+		set;
+	}
 
 	/**
-	 * Class representing a garage door in the house.
+	 * Identifier for the room in which a device is contained.
+	 * The value 0 represents a device which isn't assigned to a specific room.
 	 */
-    public class GarageDoor : Device, IEnableable
-    {
-        public bool Enabled
-        {
-            get;
-            set;
-        }
-    }
+	public UInt64 RoomID
+	{
+		get;
+		set;
+	}
 
 	/**
-	 * A ceiling fan, which
+	 * House specific identifier for this device. This requires the previous two
+	 * IDs in order to uniquely identify this particular device.
 	 */
-    public class CeilingFan : Device, IEnableable, IDiscreteSetting
-    {
-        // Attributes
-        public bool Enabled
-        {
-            get;
-            set;
-        }
-        public Int64 State
-        {
-            get;
-            set;
-        }
-        public Int64 MinState()
-        {
-            return 0;
-        }
+	public UInt64 DeviceID
+	{
+		get;
+		set;
+	}
 
-        public Int64 MaxState()
-        {
-            return 100;
-        }
-    }
+	/**
+	 * User friendly name for this device.
+	 */
+	public string Name
+	{
+		get;
+		set;
+	}
+}
 
-    public class Refrigerator : Device, ISetPointable
-    {
-        public Int64 SetPoint
-        {
-            get;
-            set;
-        }
-    }
+/**
+ * Class representing a garage door in the house.
+ */
+public class GarageDoor : Device, IEnableable
+{
+	public bool Enabled
+	{
+		get;
+		set;
+	}
+}
 
-    public class AlarmSystem : Device, IEnableable
-    {
-        public bool Enabled
-        {
-            get;
-            set;
-        }
-    }
+/**
+ * A ceiling fan, which can be turned on and off, and also have a speed setting
+ */
+public class CeilingFan : Device, IEnableable, IDiscreteSetting
+{
+	public bool Enabled
+	{
+		get;
+		set;
+	}
 
-    public class Light : Device, IEnableable
-    {
-        public bool Enabled
-        {
-            get;
-            set;
-        }
-    }
+	public Int64 State
+	{
+		get;
+		set;
+	}
 
-    public class MotionSensor : Device, IEnableable
-    {
-        public bool Enabled
-        {
-            get;
-            set;
-        }
-    }
-    public class Thermostat : Device, ISetPointable
-    {
-        public Int64 SetPoint
-        {
-            get;
-            set;
-        }
-        public Int64 CurrentTemp
-        {
-            get
-            {
-                return _temp;
-            }
-            set
-            {
-            } //Cannot set temperature externally
-        }
+	public Int64 MinState()
+	{
+		return 0;
+	}
 
-        protected Int64 _temp;
-    }
+	public Int64 MaxState()
+	{
+		return 100;
+	}
+}
+
+/**
+ * A smart refrigerator which lets you get/set the temperature setpoint
+ */
+public class Refrigerator : Device, ISetPointable, IDiscreteSetting
+{
+	public Int64 SetPoint
+	{
+		get;
+		set;
+	}
+
+	public Int64 State
+	{
+		get;
+		set;
+	}
+
+	public Int64 MinState()
+	{
+		return -100;
+	}
+	public Int64 MaxState()
+	{
+		return 200;
+	}
+}
+
+/**
+ * Alarm which can be enabled/disabled
+ */
+public class AlarmSystem : Device, IEnableable
+{
+	public bool Enabled
+	{
+		get;
+		set;
+	}
+}
+
+/**
+ * Binary light switch.
+ */
+public class LightSwitch : Device, IEnableable
+{
+	public bool Enabled
+	{
+		get;
+		set;
+	}
+}
+
+/**
+ * Thermostat for a house, which can have a setpoint and a measured value
+ */
+public class Thermostat : Device, IEnableable, ISetPointable, IDiscreteSetting
+{
+	public bool Enabled
+	{
+		get;
+		set;
+	}
+
+	public Int64 SetPoint
+	{
+		get;
+		set;
+	}
+
+	public Int64 State
+	{
+		get;
+		set;
+	}
+
+	public Int64 MinState()
+	{
+		return -100;
+	}
+	public Int64 MaxState()
+	{
+		return 200;
+	}
+}
 }
