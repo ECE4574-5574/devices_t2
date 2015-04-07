@@ -2,9 +2,12 @@
 using System.Net.Http;
 using System.Collections.Generic;
 using api;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace api
 {
+
 public class Interfaces
 {
 	protected HttpClient _http;
