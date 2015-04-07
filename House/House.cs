@@ -18,16 +18,14 @@ using NDesk.Options;
 
 namespace House
 {
-	public class HouseMain
+public class HouseMain
+{
+	//initializes and starts thread
+	public static int Main(String[] args)
 	{
-		//initializes and starts thread
-		public static int Main(String[] args)
-		{
-            bool show_help = false;
-            Dictionary<string, string> config = new Dictionary<string, string>();
-            var optargs = new OptionSet()
-            {
-                {"t|test_scenario=","JSON blob representing the entire test scenario to run", v => config.Add("test_scenario", v) },
+		bool show_help = false;
+		Dictionary<string, string> config = new Dictionary<string, string>();
+		var optargs = new OptionSet() { {"t|test_scenario=","JSON blob representing the entire test scenario to run", v => config.Add("test_scenario", v) },
                 {"i|house_id=", "Unique identifier for the house to simulate from the scenario", v => config.Add("house_id", v) },
                 {"h|help", "Display the help message", v => show_help = v != null },
             };
