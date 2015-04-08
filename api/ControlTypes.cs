@@ -37,7 +37,7 @@ public class Temperature : ControlTypes
 	/**
 	 * Generic accessor, which returns underlying measure without explicit type.
 	 */
-	public Temp
+	public double Temp
 	{
 		get
 		{
