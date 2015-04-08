@@ -50,25 +50,35 @@ interface IDiscreteSetting
 /**
  * Interface defining how to set a set point for the behavior of a given Device
  */
-interface ISetPointable
+interface ISetPointable<Type> where Type : ControlTypes
 {
 	/**
 	 * Target set point of this device. For example, the set point of a thermostat
 	 */
-	Int64 SetPoint
+	Type SetPoint
 	{
 		get;
 		set;
 	}
 }
 
+/**
+ * Class which represents the ability to read a particular type of data.
+ */
+interface IReadable<Type> where Type : ControlTypes
+{
+	Type Value
+	{
+		get;
+	}
+}
 
-public class DeviceID
+public class FullID
 {
 	/**
 	 * Identifier for the house this device is contained within
 	 */
-	public UInt64 House
+	public UInt64 HouseID
 	{
 		get;
 		set;
@@ -86,18 +96,35 @@ public class DeviceID
 	 * House specific identifier for this device. This requires the previous two
 	 * IDs in order to uniquely identify this particular device.
 	 */
-	public UInt64 Device
+	public UInt64 DeviceID
 	{
 		get;
 		set;
 	}
 }
+
+public interface IDeviceOutput
+{
+	bool write(Device dev);
+}
+
+public interface IDeviceInput
+{
+	bool read(Device dev);
+}
+
 /**
  * Base class representing the common parameters for any given device. All Devices inherit from this
  */
 public abstract class Device
 {
-	public DeviceID ID
+	public Device(IDeviceInput inp, IDeviceOutput outp)
+	{
+		_in = inp;
+		_out = outp;
+	}
+
+	public FullID ID
 	{
 		get;
 		set;
@@ -111,6 +138,9 @@ public abstract class Device
 		get;
 		set;
 	}
+
+	protected IDeviceInput _in;
+	protected IDeviceOutput _out;
 }
 
 /**
@@ -118,6 +148,11 @@ public abstract class Device
  */
 public class GarageDoor : Device, IEnableable
 {
+	public GarageDoor(IDeviceInput inp, IDeviceOutput outp) :
+	base(inp, outp)
+	{
+	}
+
 	public bool Enabled
 	{
 		get;
@@ -130,6 +165,10 @@ public class GarageDoor : Device, IEnableable
  */
 public class CeilingFan : Device, IEnableable, IDiscreteSetting
 {
+	public CeilingFan(IDeviceInput inp, IDeviceOutput outp) :
+	base(inp, outp)
+	{
+	}
 	public bool Enabled
 	{
 		get;
@@ -154,37 +193,15 @@ public class CeilingFan : Device, IEnableable, IDiscreteSetting
 }
 
 /**
- * A smart refrigerator which lets you get/set the temperature setpoint
- */
-public class Refrigerator : Device, ISetPointable, IDiscreteSetting
-{
-	public Int64 SetPoint
-	{
-		get;
-		set;
-	}
-
-	public Int64 State
-	{
-		get;
-		set;
-	}
-
-	public Int64 MinState()
-	{
-		return -100;
-	}
-	public Int64 MaxState()
-	{
-		return 200;
-	}
-}
-
-/**
  * Alarm which can be enabled/disabled
  */
 public class AlarmSystem : Device, IEnableable
 {
+	public AlarmSystem(IDeviceInput inp, IDeviceOutput outp) :
+	base(inp, outp)
+	{
+	}
+
 	public bool Enabled
 	{
 		get;
@@ -195,36 +212,73 @@ public class AlarmSystem : Device, IEnableable
 /**
  * Binary light switch.
  */
-public class LightSwitch : Device, IEnableable
+public class LightSwitch : Device, IEnableable, IReadable<Light>
 {
+	public LightSwitch(IDeviceInput inp, IDeviceOutput outp) :
+	base(inp, outp)
+	{
+	}
+
 	public bool Enabled
 	{
-		get;
-		set;
+		get
+		{
+			return _enabled;
+		}
+		set
+		{
+			if(value)
+			{
+				_light.Brightness = 1.0;
+			}
+			else
+			{
+				_light.Brightness = 0.0;
+			}
+			_enabled = value;
+		}
 	}
+
+	public Light Value
+	{
+		get
+		{
+			return _light;
+		}
+		protected set
+		{
+			_light = value;
+		}
+	}
+	protected Light _light;
+	protected bool _enabled;
 }
 
 /**
  * Thermostat for a house, which can have a setpoint and a measured value
  */
-public class Thermostat : Device, IEnableable, ISetPointable, IDiscreteSetting
+public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IReadable<Temperature>
 {
+	public Thermostat(IDeviceInput inp, IDeviceOutput outp) :
+	base(inp, outp)
+	{
+	}
 	public bool Enabled
 	{
 		get;
 		set;
 	}
 
-	public Int64 SetPoint
+	public Temperature SetPoint
 	{
 		get;
 		set;
 	}
 
-	public Int64 State
+	public Temperature Value
 	{
 		get;
-		set;
+		protected set;
 	}
 
 	public Int64 MinState()
