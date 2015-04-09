@@ -48,6 +48,11 @@
     <Compile Include="AlarmSystem.cs" />
     <Compile Include="LightSwitch.cs" />
     <Compile Include="Thermostat.cs" />
+    <Compile Include="ServerInput.cs" />
+    <Compile Include="ServerOutput.cs" />
+    <Compile Include="HouseOutput.cs" />
+    <Compile Include="HouseInput.cs" />
+    <Compile Include="ControlTypeJsonSerializer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
@@ -75,4 +80,4 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
-</Project>
+</Project>
