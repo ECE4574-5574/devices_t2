@@ -258,7 +258,8 @@ public class HouseMain
 				IJEnumerable<JToken> devices = dev_tok.Children();
 				foreach(JToken dev in devices)
 				{
-					Device device = deserializeDevice(dev.ToString());
+					//TODO: Create DeviceInput and DeviceOutput for control
+					Device device = Interfaces.DeserializeDevice(dev.ToString(), null, null);
 
 					if(device != null)
 					{
@@ -274,44 +275,6 @@ public class HouseMain
 		}
 
 		return true;
-	}
-
-	static Device deserializeDevice(string info)
-	{
-		JObject device_obj = JObject.Parse(info);
-		JToken type_tok;
-		if(!device_obj.TryGetValue("class", out type_tok))
-		{
-			return null;
-		}
-
-		var device_type = GetDeviceType("api." + type_tok.ToString());
-		Device device = null;
-		if(device_type != null)
-		{
-			device = (Device)JsonConvert.DeserializeObject(info, device_type);
-		}
-		return device;
-	}
-
-	public static Type GetDeviceType(string typeName)
-	{
-		var type = Type.GetType(typeName);
-		if(type != null)
-		{
-			return type;
-		}
-		foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			type = a.GetType(typeName);
-
-			if(type != null)
-			{
-				return type;
-			}
-		}
-
-		return null;
 	}
 
 	static String GetDeviceState(UInt64 house, UInt64 room, UInt64 device)
