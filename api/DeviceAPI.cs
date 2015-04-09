@@ -19,7 +19,15 @@ public class Interfaces
 		_server = serverAddress;
 	}
 
-	Device createDevice(Uri address, string name, string type, UInt64 house_id, UInt64 room_id = 0)
+	/**
+	 * Registers a device with the server, in essence creating it for use in HATS.
+	 * \param[in] address Address to locate the device
+	 * \param[in] name User friendly name to use for the device.
+	 * \param[in] type Type name of the device. Should map to a class name in Devices
+	 * \param[in] house_id ID of the house this device is in.
+	 * \param[in room_id ID of the room this device is in, if set.
+	 */
+	Device registerDevice(Uri address, string name, string type, UInt64 house_id, UInt64 room_id = 0)
 	{
 		//TODO: Post to Server API to request the device be recorded, and get the device.
 		var device = (Device)Activator.CreateInstance(Type.GetType(type));
@@ -36,6 +44,9 @@ public class Interfaces
 		return devices;
 	}
 
+	/**
+	 * Function to get a List of devices from the server, given house & room.
+	 */
 	List<Device> getDevices(UInt64 houseID, UInt64 roomID)
 	{
 		var devices = new List<Device>();
