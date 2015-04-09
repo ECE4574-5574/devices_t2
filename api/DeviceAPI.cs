@@ -1,8 +1,10 @@
 ﻿using System;
-using System.Net.Http;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Reflection;
 using api;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace api
@@ -52,6 +54,58 @@ public class Interfaces
 		var devices = new List<Device>();
 		//TODO: Query all devices in a given room.
 		return devices;
+	}
+
+	/**
+	 * Given a JSON string representing a device, instantiates the device as desired.
+	 * \param[in] info JSON string representing device. Must have a key named "class" which
+	 *            names the class deriving from Device to instantiate.
+	 */
+	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp)
+	{
+		JObject device_obj = JObject.Parse(info);
+		JToken type_tok;
+		if(!device_obj.TryGetValue("class", out type_tok))
+		{
+			return null;
+		}
+
+		var device_type = GetDeviceType(type_tok.ToString());
+		Device device = null;
+		if(device_type != null)
+		{
+			device = (Device)Activator.CreateInstance(device_type, inp, outp);
+			JsonConvert.PopulateObject(info, device);
+		}
+		return device;
+	}
+
+	/**
+	 * Attempts to get the type of a specific device, given the fully
+	 * qualified name.
+	 * \param[in] typeName Fully qualified classname of device
+	 * \param[out] Type representing device, or NULL if it doesn't exist
+	 */
+	private static Type GetDeviceType(string typeName)
+	{
+		Type device_type = Type.GetType("api." + typeName);
+		if(device_type != null)
+		{
+			return device_type;
+		}
+		/*
+		foreach(var a in AppDomain.CurrentDomain.GetAssemblies())
+		{
+			device_type = a.GetType(typeName);
+
+			if(type != null && device_type.IsSubclassOf(typeof(Device)))
+			{
+				return type;
+			}
+		}
+		*/
+
+		return null;
 	}
 }
 }

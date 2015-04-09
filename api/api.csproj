@@ -31,9 +31,21 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Devices.cs" />
     <Compile Include="DeviceAPI.cs" />
     <Compile Include="ControlTypes.cs" />
+    <Compile Include="IEnableable.cs" />
+    <Compile Include="IDiscreteSetting.cs" />
+    <Compile Include="ISetPointable.cs" />
+    <Compile Include="IReadable.cs" />
+    <Compile Include="FullID.cs" />
+    <Compile Include="IDeviceOutput.cs" />
+    <Compile Include="IDeviceInput.cs" />
+    <Compile Include="Device.cs" />
+    <Compile Include="GarageDoor.cs" />
+    <Compile Include="CeilingFan.cs" />
+    <Compile Include="AlarmSystem.cs" />
+    <Compile Include="LightSwitch.cs" />
+    <Compile Include="Thermostat.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
