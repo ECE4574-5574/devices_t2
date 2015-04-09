@@ -168,6 +168,8 @@ public class CeilingFan : Device, IEnableable, IDiscreteSetting
 	public CeilingFan(IDeviceInput inp, IDeviceOutput outp) :
 	base(inp, outp)
 	{
+		Enabled = false;
+		State = 0;
 	}
 	public bool Enabled
 	{
@@ -217,6 +219,8 @@ public class LightSwitch : Device, IEnableable, IReadable<Light>
 	public LightSwitch(IDeviceInput inp, IDeviceOutput outp) :
 	base(inp, outp)
 	{
+		_enabled = false;
+		_light = new Light();
 	}
 
 	public bool Enabled
@@ -262,6 +266,15 @@ public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IRead
 	public Thermostat(IDeviceInput inp, IDeviceOutput outp) :
 	base(inp, outp)
 	{
+		Enabled = false;
+		SetPoint = new Temperature()
+		{
+			Temp = 0
+		};
+		Value = new Temperature()
+		{
+			Temp = 0
+		};
 	}
 	public bool Enabled
 	{

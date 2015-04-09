@@ -16,11 +16,17 @@ using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Text;
 using Hats.Time;
+using Newtonsoft.Json.Linq;
 
 namespace House
 {
 public class ThreadSafeDevice
 {
+	public ThreadSafeDevice()
+	{
+		dev = null;
+		Mut = new Mutex();
+	}
 	public Device dev
 	{
 		get;
@@ -45,12 +51,14 @@ public class HouseMain
 	static private List<ThreadSafeDevice> _bare_devices;
 	static private Dictionary<UInt64, Dictionary<UInt64, ThreadSafeDevice>> _devices;
 	static UInt64 _house_id;
+	static private int _port;
 	public static int Main(String[] args)
 	{
 		bool show_help = false;
 		_running = false;
 		_responding = false;
 		_is_sim = true;
+		_bare_devices = new List<ThreadSafeDevice>();
 		Dictionary<string, string> config = new Dictionary<string, string>();
 		var optargs = new OptionSet()
 		{
@@ -102,31 +110,8 @@ public class HouseMain
 		{
 			_running = true;
 		}
-        return 0;
-	}
 
-	static bool ParseConfig(Dictionary<string, string> config)
-	{
-		if(!config.ContainsKey("test_scenario"))
-		{
-			//Console.WriteLine("Received scenario:");
-			//Console.WriteLine(config["test_scenario"]);
-			_is_sim = false;
-		}
-		if(!config.ContainsKey("house_id"))
-		{
-			//Console.WriteLine("House ID set to:");
-			//Console.WriteLine(config["house_id"]);
-			_is_sim = false;
-		}
-
-		int port;
-		if(!config.ContainsKey("port") || !int.TryParse(config["port"], out port))
-		{
-			port = 8080;
-		}
-
-		InitListener(port);
+		InitListener(_port);
 
 		var input = Console.ReadLine();
 
@@ -142,6 +127,23 @@ public class HouseMain
 			}
 		}
 		_running = false;
+        return 0;
+	}
+
+	static bool ParseConfig(Dictionary<string, string> config)
+	{
+		string house_id = "";
+		string scenario = "";
+		_is_sim = config.TryGetValue("house_id", out house_id) && config.TryGetValue("test_scenario", out scenario);
+		if(_is_sim)
+		{
+			_is_sim = GenerateSimulatedHouse(house_id, scenario);
+		}
+			
+		if(!config.ContainsKey("port") || !int.TryParse(config["port"], out _port))
+		{
+			_port = 8080;
+		}
 
 		return true;
 	}
@@ -224,6 +226,92 @@ public class HouseMain
 		device = UInt64.Parse(group["device"].Value);
 
 		return true;
+	}
+
+	static bool GenerateSimulatedHouse(string house_id, string scenario)
+	{
+		if(String.IsNullOrEmpty(house_id) || String.IsNullOrEmpty(scenario))
+		{
+			return false;
+		}
+
+		JObject info = JObject.Parse(scenario);
+		JToken house_list;
+
+		if(!info.TryGetValue("houses", out house_list))
+		{
+			return false;
+		}
+
+		IJEnumerable<JToken> houses = house_list.Children();
+
+		foreach(JToken house in houses)
+		{
+			JObject house_obj = JObject.Parse(house.ToString());
+			JToken name;
+
+			if(house_obj.TryGetValue("name", out name) &&
+				name.ToString() == house_id)
+			{
+				JToken dev_tok;
+				house_obj.TryGetValue("devices", out dev_tok);
+				IJEnumerable<JToken> devices = dev_tok.Children();
+				foreach(JToken dev in devices)
+				{
+					Device device = deserializeDevice(dev.ToString());
+
+					if(device != null)
+					{
+						ThreadSafeDevice tsd = new ThreadSafeDevice()
+						{
+							dev = device
+						};
+						_bare_devices.Add(tsd);
+					}
+				}
+				break;
+			}
+		}
+
+		return true;
+	}
+
+	static Device deserializeDevice(string info)
+	{
+		JObject device_obj = JObject.Parse(info);
+		JToken type_tok;
+		if(!device_obj.TryGetValue("class", out type_tok))
+		{
+			return null;
+		}
+
+		var device_type = GetDeviceType("api." + type_tok.ToString());
+		Device device = null;
+		if(device_type != null)
+		{
+			device = (Device)JsonConvert.DeserializeObject(info, device_type);
+		}
+		return device;
+	}
+
+	public static Type GetDeviceType(string typeName)
+	{
+		var type = Type.GetType(typeName);
+		if(type != null)
+		{
+			return type;
+		}
+		foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+		{
+			type = a.GetType(typeName);
+
+			if(type != null)
+			{
+				return type;
+			}
+		}
+
+		return null;
 	}
 
 	static String GetDeviceState(UInt64 house, UInt64 room, UInt64 device)
