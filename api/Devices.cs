@@ -75,6 +75,12 @@ interface IReadable<Type> where Type : ControlTypes
 
 public class FullID
 {
+	public FullID()
+	{
+		HouseID = 0;
+		RoomID = 0;
+		DeviceID = 0;
+	}
 	/**
 	 * Identifier for the house this device is contained within
 	 */
@@ -87,7 +93,7 @@ public class FullID
 	 * Identifier for the room in which a device is contained.
 	 * The value 0 represents a device which isn't assigned to a specific room.
 	 */
-	public UInt64 Room
+	public UInt64 RoomID
 	{
 		get;
 		set;
@@ -151,6 +157,7 @@ public class GarageDoor : Device, IEnableable
 	public GarageDoor(IDeviceInput inp, IDeviceOutput outp) :
 	base(inp, outp)
 	{
+		Enabled = true;
 	}
 
 	public bool Enabled
@@ -202,6 +209,7 @@ public class AlarmSystem : Device, IEnableable
 	public AlarmSystem(IDeviceInput inp, IDeviceOutput outp) :
 	base(inp, outp)
 	{
+		Enabled = false;
 	}
 
 	public bool Enabled
