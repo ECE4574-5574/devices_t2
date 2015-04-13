@@ -2,6 +2,7 @@
  * Classes which represent meaningful quantities which can be measured in the system
  */
 using System;
+using Newtonsoft.Json;
 
 namespace api
 {
@@ -20,6 +21,7 @@ public class ControlTypes
 /**
  *  Light level in a room, as measured by brightness. Currently, unit-less.
  */
+[JsonConverter(typeof(LightConverter))]
 public class Light : ControlTypes
 {
 	public double Brightness
@@ -32,6 +34,7 @@ public class Light : ControlTypes
 /**
  * Temperature in a room, as measured in Celsius.
  */
+[JsonConverter(typeof(TemperatureConverter))]
 public class Temperature : ControlTypes
 {
 	/**
@@ -52,6 +55,7 @@ public class Temperature : ControlTypes
 	/**
 	 * Property which always returns in Celsius
 	 */
+	[JsonIgnore]
 	public double C
 	{
 		get
@@ -67,6 +71,7 @@ public class Temperature : ControlTypes
 	/**
 	 * Property which always returns in Farenheit
 	 */
+	[JsonIgnore]
 	public double F
 	{
 		get
@@ -83,4 +88,3 @@ public class Temperature : ControlTypes
 }
 
 }
-
