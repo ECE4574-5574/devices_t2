@@ -4,6 +4,10 @@ using Newtonsoft.Json;
 
 namespace api
 {
+
+/**
+ * Custom conversion of the Light type to a user-friendly format in the scheme of the device JSON serialization.
+ */
 public class LightConverter : JsonConverter
 {
 	public override bool CanConvert(Type objectType)
@@ -28,6 +32,10 @@ public class LightConverter : JsonConverter
 	}
 }
 
+/**
+ * Custom conversion of the Temperature type to a user-friendly format in the scheme of the device JSON serialization. Also avoids redundant values
+ * from properties.
+ */
 public class TemperatureConverter : JsonConverter
 {
 	public override bool CanConvert(Type objectType)
@@ -36,20 +44,19 @@ public class TemperatureConverter : JsonConverter
 	}
 	public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 	{
-		Temperature lt = (Temperature)value;
-		writer.WriteValue(lt.C);
+		Temperature tmp = (Temperature)value;
+		writer.WriteValue(tmp.C);
 	}
 
 	public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 	{
-		Temperature lt = new Temperature()
+		Temperature tmp = new Temperature()
 		{
 			C = (double)reader.Value
 		};
 
-		return lt;
+		return tmp;
 	}
 }
 
 }
-
