@@ -36,20 +36,19 @@ public class TemperatureConverter : JsonConverter
 	}
 	public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 	{
-		Temperature lt = (Temperature)value;
-		writer.WriteValue(lt.C);
+		Temperature tmp = (Temperature)value;
+		writer.WriteValue(tmp.C);
 	}
 
 	public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 	{
-		Temperature lt = new Temperature()
+		Temperature tmp = new Temperature()
 		{
 			C = (double)reader.Value
 		};
 
-		return lt;
+		return tmp;
 	}
 }
 
 }
-
