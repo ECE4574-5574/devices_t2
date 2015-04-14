@@ -63,6 +63,11 @@ public class Interfaces
 	 */
 	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp)
 	{
+		if(String.IsNullOrEmpty(info))
+		{
+			return null;
+		}
+
 		JObject device_obj = JObject.Parse(info);
 		JToken type_tok;
 		if(!device_obj.TryGetValue("class", out type_tok))
