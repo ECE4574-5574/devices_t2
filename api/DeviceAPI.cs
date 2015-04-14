@@ -22,6 +22,21 @@ public class Interfaces
 	}
 
 	/**
+	 * Function which is called to request a list of devices present at a given location, which
+	 * are not currently registered in the HATS system. Since these devices are not registered,
+	 * no ID has been assigned.
+	 * 
+	 * \param[in] address Location of the house to query for unregistered devices.
+	 * \param[out] List of strings which represent devices which could be registered.
+	 */
+	List<string> enumerateDevices(Uri address)
+	{
+		//TODO: Verify the input parameters are sufficient
+		//TODO: Implement this function
+		return null;
+	}
+
+	/**
 	 * Registers a device with the server, in essence creating it for use in HATS.
 	 * \param[in] address Address to locate the device
 	 * \param[in] name User friendly name to use for the device.
@@ -31,9 +46,21 @@ public class Interfaces
 	 */
 	Device registerDevice(Uri address, string name, string type, UInt64 house_id, UInt64 room_id = 0)
 	{
+		//TODO: Verify parameters here are sufficient
 		//TODO: Post to Server API to request the device be recorded, and get the device.
 		var device = (Device)Activator.CreateInstance(Type.GetType(type));
 		return device;
+	}
+
+	/**
+	 * Given a device, remove it from the system as a registered device. This should only be done
+	 * as a result of a user request, as this deletes all references to the device.
+	 * \param[in] Device to remove
+	 * \param[out] Flag indicating success
+	 */
+	bool deleteDevice(Device dev)
+	{
+		return true;
 	}
 
 	/**
