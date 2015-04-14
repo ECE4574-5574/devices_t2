@@ -32,6 +32,9 @@
     <Reference Include="nunit.framework">
       <HintPath>packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Test.cs" />
@@ -39,5 +42,11 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\api\api.csproj">
+      <Project>{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}</Project>
+      <Name>api</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
