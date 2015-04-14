@@ -13,7 +13,6 @@ public class ServerOutput : IDeviceOutput
 
 	public bool write(Device dev)
 	{
-		//TODO: Implement this
 		return true;
 	}
 }
