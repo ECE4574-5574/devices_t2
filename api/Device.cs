@@ -15,7 +15,7 @@ public abstract class Device
 	{
 		_in = inp;
 		_out = outp;
-        DateTime LastUpdate = DateTime.Now.ToUniversalTime();
+        LastUpdate = DateTime.Now.ToUniversalTime();
 	}
 
 	public FullID ID
