@@ -18,18 +18,6 @@ public abstract class Device
         DateTime LastUpdate = DateTime.Now.ToUniversalTime();
 	}
 
-    public IDeviceInput _in
-    {
-        get;
-        set;
-    }
-
-    public IDeviceOutput _out
-    {
-        get;
-        set;
-    }
-
 	public FullID ID
 	{
 		get;
