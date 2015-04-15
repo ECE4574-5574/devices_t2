@@ -24,6 +24,12 @@ public abstract class Device
         set;
     }
 
+    public IDeviceOutput _out
+    {
+        get;
+        set;
+    }
+
 	public FullID ID
 	{
 		get;
