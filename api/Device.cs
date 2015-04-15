@@ -15,6 +15,7 @@ public abstract class Device
 	{
 		_in = inp;
 		_out = outp;
+        DateTime last_updated = DateTime.Now.ToUniversalTime();
 	}
 
 	public FullID ID
@@ -22,6 +23,12 @@ public abstract class Device
 		get;
 		set;
 	}
+
+    public DateTime last_updated
+    {
+        get;
+        set;
+    }
 
 	/**
 	 * User friendly name for this device.
