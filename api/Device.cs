@@ -15,7 +15,7 @@ public abstract class Device
 	{
 		_in = inp;
 		_out = outp;
-        DateTime last_updated = DateTime.Now.ToUniversalTime();
+        DateTime LastUpdate = DateTime.Now.ToUniversalTime();
 	}
 
     public IDeviceInput _in
@@ -36,7 +36,7 @@ public abstract class Device
 		set;
 	}
 
-    public DateTime last_updated
+    public DateTime LastUpdate
     {
         get;
         set;
