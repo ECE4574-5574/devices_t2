@@ -59,6 +59,8 @@ public class HouseMain
 		_responding = false;
 		_is_sim = true;
 		_bare_devices = new List<ThreadSafeDevice>();
+		_port = 8080;
+		_time = null;
 		Dictionary<string, string> config = new Dictionary<string, string>();
 		var optargs = new OptionSet()
 		{
@@ -100,16 +102,13 @@ public class HouseMain
 			return 1;
         }
 
-		ParseConfig(config);
+		bool success = ParseConfig(config);
+		System.Diagnostics.Debug.Assert(success);
 
         if(_is_sim)
         {
             Console.WriteLine("OK");
         }
-		else
-		{
-			_running = true;
-		}
 
 		InitListener(_port);
 
@@ -117,14 +116,12 @@ public class HouseMain
 
 		while(!input.Equals("q", StringComparison.OrdinalIgnoreCase))
 		{
-			try
+			if(_time != null)
 			{
 				_time = JsonConvert.DeserializeObject<TimeFrame>(input);
 				_responding = true;
 			}
-			catch(JsonReaderException ex)
-			{
-			}
+			input = Console.ReadLine();
 		}
 		_running = false;
         return 0;
@@ -132,20 +129,19 @@ public class HouseMain
 
 	static bool ParseConfig(Dictionary<string, string> config)
 	{
-		string house_id = "";
-		string scenario = "";
-		_is_sim = config.TryGetValue("house_id", out house_id) && config.TryGetValue("test_scenario", out scenario);
-		if(_is_sim)
-		{
-			_is_sim = GenerateSimulatedHouse(house_id, scenario);
-		}
-			
-		if(!config.ContainsKey("port") || !int.TryParse(config["port"], out _port))
-		{
-			_port = 8080;
-		}
+		const string IDKey = "house_id";
+		const string ScenarioKey = "test_scenario";
 
-		return true;
+		if(!config.ContainsKey(IDKey) || !config.ContainsKey(ScenarioKey))
+		{
+			return false;
+		}
+		string house_id = config[IDKey];
+		string scenario = config[ScenarioKey];
+
+		_is_sim = GenerateSimulatedHouse(house_id, scenario);
+
+		return _is_sim;
 	}
 
 	static void InitListener(int port)
@@ -243,18 +239,27 @@ public class HouseMain
 			return false;
 		}
 
+		bool status = false;
 		IJEnumerable<JToken> houses = house_list.Children();
 
+		//search through houses. Pity this isn't a map.
 		foreach(JToken house in houses)
 		{
 			JObject house_obj = JObject.Parse(house.ToString());
 			JToken name;
 
+			//found our house
 			if(house_obj.TryGetValue("name", out name) &&
 				name.ToString() == house_id)
 			{
+				JToken port_tok;
 				JToken dev_tok;
-				house_obj.TryGetValue("devices", out dev_tok);
+				if(house_obj.TryGetValue("port", out port_tok))
+				{
+					_port = JsonConvert.DeserializeObject<int>(port_tok.ToString());
+				}
+				bool success = house_obj.TryGetValue("devices", out dev_tok);
+				System.Diagnostics.Debug.Assert(success);
 				IJEnumerable<JToken> devices = dev_tok.Children();
 				foreach(JToken dev in devices)
 				{
@@ -270,11 +275,14 @@ public class HouseMain
 						_bare_devices.Add(tsd);
 					}
 				}
+
+				System.Diagnostics.Debug.Assert(_bare_devices.Count > 0);
+				status = true;
 				break;
 			}
 		}
 
-		return true;
+		return status;
 	}
 
 	static String GetDeviceState(UInt64 house, UInt64 room, UInt64 device)
