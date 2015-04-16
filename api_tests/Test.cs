@@ -1,20 +1,22 @@
-using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using api;
-using Newtonsoft.Json;
 using Hats.Time;
+using Newtonsoft.Json;
+using NUnit.Framework;
 
 namespace api_tests
 {
-    [TestFixture]
-    public class APITest
-    {
+[TestFixture]
+public class APITest
+{
     [SetUp]
     public void Init()
     {
     }
 
-	[Test ()]
+	[Test]
     public void TestServerInput()
     {
         var input = new ServerInput();
@@ -23,7 +25,7 @@ namespace api_tests
         Assert.AreEqual(true, response);
     }
 
-	[Test ()]
+	[Test]
 	public void TestLightSerialization()
 	{
 		string test = "1.0";
@@ -43,7 +45,7 @@ namespace api_tests
 		Assert.AreEqual(test, output);
 	}
 
-	[Test ()]
+	[Test]
 	public void TestTemperatureSerialization()
 	{
 		string invalid_string = "";
@@ -62,7 +64,7 @@ namespace api_tests
 		Assert.AreEqual(valid_blob, simple_string);
 	}
 
-	[Test ()]
+	[Test]
 	public void TestDeviceDeserialization()
 	{
 		string invalid_string = "";
@@ -79,7 +81,7 @@ namespace api_tests
 		Assert.AreEqual(ls.Value.Brightness, 1.0);
 	}
 
-    [Test()]
+	[Test()]
     public void TestDeviceTimeInit()
     {
         //Can't do pull request so wrote it and commented out for looking over
@@ -90,6 +92,83 @@ namespace api_tests
         */
         Assert.IsTrue(true);
     }
+
+	[Test]
+	public void TestDeviceCapabilityQueries()
+	{
+		List<Device> devices = new List<Device>()
+		{
+			new AlarmSystem(null, null, null),
+			new CeilingFan(null, null, null),
+			new GarageDoor(null, null, null),
+			new LightSwitch(null, null, null),
+			new Thermostat(null, null, null)
+		};
+
+		foreach(var device in devices)
+		{
+			Assert.IsTrue(device as IEnableable != null);
+		}
+		List<bool> IsTempSetPoint = new List<bool>
+		{
+			false,
+			false,
+			false,
+			false,
+			true
+		};
+
+		var comparison = devices.Zip(IsTempSetPoint, (ii, jj) => new {Device = ii, Result = jj});
+
+		foreach(var set in comparison)
+		{
+			var intf = set.Device as ISetPointable<Temperature>;
+			Assert.AreEqual(intf != null, set.Result);
+		}
+
+		List<bool> IsTempReadable = new List<bool>
+		{
+			false,
+			false,
+			false,
+			false,
+			true
+		};
+
+		comparison = devices.Zip(IsTempReadable, (ii, jj) => new {Device = ii, Result = jj});
+		foreach(var set in comparison)
+		{
+			Assert.AreEqual(set.Device as IReadable<Temperature> != null, set.Result);
+		}
+		List<bool> IsDiscrete = new List<bool>
+		{
+			false,
+			true,
+			false,
+			false,
+			false
+		};
+
+		comparison = devices.Zip(IsDiscrete, (ii, jj) => new {Device = ii, Result = jj});
+		foreach(var set in comparison)
+		{
+			Assert.AreEqual(set.Device as IDiscreteSetting != null, set.Result);
+		}
+		List<bool> IsLightReadable = new List<bool>
+		{
+			false,
+			false,
+			false,
+			true,
+			false
+		};
+
+		comparison = devices.Zip(IsLightReadable, (ii, jj) => new {Device = ii, Result = jj});
+		foreach(var set in comparison)
+		{
+			Assert.AreEqual(set.Device as IReadable<Light> != null, set.Result);
+		}
+	}
 }
 
 }
