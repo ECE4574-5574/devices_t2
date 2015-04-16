@@ -49,8 +49,7 @@ public class Interfaces
 	{
 		//TODO: Verify parameters here are sufficient
 		//TODO: Post to Server API to request the device be recorded, and get the device.
-		var device = (Device)Activator.CreateInstance(Type.GetType(type));
-		return device;
+		return null;
 	}
 
 	/**
