@@ -19,7 +19,7 @@ namespace api_tests
         var input = new ServerInput();
 		var device = new LightSwitch(input, null);
         var response = input.read(device);
-        Assert.AreEqual(200, response);
+        Assert.AreEqual(true, response);
     }
 
 	[Test ()]
