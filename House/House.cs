@@ -17,6 +17,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using Hats.Time;
 using Newtonsoft.Json.Linq;
+using Hats.SimWeather;
 
 namespace House
 {
@@ -52,6 +53,7 @@ public class HouseMain
 	static private Dictionary<UInt64, Dictionary<UInt64, ThreadSafeDevice>> _devices;
 	static UInt64 _house_id;
 	static private int _port;
+	static private LinearWeather _weather;
 	public static int Main(String[] args)
 	{
 		bool show_help = false;
@@ -278,6 +280,16 @@ public class HouseMain
 						};
 						_bare_devices.Add(tsd);
 					}
+				}
+
+				JToken weather_tok;
+				success = house_obj.TryGetValue("weather", out weather_tok);
+				System.Diagnostics.Debug.Assert(success);
+				_weather = new LinearWeather();
+				IJEnumerable<JToken> temps = weather_tok.Children();
+				foreach(JToken temp in temps)
+				{
+					_weather.Add(JsonConvert.DeserializeObject<TemperatureSetPoint>(temp.ToString()));
 				}
 
 				System.Diagnostics.Debug.Assert(_bare_devices.Count > 0);
