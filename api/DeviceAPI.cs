@@ -29,7 +29,7 @@ public class Interfaces
 	 * \param[in] address Location of the house to query for unregistered devices.
 	 * \param[out] List of strings which represent devices which could be registered.
 	 */
-	List<string> enumerateDevices(Uri address)
+	public List<string> enumerateDevices(Uri address)
 	{
 		//TODO: Verify the input parameters are sufficient
 		//TODO: Implement this function
@@ -44,7 +44,7 @@ public class Interfaces
 	 * \param[in] house_id ID of the house this device is in.
 	 * \param[in room_id ID of the room this device is in, if set.
 	 */
-	Device registerDevice(Uri address, string name, string type, UInt64 house_id, UInt64 room_id = 0)
+	public Device registerDevice(Uri address, string name, string type, UInt64 house_id, UInt64 room_id = 0)
 	{
 		//TODO: Verify parameters here are sufficient
 		//TODO: Post to Server API to request the device be recorded, and get the device.
@@ -58,15 +58,17 @@ public class Interfaces
 	 * \param[in] Device to remove
 	 * \param[out] Flag indicating success
 	 */
-	bool deleteDevice(Device dev)
+	public bool deleteDevice(Device dev)
 	{
 		return true;
 	}
 
 	/**
-	 * Function to get a list of devices from the server, given parameters
+	 * Function to get a list of devices from the server.
+	 * \param[in] ID of the House to get devices for
+	 * \param[out] List of devices in a given house.
 	 */
-	List<Device> getDevices(UInt64 houseID)
+	public List<Device> getDevices(UInt64 houseID)
 	{
 		var devices = new List<Device>();
 		//TODO: Query all devices in a given house.
@@ -75,8 +77,11 @@ public class Interfaces
 
 	/**
 	 * Function to get a List of devices from the server, given house & room.
+	 * \param[in] houseID ID of House to get devices from
+	 * \param[in] roomID ID of Room to get devices from. 0 means "Devices not assigned a room"
+	 * \param[out] List of Devices matching the requested parameters.
 	 */
-	List<Device> getDevices(UInt64 houseID, UInt64 roomID)
+	public List<Device> getDevices(UInt64 houseID, UInt64 roomID)
 	{
 		var devices = new List<Device>();
 		//TODO: Query all devices in a given room.
