@@ -17,7 +17,7 @@ public abstract class Device
 		_in = inp;
 		_out = outp;
 		_frame = frame;
-		_last_time = new DateTime(0); //Set to 0 as Not-A-Time
+        _last_time = new DateTime(DateTime.MinValue); //Set to minimum possible time
 	}
 
 	public FullID ID
