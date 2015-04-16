@@ -45,8 +45,12 @@
       <HintPath>..\..\packages\Microsoft.Net.Http.2.2.29\lib\net45\System.Net.Http.Extensions.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Net.Http">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -60,12 +64,10 @@
     <ProjectReference Include="..\api\api.csproj">
       <Project>{DCE2FD21-5B48-4413-A2A2-B55D1B70C7D4}</Project>
       <Name>api</Name>
-      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\..\sim_harness\time_frame\time_frame\time_frame.csproj">
       <Project>{E9C8A0A8-16D9-4FEF-AB45-04E9EE9A579E}</Project>
       <Name>time_frame</Name>
-      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
