@@ -9,7 +9,7 @@ namespace api
 /**
  * Represents a device which can be enabled or disabled.
  */
-interface IEnableable
+public interface IEnableable
 {
 	bool Enabled
 	{

@@ -9,7 +9,7 @@ namespace api
 /**
  * Interface defining an object which can accept some number of discrete states
  */
-interface IDiscreteSetting
+public interface IDiscreteSetting
 {
 	/**
 	 * Discrete State of this device.
