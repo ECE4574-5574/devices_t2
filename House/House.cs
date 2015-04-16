@@ -119,6 +119,10 @@ public class HouseMain
 			if(_time != null)
 			{
 				_time = JsonConvert.DeserializeObject<TimeFrame>(input);
+				foreach(ThreadSafeDevice tsd in _bare_devices)
+				{
+					tsd.dev.Frame = _time;
+				}
 				_responding = true;
 			}
 			input = Console.ReadLine();
@@ -264,7 +268,7 @@ public class HouseMain
 				foreach(JToken dev in devices)
 				{
 					//TODO: Create DeviceInput and DeviceOutput for control
-					Device device = Interfaces.DeserializeDevice(dev.ToString(), null, null);
+					Device device = Interfaces.DeserializeDevice(dev.ToString(), null, null, null);
 
 					if(device != null)
 					{

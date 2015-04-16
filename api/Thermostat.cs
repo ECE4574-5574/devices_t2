@@ -11,6 +11,7 @@
  *   Jason Ziglar <jpz@vt.edu>
 */
 using System;
+using Hats.Time;
 
 namespace api
 {
@@ -20,8 +21,8 @@ namespace api
  */
 public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IReadable<Temperature>
 {
-	public Thermostat(IDeviceInput inp, IDeviceOutput outp) :
-	base(inp, outp)
+	public Thermostat(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame) :
+	base(inp, outp, frame)
 	{
 		Enabled = false;
 		SetPoint = new Temperature()

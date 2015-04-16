@@ -3,6 +3,7 @@
  * \author Jason Ziglar <jpz@vt.edu>
  */
 using System;
+using Hats.Time;
 
 namespace api
 {
@@ -11,11 +12,12 @@ namespace api
  */
 public abstract class Device
 {
-	public Device(IDeviceInput inp, IDeviceOutput outp)
+	public Device(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
 	{
 		_in = inp;
 		_out = outp;
-        LastUpdate = DateTime.Now.ToUniversalTime();
+		_frame = frame;
+		_last_time = new DateTime(0); //Set to 0 as Not-A-Time
 	}
 
 	public FullID ID
@@ -26,8 +28,14 @@ public abstract class Device
 
     public DateTime LastUpdate
     {
-        get;
-        set;
+        get
+		{
+			return _last_time;
+		}
+        set
+		{
+			_last_time = value;
+		}
     }
 
 	/**
@@ -39,8 +47,22 @@ public abstract class Device
 		set;
 	}
 
+	public TimeFrame Frame
+	{
+		get
+		{
+			return _frame;
+		}
+		set
+		{
+			_frame = value;
+		}
+	}
+
 	protected IDeviceInput _in;
 	protected IDeviceOutput _out;
+	protected TimeFrame _frame;
+	protected DateTime _last_time;
 }
 }
 

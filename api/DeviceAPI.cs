@@ -6,6 +6,7 @@ using api;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Hats.Time;
 
 namespace api
 {
@@ -93,7 +94,7 @@ public class Interfaces
 	 * \param[in] info JSON string representing device. Must have a key named "class" which
 	 *            names the class deriving from Device to instantiate.
 	 */
-	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp)
+	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
 	{
 		if(String.IsNullOrEmpty(info))
 		{
@@ -111,7 +112,7 @@ public class Interfaces
 		Device device = null;
 		if(device_type != null)
 		{
-			device = (Device)Activator.CreateInstance(device_type, inp, outp);
+			device = (Device)Activator.CreateInstance(device_type, inp, outp, frame);
 			JsonConvert.PopulateObject(info, device);
 		}
 		return device;

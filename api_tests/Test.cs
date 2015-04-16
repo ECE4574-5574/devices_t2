@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using api;
 using Newtonsoft.Json;
+using Hats.Time;
 
 namespace api_tests
 {
@@ -17,7 +18,7 @@ namespace api_tests
     public void TestServerInput()
     {
         var input = new ServerInput();
-		var device = new LightSwitch(input, null);
+		var device = new LightSwitch(input, null, null);
         var response = input.read(device);
         Assert.AreEqual(true, response);
     }
@@ -66,11 +67,11 @@ namespace api_tests
 	{
 		string invalid_string = "";
 
-		var invalid_object = Interfaces.DeserializeDevice(invalid_string, null, null);
+		var invalid_object = Interfaces.DeserializeDevice(invalid_string, null, null, null);
 		Assert.AreEqual(invalid_object, null);
 
 		string valid_string = "{class: \"LightSwitch\", enabled: true, Brightness: 1.0}";
-		var valid_switch = Interfaces.DeserializeDevice(valid_string, null, null);
+		var valid_switch = Interfaces.DeserializeDevice(valid_string, null, null, null);
 
 		Assert.IsInstanceOf<LightSwitch>(valid_switch);
 		var ls = valid_switch as LightSwitch;
