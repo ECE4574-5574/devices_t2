@@ -78,6 +78,18 @@ namespace api_tests
 		Assert.IsTrue(ls.Enabled);
 		Assert.AreEqual(ls.Value.Brightness, 1.0);
 	}
+
+    [Test()]
+    public void TestDeviceTimeInit()
+    {
+        //Can't do pull request so wrote it and commented out for looking over
+        /*
+        var input = new ServerInput();
+		var device = new LightSwitch(input, null, null);
+        Assert.AreEqual(device.LastUpdate, DateTime.MinValue);
+        */
+        Assert.IsTrue(true);
+    }
 }
 
 }
