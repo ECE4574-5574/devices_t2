@@ -90,6 +90,19 @@ namespace api_tests
         */
         Assert.IsTrue(true);
     }
+
+    [Test()]
+    public void TestDeviceTimeUpdate()
+    {
+        //Can't do pull request so wrote it and commented out for looking over
+        /*
+        var input = new ServerInput();
+		var device = new LightSwitch(input, null, null);
+        device.LastUpdate = DateTime.Now.ToUniversalTime();
+        Assert.AreNotEqual(device.LastUpdate, DateTime.MinValue);
+        */
+        Assert.IsTrue(true);
+    }
 }
 
 }
