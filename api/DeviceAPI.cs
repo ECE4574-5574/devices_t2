@@ -30,7 +30,7 @@ public class Interfaces
 	 * \param[in] address Location of the house to query for unregistered devices.
 	 * \param[out] List of strings which represent devices which could be registered.
 	 */
-	public List<string> enumerateDevices(Uri address)
+	public List<string> enumerateDevices(UInt64 house_id)
 	{
 		//TODO: Verify the input parameters are sufficient
 		//TODO: Implement this function
@@ -45,7 +45,7 @@ public class Interfaces
 	 * \param[in] house_id ID of the house this device is in.
 	 * \param[in room_id ID of the room this device is in, if set.
 	 */
-	public Device registerDevice(Uri address, string name, string type, UInt64 house_id, UInt64 room_id = 0)
+	public Device registerDevice(string name, UInt64 house_id, string info, UInt64 room_id = 0)
 	{
 		//TODO: Verify parameters here are sufficient
 		//TODO: Post to Server API to request the device be recorded, and get the device.
