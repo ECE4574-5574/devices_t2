@@ -67,6 +67,10 @@
       <Name>time_frame</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\sim_harness\sim_weather\sim_weather.csproj">
+      <Project>{6CE7D676-2363-46E5-9E2D-A656BEA0F4C2}</Project>
+      <Name>sim_weather</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
