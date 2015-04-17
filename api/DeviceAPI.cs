@@ -39,11 +39,11 @@ public class Interfaces
 
 	/**
 	 * Registers a device with the server, in essence creating it for use in HATS.
-	 * \param[in] address Address to locate the device
 	 * \param[in] name User friendly name to use for the device.
-	 * \param[in] type Type name of the device. Should map to a class name in Devices
 	 * \param[in] house_id ID of the house this device is in.
-	 * \param[in room_id ID of the room this device is in, if set.
+	 * \param[in] info Blob from enumerateDevices() which represents the device of interest
+	 * \param[in] room_id ID of the room this device is in, if set.
+	 * \param[out] Object providing control of the registered device, or null if it fails to register.
 	 */
 	public Device registerDevice(string name, UInt64 house_id, string info, UInt64 room_id = 0)
 	{
