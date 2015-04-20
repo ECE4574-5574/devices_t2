@@ -4,6 +4,7 @@
  */
 using System;
 using Hats.Time;
+using Newtonsoft.Json;
 
 namespace api
 {
@@ -17,7 +18,7 @@ public abstract class Device
 		_in = inp;
 		_out = outp;
 		_frame = frame;
-        _last_time = new DateTime(DateTime.MinValue); //Set to minimum possible time
+        _last_time = DateTime.MinValue; //Set to minimum possible time
         _id = new FullID();
         _name = "";
 	}
