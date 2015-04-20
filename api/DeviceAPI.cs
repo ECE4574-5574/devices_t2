@@ -102,7 +102,7 @@ public class Interfaces
 
 		JObject device_obj = JObject.Parse(info);
 		JToken type_tok;
-		if(!device_obj.TryGetValue("class", out type_tok))
+		if(!device_obj.TryGetValue("class", StringComparison.OrdinalIgnoreCase, out type_tok))
 		{
 			return null;
 		}

@@ -25,6 +25,7 @@ public class AlarmSystem : Device, IEnableable
 	base(inp, outp, frame)
 	{
 		Enabled = false;
+		Class = "AlarmSystem";
 	}
 
 	public bool Enabled

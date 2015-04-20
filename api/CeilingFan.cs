@@ -26,6 +26,7 @@ public class CeilingFan : Device, IEnableable, IDiscreteSetting
 	{
 		Enabled = false;
 		State = 0;
+		Class = "CeilingFan";
 	}
 	public bool Enabled
 	{

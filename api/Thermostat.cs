@@ -33,6 +33,7 @@ public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IRead
 		{
 			Temp = 0
 		};
+		Class = "Thermostat";
 	}
 	public bool Enabled
 	{
