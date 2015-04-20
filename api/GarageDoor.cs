@@ -25,6 +25,7 @@ public class GarageDoor : Device, IEnableable
 	base(inp, outp, frame)
 	{
 		Enabled = true;
+		Class = "GarageDoor";
 	}
 
 	public bool Enabled

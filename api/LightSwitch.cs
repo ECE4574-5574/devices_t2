@@ -25,6 +25,7 @@ public class LightSwitch : Device, IEnableable, IReadable<Light>
 	{
 		_enabled = false;
 		_light = new Light();
+		Class = "LightSwitch";
 	}
 
 	public bool Enabled
