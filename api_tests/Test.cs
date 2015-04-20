@@ -204,9 +204,9 @@ public class APITest
 
 		foreach (var device in devices)
 		{
-			Assert.IsTrue(device.ID.HouseID &&
-						  device.ID.RoomID &&
-						  device.ID.DeviceID);
+			Assert.IsTrue(device.ID.HouseID == 1 &&
+						  device.ID.RoomID == 2 &&
+						  device.ID.DeviceID == 3);
 		}
 
 		foreach (var device in devices)
