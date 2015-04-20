@@ -26,20 +26,14 @@ namespace House
 
 public class HouseMain
 {
-	static private bool _running;
-	static private bool _responding;
 	static private bool _is_sim;
-	static List<Task> _tasks;
 	static private TimeFrame _time;
-	static UInt64 _house_id;
 	static private int _port;
 	static private LinearWeather _weather;
 	static private IDisposable _listener;
 	public static int Main(String[] args)
 	{
 		bool show_help = false;
-		_running = false;
-		_responding = false;
 		_is_sim = true;
 		_port = 8080;
 		_time = null;
@@ -105,11 +99,10 @@ public class HouseMain
 				{
 					dev.Frame = _time;
 				}
-				_responding = true;
+				DeviceModel.Instance.Responding = true;
 			}
 			input = Console.ReadLine();
 		}
-		_running = false;
         return 0;
 	}
 
@@ -169,6 +162,11 @@ public class HouseMain
 				if(house_obj.TryGetValue("port", out port_tok))
 				{
 					_port = JsonConvert.DeserializeObject<int>(port_tok.ToString());
+					//must get a valid port value
+					if(_port > System.Net.IPEndPoint.MaxPort || _port < System.Net.IPEndPoint.MinPort)
+					{
+						return false;
+					}
 				}
 				bool success = house_obj.TryGetValue("devices", out dev_tok);
 				System.Diagnostics.Debug.Assert(success);
