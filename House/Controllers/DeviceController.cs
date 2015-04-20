@@ -90,21 +90,9 @@ public class DeviceController : ApiController
 			throw new HttpResponseException(HttpStatusCode.NotFound);
 		}
 
-		var props = result.GetType().GetProperties();
-		var json_obj = JObject.Parse(data);
-		foreach(var info in props)
+		if(!Interfaces.UpdateDevice(result, data))
 		{
-			if(info.GetSetMethod() == null  || !info.GetSetMethod().IsPublic || info.Name == "DeviceID" || info.Name == "Frame")
-			{
-				continue;
-			}
-			JToken field;
-			if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
-			{
-				continue;
-			}
-			var value = field.ToObject(info.PropertyType);
-			info.SetValue(result, value);
+			throw new HttpResponseException(HttpStatusCode.BadRequest);
 		}
 	}
 }

@@ -125,25 +125,45 @@ public class Interfaces
 	 */
 	private static Type GetDeviceType(string typeName)
 	{
-		Type device_type = Type.GetType("api." + typeName);
-		if(device_type != null)
-		{
-			return device_type;
-		}
-		/*
-		foreach(var a in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			device_type = a.GetType(typeName);
+		return Type.GetType("api." + typeName);
+	}
 
-			if(type != null && device_type.IsSubclassOf(typeof(Device)))
+	/**
+	 * Given a device and the JSON string to update it with, this will update
+	 * all public properties which are not the DeviceID or TimeFrame to
+	 * whatever value is in the JSON blob.
+	 * \param[in] dev Device to be updated
+	 * \param[in] json JSON blob of fields to update
+	 * \param[out] Flag indicating if at least one field was updated
+	 */
+	public static bool UpdateDevice(Device dev, string json)
+	{
+		if(dev == null || String.IsNullOrEmpty(json))
+		{
+			return false;
+		}
+
+		var props = dev.GetType().GetRuntimeProperties();
+		var json_obj = JObject.Parse(json);
+		bool updated_value = false;
+		foreach(var info in props)
+		{
+			if(!info.SetMethod.IsPublic || info.Name == "DeviceID" || info.Name == "Frame")
 			{
-				return type;
+				continue;
 			}
+			JToken field;
+			if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
+			{
+				continue;
+			}
+			var value = field.ToObject(info.PropertyType);
+			info.SetValue(dev, value);
+			updated_value = true;
 		}
-		*/
 
-		return null;
+		return updated_value;
 	}
 }
-}
 
+}
