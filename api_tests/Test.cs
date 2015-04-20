@@ -180,13 +180,13 @@ public class APITest
 	public void TestDeviceVars()
 	{
 		List<Device> devices = new List<Device>()
-        {
-            new AlarmSystem(null, null, null),
-            new CeilingFan(null, null, null),
-            new GarageDoor(null, null, null),
-            new LightSwitch(null, null, null),
-            new Thermostat(null, null, null)
-        };
+		{
+			new AlarmSystem(null, null, null),
+			new CeilingFan(null, null, null),
+			new GarageDoor(null, null, null),
+			new LightSwitch(null, null, null),
+			new Thermostat(null, null, null)
+		};
 
 		foreach (var device in devices)
 		{
