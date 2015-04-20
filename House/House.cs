@@ -162,6 +162,11 @@ public class HouseMain
 				if(house_obj.TryGetValue("port", out port_tok))
 				{
 					_port = JsonConvert.DeserializeObject<int>(port_tok.ToString());
+					//must get a valid port value
+					if(_port > System.Net.IPEndPoint.MaxPort || _port < System.Net.IPEndPoint.MinPort)
+					{
+						return false;
+					}
 				}
 				bool success = house_obj.TryGetValue("devices", out dev_tok);
 				System.Diagnostics.Debug.Assert(success);
