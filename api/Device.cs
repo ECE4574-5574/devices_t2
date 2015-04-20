@@ -68,6 +68,18 @@ public abstract class Device
 		}
 	}
 
+	/**
+	 * Grabs the latest available information about this device, and updates
+	 * internal state to match it. This should also update LastUpdated as a post condition.
+	 * \param[out] Flag indicating success
+	 */
+	public bool update()
+	{
+		//TODO: This function should grab the latest state of the device
+		//using the IDeviceInput, without worrying about any particular parameter
+		return true;
+	}
+
 	protected IDeviceInput _in;
 	protected IDeviceOutput _out;
 	protected TimeFrame _frame;
