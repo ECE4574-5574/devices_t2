@@ -18,35 +18,49 @@ public abstract class Device
 		_in = inp;
 		_out = outp;
 		_frame = frame;
-        _last_time = DateTime.MinValue; //Set to minimum possible time
-		ID = new FullID();
+		_last_time = DateTime.MinValue; //Set to minimum possible time
+		_id = new FullID();
+		_name = "";
 	}
 
 	public FullID ID
 	{
-		get;
-		set;
+		get
+		{
+			return _id;
+		}
+		set
+		{
+			_id = value;
+		}
 	}
 
-    public DateTime LastUpdate
-    {
-        get
+	public DateTime LastUpdate
+	{
+		get
 		{
 			return _last_time;
 		}
-        set
+		set
 		{
 			_last_time = value;
 		}
-    }
+	}
 
 	/**
 	 * User friendly name for this device.
 	 */
 	public string Name
 	{
-		get;
-		set;
+		get
+		{
+			return _name;
+		}
+		set
+		{
+			_name = value;
+		}
+
 	}
 
 	public string Class
@@ -84,6 +98,8 @@ public abstract class Device
 	protected IDeviceOutput _out;
 	protected TimeFrame _frame;
 	protected DateTime _last_time;
+	protected string _name;
+	protected FullID _id;
 }
 
 }
