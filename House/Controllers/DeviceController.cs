@@ -18,7 +18,7 @@ public class DeviceController : ApiController
 	/**
 	 * If GET is called with no ID, return a list of all devices in the house.
 	 */
-	public List<Device> Get()
+	public HttpResponseMessage Get()
 	{
 		if(DeviceModel.Instance.Devices.Count == 0)
 		{
@@ -29,13 +29,18 @@ public class DeviceController : ApiController
 			dev.LastUpdate = dev.Frame.now();
 		}
 
-		return DeviceModel.Instance.Devices;
+		var resp = new HttpResponseMessage();
+		resp.StatusCode = HttpStatusCode.OK;
+		var json = JsonConvert.SerializeObject(DeviceModel.Instance.Devices, Formatting.None, new DeviceIDOnlyConverter());
+		resp.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+		return resp;
 	}
 
 	/**
 	 * If a device is called with an ID, return that device
 	 */
-	public Device Get(int id)
+	public HttpResponseMessage Get(int id)
 	{
 		Device result = null;
 		foreach(Device dev in DeviceModel.Instance.Devices)
@@ -52,7 +57,12 @@ public class DeviceController : ApiController
 		{
 			throw new HttpResponseException(HttpStatusCode.NotFound);
 		}
-		return result;
+
+		var resp = new HttpResponseMessage();
+		resp.StatusCode = HttpStatusCode.OK;
+		var json = JsonConvert.SerializeObject(result, Formatting.None, new DeviceIDOnlyConverter());
+		resp.Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+		return resp;
 	}
 		
 	[HttpPost]
@@ -84,16 +94,17 @@ public class DeviceController : ApiController
 		var json_obj = JObject.Parse(data);
 		foreach(var info in props)
 		{
-			if(info.CanWrite && info.Name != "DeviceID" && info.Name != "Frame")
+			if(info.GetSetMethod() == null  || !info.GetSetMethod().IsPublic || info.Name == "DeviceID" || info.Name == "Frame")
 			{
-				JToken field;
-				if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
-				{
-					continue;
-				}
-				var value = field.ToObject(info.PropertyType);
-				info.SetValue(result, value);
+				continue;
 			}
+			JToken field;
+			if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
+			{
+				continue;
+			}
+			var value = field.ToObject(info.PropertyType);
+			info.SetValue(result, value);
 		}
 	}
 }
