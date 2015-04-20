@@ -175,6 +175,57 @@ public class APITest
             Assert.AreEqual(set.Device as IReadable<Light> != null, set.Result);
         }
     }
+
+	[Test()]
+	public void TestDeviceVars()
+	{
+		List<Device> devices = new List<Device>()
+        {
+            new AlarmSystem(null, null, null),
+            new CeilingFan(null, null, null),
+            new GarageDoor(null, null, null),
+            new LightSwitch(null, null, null),
+            new Thermostat(null, null, null)
+        };
+
+		foreach (var device in devices)
+		{
+			Assert.IsTrue(device.ID.HouseID == 0 &&
+						  device.ID.RoomID == 0 &&
+						  device.ID.DeviceID == 0);
+		}
+
+		foreach (var device in devices)
+		{
+			device.ID.HouseID = 1;
+			device.ID.RoomID = 2;
+			device.ID.DeviceID = 3;
+		}
+
+		foreach (var device in devices)
+		{
+			Assert.IsTrue(device.ID.HouseID &&
+						  device.ID.RoomID &&
+						  device.ID.DeviceID);
+		}
+
+		foreach (var device in devices)
+		{
+			Assert.IsTrue(device.Name.Equals(""));
+		}
+
+		foreach (var device in devices)
+		{
+			device.Name = "NON-EMPTY STRING";
+		}
+
+		foreach (var device in devices)
+		{
+			Assert.IsTrue(device.Name.Equals("NON-EMPTY STRING"));
+		}
+
+
+	}
 }
 
 }
