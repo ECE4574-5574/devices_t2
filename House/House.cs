@@ -5,21 +5,14 @@
 * Json implementation will be handled in the devices class
 */
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using api;
+using Hats.SimWeather;
+using Hats.Time;
+using Microsoft.Owin.Hosting;
 using NDesk.Options;
 using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using System.Text;
-using Hats.Time;
 using Newtonsoft.Json.Linq;
-using Hats.SimWeather;
-using Microsoft.Owin.Hosting;
-using System.Net.Http;
 
 namespace House
 {
@@ -72,7 +65,7 @@ public class HouseMain
             return 1;
         }
 
-        if(show_help)
+		if(show_help || optargs.Count == 0)
         {
             PrintHelp(optargs);
 			return 1;
