@@ -34,7 +34,18 @@ public class Interfaces
 	{
 		//TODO: Verify the input parameters are sufficient
 		//TODO: Implement this function
-		return null;
+		if (house_id == 0)
+	        {
+	            return null;
+	        }
+	        //get device list
+	        var devicelist = new List<string>();
+	        var devices = new List<Device>();
+	        var dlist =
+	            (from device in devices
+	             where device.ID.HouseID == house_id
+	             select device);
+	        return devicelist;
 	}
 
 	/**
@@ -49,7 +60,25 @@ public class Interfaces
 	{
 		//TODO: Verify parameters here are sufficient
 		//TODO: Post to Server API to request the device be recorded, and get the device.
-		return null;
+		if (String.IsNullOrEmpty(name) || house_id == 0 || String.IsNullOrEmpty(info))
+	        {
+	            return null;
+	        }
+	        JObject device_obj = JObject.Parse(info);
+	        JToken type_tok;
+	        if (!device_obj.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out type_tok))
+	        {
+	            return null;
+	        }
+	
+	        var device_name = GetDeviceType(type_tok.ToString());
+	        Device device = null;
+	        if (device_name != null)
+	        {
+	            device = (Device)Activator.CreateInstance(device_name, house_id, room_id);
+	            JsonConvert.PopulateObject(info, device);
+	        }
+	        return device;
 	}
 
 	/**
@@ -60,6 +89,13 @@ public class Interfaces
 	 */
 	public bool deleteDevice(Device dev)
 	{
+		if (dev == null)
+            		return false;
+	        //Get[] device list from server API
+	        var dlist = new List<Device>();
+	        //Get[] device list from server API
+	        var item = dlist.First(x => x == dev);
+	        dlist.Remove(item);
 		return true;
 	}
 
@@ -85,6 +121,10 @@ public class Interfaces
 	{
 		var devices = new List<Device>();
 		//TODO: Query all devices in a given room.
+		IEnumerable<Device> dlist =
+            		(from device in devices
+             		where device.ID.HouseID == houseID
+             		select device);
 		return devices;
 	}
 
