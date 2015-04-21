@@ -129,7 +129,17 @@ public class HouseMain
 			return false;
 		}
 
-		JObject info = JObject.Parse(scenario);
+		JObject info = null;
+		try
+		{
+			info = JObject.Parse(scenario);
+		}
+		catch(JsonException ex)
+		{
+			var error = String.Format("Scenario parsing error: {0}", ex.Message);
+			Console.WriteLine(error);
+			return false;
+		}
 		JToken house_list;
 
 		if(!info.TryGetValue("houses", out house_list))
@@ -196,12 +206,10 @@ public class HouseMain
 		return status;
 	}
 
-	static String GetDeviceState(UInt64 house, UInt64 room, UInt64 device)
-	{
-		return "";
-	}
-
-    public static void PrintHelp(OptionSet p)
+	/**
+	 * Helper function to print out usage help.
+	 */
+    private static void PrintHelp(OptionSet p)
     {
         Console.WriteLine("Usage: House [Options]");
         Console.WriteLine("Provides the House Interface for a collection of devices.");
