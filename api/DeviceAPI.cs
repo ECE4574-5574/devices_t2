@@ -100,19 +100,26 @@ public class Interfaces
 			return null;
 		}
 
-		JObject device_obj = JObject.Parse(info);
-		JToken type_tok;
-		if(!device_obj.TryGetValue("class", StringComparison.OrdinalIgnoreCase, out type_tok))
-		{
-			return null;
-		}
-
-		var device_type = GetDeviceType(type_tok.ToString());
 		Device device = null;
-		if(device_type != null)
+		try
 		{
-			device = (Device)Activator.CreateInstance(device_type, inp, outp, frame);
-			JsonConvert.PopulateObject(info, device);
+			JObject device_obj = JObject.Parse(info);
+			JToken type_tok;
+			if(!device_obj.TryGetValue("class", StringComparison.OrdinalIgnoreCase, out type_tok))
+			{
+				return null;
+			}
+
+			var device_type = GetDeviceType(type_tok.ToString());
+			if(device_type != null)
+			{
+				device = (Device)Activator.CreateInstance(device_type, inp, outp, frame);
+				JsonConvert.PopulateObject(info, device);
+			}
+		}
+		catch(JsonException ex)
+		{
+			//TODO: Figure out how to pass exceptions up, or record error
 		}
 		return device;
 	}
@@ -143,23 +150,31 @@ public class Interfaces
 			return false;
 		}
 
-		var props = dev.GetType().GetRuntimeProperties();
-		var json_obj = JObject.Parse(json);
 		bool updated_value = false;
-		foreach(var info in props)
+		try
 		{
-			if(!info.SetMethod.IsPublic || info.Name == "DeviceID" || info.Name == "Frame")
+			var props = dev.GetType().GetRuntimeProperties();
+			var json_obj = JObject.Parse(json);
+
+			foreach(var info in props)
 			{
-				continue;
+				if(!info.SetMethod.IsPublic || info.Name == "DeviceID" || info.Name == "Frame")
+				{
+					continue;
+				}
+				JToken field;
+				if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
+				{
+					continue;
+				}
+				var value = field.ToObject(info.PropertyType);
+				info.SetValue(dev, value);
+				updated_value = true;
 			}
-			JToken field;
-			if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
-			{
-				continue;
-			}
-			var value = field.ToObject(info.PropertyType);
-			info.SetValue(dev, value);
-			updated_value = true;
+		}
+		catch(JsonException ex)
+		{
+			//TODO: Report error somehow?
 		}
 
 		return updated_value;
