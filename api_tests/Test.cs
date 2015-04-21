@@ -220,8 +220,13 @@ public class APITest
 		{
 			Assert.IsTrue(device.Name.Equals("NON-EMPTY STRING"));
 		}
+  }
 
-
+	public void TestHouseOutput()
+	{
+		var testHO = new HouseOutput("http://127.0.0.1:8081/api/device");
+		testHO.write(new AlarmSystem(null, null, null));
+		Assert.IsTrue(testHO != null);
 	}
 }
 
