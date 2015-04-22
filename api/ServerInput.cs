@@ -33,7 +33,7 @@ public class ServerInput : IDeviceInput
 	        string json = readStream.ReadToEnd();
 	        return Interfaces.UpdateDevice(dev, json);
 		//TODO: Implement this function
-		return true;
+		//return true;
 	}
 }
 
