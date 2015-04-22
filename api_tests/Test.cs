@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Net;
 using api;
 using Hats.Time;
 using Newtonsoft.Json;
@@ -224,10 +226,43 @@ public class APITest
 
 	public void TestHouseOutput()
 	{
-		var testHO = new HouseOutput("http://127.0.0.1:8081/api/device");
+		//Test valid URL and Device
+		//	to view correct POST:
+		//		go to http://postcatcher.in/ and click "Start testing your POST requests now"
+		//		copy the URL directly after "Content-Type: application/json" and replace the
+		//		URL below (http://postcatcher.in/catchers/5536e135f9562d0300003e57) with the
+		//		URL from postcatcher
+
+		const string url = "http://postcatcher.in/catchers/5536e135f9562d0300003e57";
+		var testHO = new HouseOutput(url);
+
+		Assert.IsNotNull(testHO);
+		Assert.IsTrue(url == testHO.getURL());
+
 		testHO.write(new AlarmSystem(null, null, null));
-		Assert.IsTrue(testHO != null);
+
+		Assert.IsTrue(testHO.getJSON() == Encoding.UTF8.GetString(testHO.getData(), 0, testHO.getData().Length));
+		Assert.IsNull(testHO.getURLException());
+
+		//Test null URL
+		const string nullURL = null;
+		var testNullURLHO = new HouseOutput(nullURL);
+
+		testNullURLHO.write(new AlarmSystem(null, null, null));
+
+		Assert.IsNotNull(testNullURLHO.getURLException());
+		Assert.IsNull(testNullURLHO.getStreamException());
+		Assert.IsNull(testNullURLHO.getRequestException());
+
+		//Test bad URL
+		const string badURL = "http://bkicia";
+		var testBadURLHO = new HouseOutput(badURL);
+
+		testBadURLHO.write(new AlarmSystem(null, null, null));
+
+		Assert.IsNull(testBadURLHO.getURLException());
+		Assert.IsNotNull(testBadURLHO.getStreamException());
+		Assert.IsNull(testBadURLHO.getRequestException());
 	}
 }
-
 }

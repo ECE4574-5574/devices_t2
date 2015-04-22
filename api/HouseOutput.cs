@@ -27,36 +27,93 @@ public class HouseOutput : IDeviceOutput
 	public bool write(Device dev)
 	{
 		string json = JsonConvert.SerializeObject(dev);
+		_json = json;
 		var _ = writeHelper(json);
-
-		//Console.WriteLine("testing");
 
 		return true;
 	}
 
-	public async Task<bool> writeHelper(string json)
+	private async Task<string> writeHelper(string json)
 	{
-		var request = (HttpWebRequest)WebRequest.Create(_URL);
-
-		var data = Encoding.UTF8.GetBytes(json);
-
-		request.Method = "POST";
-		//request.ContentType = "HouseAPI";
-		//request.ContentLength = data.Length;
-
-		using (var stream = await Task.Factory.FromAsync<Stream>(request.BeginGetRequestStream, request.EndGetRequestStream, null))
+		try
 		{
-			stream.Write(data, 0, data.Length);
+			var request = (HttpWebRequest)WebRequest.Create(_URL);
+
+			var data = Encoding.UTF8.GetBytes(json);
+			_data = data;
+
+			request.Method = "POST";
+			request.ContentType = "application/json";
+
+			try {
+				using (var stream = await Task<Stream>.Factory.FromAsync(request.BeginGetRequestStream, request.EndGetRequestStream, request))
+				{
+					await stream.WriteAsync(data, 0, data.Length);
+				}				
+			} catch (Exception ex) {
+				_StreamException = ex;
+				return null;
+			}
+
+			try {
+
+				WebResponse responseObject = await Task<WebResponse>.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, request);
+
+				var responseString = responseObject.GetResponseStream();
+				var sr = new StreamReader(responseString);
+				string received = await sr.ReadToEndAsync();
+
+				return received;
+				
+			} catch (Exception ex) {
+				_RequestException = ex;
+				return null;
+			}
 		}
-			
-		using(var response = (HttpWebResponse)(await Task<WebResponse>.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, null)))
+		catch(Exception ex)
 		{
-			var responseString = new StreamReader(response.GetResponseStream()).ReadToEnd();
+			_URLException = ex;
+			return null;
 		}
-		return true;
+	}
+
+
+	public string getURL()
+	{
+		return _URL;
+	}
+
+	public byte[] getData()
+	{
+		return _data;
+	}
+
+	public string getJSON()
+	{
+		return _json;
+	}
+
+	public Exception getURLException()
+	{
+		return _URLException;
+	}
+
+	public Exception getStreamException()
+	{
+		return _StreamException;
+	}
+
+	public Exception getRequestException()
+	{
+		return _RequestException;
 	}
 
 	protected string _URL;
+	protected string _json;
+	protected byte[] _data;
+	protected Exception _URLException;
+	protected Exception _StreamException;
+	protected Exception _RequestException;
 }
 
 }
