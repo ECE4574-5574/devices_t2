@@ -5,21 +5,14 @@
 * Json implementation will be handled in the devices class
 */
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using api;
+using Hats.SimWeather;
+using Hats.Time;
+using Microsoft.Owin.Hosting;
 using NDesk.Options;
 using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using System.Text;
-using Hats.Time;
 using Newtonsoft.Json.Linq;
-using Hats.SimWeather;
-using Microsoft.Owin.Hosting;
-using System.Net.Http;
 
 namespace House
 {
@@ -72,7 +65,7 @@ public class HouseMain
             return 1;
         }
 
-        if(show_help)
+		if(show_help || optargs.Count == 0)
         {
             PrintHelp(optargs);
 			return 1;
@@ -136,7 +129,17 @@ public class HouseMain
 			return false;
 		}
 
-		JObject info = JObject.Parse(scenario);
+		JObject info = null;
+		try
+		{
+			info = JObject.Parse(scenario);
+		}
+		catch(JsonException ex)
+		{
+			var error = String.Format("Scenario parsing error: {0}", ex.Message);
+			Console.WriteLine(error);
+			return false;
+		}
 		JToken house_list;
 
 		if(!info.TryGetValue("houses", out house_list))
@@ -203,12 +206,10 @@ public class HouseMain
 		return status;
 	}
 
-	static String GetDeviceState(UInt64 house, UInt64 room, UInt64 device)
-	{
-		return "";
-	}
-
-    public static void PrintHelp(OptionSet p)
+	/**
+	 * Helper function to print out usage help.
+	 */
+    private static void PrintHelp(OptionSet p)
     {
         Console.WriteLine("Usage: House [Options]");
         Console.WriteLine("Provides the House Interface for a collection of devices.");
