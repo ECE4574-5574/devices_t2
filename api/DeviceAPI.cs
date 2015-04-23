@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -10,6 +10,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Diagnostics;
 using api.Converters;
+using Hats.Time;
+using System.Linq;
 
 namespace api
 {
@@ -43,18 +45,41 @@ public class Interfaces
 	{
 		//TODO: Verify the input parameters are sufficient
 		//TODO: Implement this function
-		if (house_id == 0)
-	        {
-	            return null;
-	        }
-	        //get device list
-	        var devicelist = new List<string>();
-	        var devices = new List<Device>();
-	        var dlist =
-	            (from device in devices
-	             where device.ID.HouseID == house_id
-	             select device);
-	        return devicelist;
+        if (house_id == 0)
+        {
+            return null;
+        }
+        //get device list
+		//Interfaces(address);
+		// get some device list
+		/*
+		List<Device> fake_Devices = new List<Device>()
+		{
+			new AlarmSystem(null, null, null),
+			new CeilingFan(null, null, null),
+			new GarageDoor(null, null, null),
+			new LightSwitch(null, null, null),
+			new Thermostat(null, null, null)
+		};
+		foreach (var device in devices)
+		{
+			device.ID.HouseID = 1;
+		}
+		*/
+        var devicelist = new List<string>();
+		foreach(var dev in devices)//fake_Devices)
+		{
+			if(house_id == dev.ID.HouseID)
+				devicelist.Add(dev.Name);
+		}
+		/*
+        var devices = new List<Device>();
+        var dlist =
+            (from device in devices
+             where device.ID.HouseID == house_id
+             select device);
+             */
+        return devicelist;
 	}
 
 	/**
@@ -69,25 +94,28 @@ public class Interfaces
 	{
 		//TODO: Verify parameters here are sufficient
 		//TODO: Post to Server API to request the device be recorded, and get the device.
-		if (String.IsNullOrEmpty(name) || house_id == 0 || String.IsNullOrEmpty(info))
-	        {
-	            return null;
-	        }
-	        JObject device_obj = JObject.Parse(info);
-	        JToken type_tok;
-	        if (!device_obj.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out type_tok))
-	        {
-	            return null;
-	        }
-	
-	        var device_name = GetDeviceType(type_tok.ToString());
-	        Device device = null;
-	        if (device_name != null)
-	        {
-	            device = (Device)Activator.CreateInstance(device_name, house_id, room_id);
-	            JsonConvert.PopulateObject(info, device);
-	        }
-	        return device;
+        if (String.IsNullOrEmpty(name) || house_id == 0 || String.IsNullOrEmpty(info))
+        {
+            return null;
+        }
+        JObject device_obj = JObject.Parse(info);
+        JToken type_tok;
+        if (!device_obj.TryGetValue("class", StringComparison.OrdinalIgnoreCase, out type_tok))
+        {
+            return null;
+        }
+		var device_type = GetDeviceType(type_tok.ToString());
+        var device_name = name;
+        Device device = null;
+        if (device_name != null)
+        {
+            device = (Device)Activator.CreateInstance(device_type, house_id, room_id);
+			device.Name = device_name;
+			JsonConvert.PopulateObject(info, device);
+        }
+        return device;
+
+		
 	}
 
 	/**
@@ -98,13 +126,13 @@ public class Interfaces
 	 */
 	public bool deleteDevice(Device dev)
 	{
-		if (dev == null)
-            		return false;
-	        //Get[] device list from server API
-	        var dlist = new List<Device>();
-	        //Get[] device list from server API
-	        var item = dlist.First(x => x == dev);
-	        dlist.Remove(item);
+        if (dev == null)
+            return false;
+
+        var dlist = new List<Device>();
+        //dlist = Get[] device list from server API
+        var item = dlist.First(x => x == dev);
+        dlist.Remove(item);
 		return true;
 	}
 
@@ -115,8 +143,24 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID)
 	{
+		if (houseID == 0)
+		{
+			return null;
+		}
 		var devices = new List<Device>();
 		//TODO: Query all devices in a given house.
+        // get devices list from server
+
+        foreach (var device in devices)
+        {
+			if(device.ID.HouseID == houseID)
+				devices.Add(device);
+        }
+		/*
+        IEnumerable<Device> dlist =
+            (from device in devices
+             where device.ID.HouseID == houseID
+             select device);*/
 		return devices;
 	}
 
@@ -128,12 +172,26 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID, UInt64 roomID)
 	{
+		if(houseID == 0)
+			return null;
+		
 		var devices = new List<Device>();
+        //get device list from server api
 		//TODO: Query all devices in a given room.
-		IEnumerable<Device> dlist =
-            		(from device in devices
-             		where device.ID.HouseID == houseID
-             		select device);
+		string info = null;
+		foreach(var dev in devices)
+		{
+			if(dev.ID.HouseID == houseID && roomID != 0)
+				devices.Add(dev);
+			if(roomID == 0)
+				registerDevice(dev.Name, houseID, info);
+		}
+		/*
+        IEnumerable<Device> dlist =
+            (from device in devices
+             where device.ID.HouseID == houseID && device.ID.RoomID == roomID
+             select device);
+             */
 		return devices;
 	}
 
