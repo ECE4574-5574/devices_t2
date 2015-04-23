@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using api;
 
-namespace House
+namespace api.Converters
 {
 public class DeviceIDOnlyConverter : JsonConverter
 {
