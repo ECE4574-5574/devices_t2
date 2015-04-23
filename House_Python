@@ -1,0 +1,140 @@
+# 
+# * Contributor: Pedro Sorto, Kara Dodenhoff, Steven Cho, Danny Mota, Aakruthi Gopisetty, Dong Nan
+# * RESTful device API
+# * Json string will be read through the inputstream
+# * Json implementation will be handled in the devices class
+# 
+
+from System import 
+from System.Collections.Concurrent import 
+from System.Collections.Generic import 
+from System.Net import 
+from System.Threading import 
+from System.Threading.Tasks import 
+from api import 
+from NDesk.Options import 
+from Newtonsoft.Json import 
+from System.Text.RegularExpressions import 
+from System.Text import 
+from Hats.Time import 
+from Newtonsoft.Json.Linq import 
+from Hats.SimWeather import 
+from Microsoft.Owin.Hosting import 
+from System.Net.Http import 
+
+class HouseMain(object):
+	def __init__(self):
+
+	def Main(args):
+		show_help = False
+		self.__is_sim = True
+		self.__port = 8080
+		self.__time = None
+		config = Dictionary[str, str]()
+		optargs = OptionSet(, , , )
+		try:
+			optargs.Parse(args)
+		except OptionException, e:
+			Console.WriteLine(e.Message)
+			return 1
+		finally:
+		if show_help:
+			HouseMain.PrintHelp(optargs)
+			return 1
+		success = HouseMain.ParseConfig(config)
+		System.Diagnostics.Debug.Assert(success)
+		if self.__is_sim:
+			Console.WriteLine("OK")
+		HouseMain.InitListener(self.__port)
+		input = Console.ReadLine()
+		while not input.Equals("q", StringComparison.OrdinalIgnoreCase):
+			if self.__time != None:
+				self.__time = JsonConvert.DeserializeObject(input)
+				enumerator = DeviceModel.Instance.Devices.GetEnumerator()
+				while enumerator.MoveNext():
+					dev = enumerator.Current
+					dev.Frame = self.__time
+				DeviceModel.Instance.Responding = True
+			input = Console.ReadLine()
+		return 0
+
+	Main = staticmethod(Main)
+
+	def ParseConfig(config):
+		IDKey = "house_id"
+		ScenarioKey = "test_scenario"
+		if not config.ContainsKey(IDKey) or not config.ContainsKey(ScenarioKey):
+			return False
+		house_id = config[IDKey]
+		scenario = config[ScenarioKey]
+		self.__is_sim = HouseMain.GenerateSimulatedHouse(house_id, scenario)
+		return self.__is_sim
+
+	ParseConfig = staticmethod(ParseConfig)
+
+	def InitListener(port):
+		baseURL = String.Format("http://+:{0}/", port.ToString())
+		self.__listener = WebApp.Start(url)
+
+	InitListener = staticmethod(InitListener)
+
+	def GenerateSimulatedHouse(house_id, scenario):
+		if String.IsNullOrEmpty(house_id) or String.IsNullOrEmpty(scenario):
+			return False
+		info = JObject.Parse(scenario)
+		if not info.TryGetValue("houses", ):
+			return False
+		status = False
+		houses = house_list.Children()
+		#search through houses. Pity this isn't a map.
+		enumerator = houses.GetEnumerator()
+		while enumerator.MoveNext():
+			house = enumerator.Current
+			house_obj = JObject.Parse(house.ToString())
+			#found our house
+			if house_obj.TryGetValue("name", ) and name.ToString() == house_id:
+				if house_obj.TryGetValue("port", ):
+					self.__port = JsonConvert.DeserializeObject(port_tok.ToString())
+					#must get a valid port value
+					if self.__port > System.Net.IPEndPoint.MaxPort or self.__port < System.Net.IPEndPoint.MinPort:
+						return False
+				success = house_obj.TryGetValue("devices", )
+				System.Diagnostics.Debug.Assert(success)
+				devices = dev_tok.Children()
+				id = 0
+				enumerator = devices.GetEnumerator()
+				while enumerator.MoveNext():
+					dev = enumerator.Current
+					#TODO: Create DeviceInput and DeviceOutput for control
+					device = Interfaces.DeserializeDevice(dev.ToString(), None, None, TimeFrame())
+					if device != None:
+						device.ID.DeviceID = id += 1
+						DeviceModel.Instance.Devices.Add(device)
+				success = house_obj.TryGetValue("weather", )
+				System.Diagnostics.Debug.Assert(success)
+				self.__weather = LinearWeather()
+				temps = weather_tok.Children()
+				enumerator = temps.GetEnumerator()
+				while enumerator.MoveNext():
+					temp = enumerator.Current
+					self.__weather.Add(JsonConvert.DeserializeObject(temp.ToString()))
+				System.Diagnostics.Debug.Assert(DeviceModel.Instance.Devices.Count > 0)
+				status = True
+				break
+		return status
+
+	GenerateSimulatedHouse = staticmethod(GenerateSimulatedHouse)
+
+	def GetDeviceState(house, room, device):
+		return ""
+
+	GetDeviceState = staticmethod(GetDeviceState)
+
+	def PrintHelp(p):
+		Console.WriteLine("Usage: House [Options]")
+		Console.WriteLine("Provides the House Interface for a collection of devices.")
+		Console.WriteLine()
+		Console.WriteLine("Options:")
+		p.WriteOptionDescriptions(Console.Out)
+
+	PrintHelp = staticmethod(PrintHelp)
