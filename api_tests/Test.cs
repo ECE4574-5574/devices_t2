@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Net;
 using api;
 using Hats.Time;
 using Newtonsoft.Json;
@@ -173,56 +175,18 @@ public class APITest
         }
     }
 
-	[Test()]
-	public void TestDeviceVars()
+	[Test]
+	public void TestHouseInput()
 	{
-		List<Device> devices = new List<Device>()
-		{
-			new AlarmSystem(null, null, null),
-			new CeilingFan(null, null, null),
-			new GarageDoor(null, null, null),
-			new LightSwitch(null, null, null),
-			new Thermostat(null, null, null)
-		};
+		const string url = ""; //include URL
+		var input = new HouseInput(url, "");
 
-		foreach (var device in devices)
-		{
-			Assert.IsTrue(device.ID.HouseID == 0 &&
-						  device.ID.RoomID == 0 &&
-						  device.ID.DeviceID == 0);
-		}
+		Assert.IsNotNull(input);
+		Assert.IsTrue(url == input.getURL());
 
-		foreach (var device in devices)
-		{
-			device.ID.HouseID = 1;
-			device.ID.RoomID = 2;
-			device.ID.DeviceID = 3;
-		}
-
-		foreach (var device in devices)
-		{
-			Assert.IsTrue(device.ID.HouseID == 1 &&
-						  device.ID.RoomID == 2 &&
-						  device.ID.DeviceID == 3);
-		}
-
-		foreach (var device in devices)
-		{
-			Assert.IsTrue(device.Name.Equals(""));
-		}
-
-		foreach (var device in devices)
-		{
-			device.Name = "NON-EMPTY STRING";
-		}
-
-		foreach (var device in devices)
-		{
-			Assert.IsTrue(device.Name.Equals("NON-EMPTY STRING"));
-		}
-
-
+		var device = new LightSwitch(input, null, null);
+		var response = input.read(device);
+		Assert.AreEqual(true, response);
 	}
 }
-
 }
