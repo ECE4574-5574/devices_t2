@@ -2,7 +2,7 @@
 using System.Reflection;
 using Newtonsoft.Json;
 
-namespace api
+namespace api.Converters
 {
 
 /**
