@@ -223,6 +223,36 @@ public class APITest
 
 
 	}
+	[Test()]
+    public void TestDeviceAPI()
+    {
+        List<Device> devices = new List<Device>()
+		{
+			new AlarmSystem(null, null, null),
+			new CeilingFan(null, null, null),
+			new GarageDoor(null, null, null),
+			new LightSwitch(null, null, null),
+			new Thermostat(null, null, null)
+		};
+		ulong houseidtest = 1;
+		var link = new Uri("http://www.contoso.com/");  //fake url
+		var intf = new Interfaces(link); // not actual server address
+		var testdev = intf.getDevices(houseidtest); //get house 0 
+		//testdev = getDevices(1);
+		foreach (var device in devices)
+		{
+			device.ID.HouseID = 1;
+			device.ID.RoomID = 2;
+			device.ID.DeviceID = 3;
+		}
+		foreach(var device in testdev)
+		{
+			Assert.True(device.ID.HouseID == houseidtest);
+		}
+	    // use this to show same type of objects in list but will fail since each object is unique
+		//Assert.Equals(devices, testdev);
+
+    }
 }
 
 }
