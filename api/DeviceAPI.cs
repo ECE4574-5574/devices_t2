@@ -9,6 +9,7 @@ using Newtonsoft.Json.Serialization;
 using Hats.Time;
 using System.Linq;
 
+
 namespace api
 {
 
@@ -35,39 +36,21 @@ public class Interfaces
 	{
 		//TODO: Verify the input parameters are sufficient
 		//TODO: Implement this function
-        if (house_id == 0)
+        if (house_id < 0)
         {
             return null;
         }
         //get device list
-		//Interfaces(address);
+		//var address = new Interfaces(address);
 		// get some device list
-		/*
-		List<Device> fake_Devices = new List<Device>()
-		{
-			new AlarmSystem(null, null, null),
-			new CeilingFan(null, null, null),
-			new GarageDoor(null, null, null),
-			new LightSwitch(null, null, null),
-			new Thermostat(null, null, null)
-		};
-		foreach (var device in devices)
-		{
-			device.ID.HouseID = 1;
-		}
-		*/
         var devicelist = new List<string>();
-		foreach(var dev in devices)//fake_Devices)
+		/*
+		foreach(var dev in devicelist)//fake_Devices)
 		{
 			if(house_id == dev.ID.HouseID)
 				devicelist.Add(dev.Name);
 		}
-		/*
-        var devices = new List<Device>();
-        var dlist =
-            (from device in devices
-             where device.ID.HouseID == house_id
-             select device);
+
              */
         return devicelist;
 	}
@@ -84,7 +67,7 @@ public class Interfaces
 	{
 		//TODO: Verify parameters here are sufficient
 		//TODO: Post to Server API to request the device be recorded, and get the device.
-        if (String.IsNullOrEmpty(name) || house_id == 0 || String.IsNullOrEmpty(info))
+        if (String.IsNullOrEmpty(name) || house_id < 0 || String.IsNullOrEmpty(info))
         {
             return null;
         }
@@ -126,6 +109,14 @@ public class Interfaces
 		return true;
 	}
 
+	public bool Equals(Device x, Device y)
+	{
+		if (object.ReferenceEquals(x, y)) return true;
+
+		if (object.ReferenceEquals(x, null) || object.ReferenceEquals(y, null)) return false;
+
+		return x.ID.HouseID == y.ID.HouseID;
+	}
 	/**
 	 * Function to get a list of devices from the server.
 	 * \param[in] ID of the House to get devices for
@@ -133,24 +124,36 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID)
 	{
-		if (houseID == 0)
+		if (houseID < 0)
 		{
 			return null;
 		}
+
+		// testing
+		List<Device> fake_Devices = new List<Device>()
+		{
+			new AlarmSystem(null, null, null),
+			new CeilingFan(null, null, null),
+			new GarageDoor(null, null, null),
+			new LightSwitch(null, null, null),
+			new Thermostat(null, null, null)
+		};
+		foreach (var device in fake_Devices)//devices)
+		{
+			device.ID.HouseID = 1;
+			device.ID.RoomID = 2;
+			device.ID.DeviceID = 3;
+		}
+		//ending test
+		//var address = new Interfaces(address);
+		// get some device list
 		var devices = new List<Device>();
 		//TODO: Query all devices in a given house.
-        // get devices list from server
-
-        foreach (var device in devices)
+		foreach (var device in fake_Devices)//devices)
         {
 			if(device.ID.HouseID == houseID)
 				devices.Add(device);
         }
-		/*
-        IEnumerable<Device> dlist =
-            (from device in devices
-             where device.ID.HouseID == houseID
-             select device);*/
 		return devices;
 	}
 
@@ -162,7 +165,7 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID, UInt64 roomID)
 	{
-		if(houseID == 0)
+		if(houseID < 0)
 			return null;
 		
 		var devices = new List<Device>();
@@ -176,12 +179,6 @@ public class Interfaces
 			if(roomID == 0)
 				registerDevice(dev.Name, houseID, info);
 		}
-		/*
-        IEnumerable<Device> dlist =
-            (from device in devices
-             where device.ID.HouseID == houseID && device.ID.RoomID == roomID
-             select device);
-             */
 		return devices;
 	}
 
