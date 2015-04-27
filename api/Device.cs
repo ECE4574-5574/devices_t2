@@ -21,6 +21,19 @@ namespace api
 			_last_time = DateTime.MinValue; //Set to minimum possible time
 			_id = new FullID();
 			_name = "";
+			_update_ok = false;
+		}
+
+		public bool UpdateOk
+		{
+			get
+			{
+				return _update_ok;
+			}
+			private set
+			{
+				_update_ok = value;
+			}
 		}
 
 		public FullID ID
@@ -28,9 +41,15 @@ namespace api
 			get
 			{
 				if (_in.read(this))
+				{
+					_update_ok = true;
 					return _id;
+				}
 				else
-					return null;
+				{
+					_update_ok = false;
+					return _id;
+				}
 			}
 			set
 			{
@@ -44,9 +63,16 @@ namespace api
 			get
 			{
 				if (_in.read(this))
+				{
+					_update_ok = true;
 					return _last_time;
+				}
 				else
+				{
+					_update_ok = false;
 					return System.DateTime.MinValue;
+				}
+					
 			}
 			set
 			{
@@ -63,9 +89,15 @@ namespace api
 			get
 			{
 				if (_in.read(this))
+				{
+					_update_ok = true;
 					return _name;
+				}
 				else
-					return null;
+				{
+					_update_ok = false;
+					return _name;
+				}
 			}
 			set
 			{
@@ -87,9 +119,15 @@ namespace api
 			get
 			{
 				if (_in.read(this))
+				{
+					_update_ok = true;
 					return _frame;
+				}
 				else
-					return null;
+				{
+					_update_ok = false;
+					return _frame;
+				}
 			}
 			set
 			{
@@ -107,7 +145,16 @@ namespace api
 		{
 			//TODO: This function should grab the latest state of the device
 			//using the IDeviceInput, without worrying about any particular parameter
-			return _in.read(this);
+			if(_in.read(this))
+			{
+				_update_ok = true;
+				return _update_ok;
+			}
+			else
+			{
+				_update_ok = false;
+				return _update_ok;
+			}
 		}
 
 		protected IDeviceInput _in;
@@ -116,6 +163,7 @@ namespace api
 		protected DateTime _last_time;
 		protected string _name;
 		protected FullID _id;
+		private bool _update_ok;
 	}
 
 }
