@@ -10,7 +10,7 @@ namespace api
  */
 public class HouseInput : IDeviceInput
 {
-	public HouseInput()
+	public HouseInput(string house_info, string device_info)
 	{
 	}
 

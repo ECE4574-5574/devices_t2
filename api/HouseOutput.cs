@@ -11,7 +11,7 @@ namespace api
  */
 public class HouseOutput : IDeviceOutput
 {
-	public HouseOutput()
+	public HouseOutput(string house_info, string device_info)
 	{
 	}
 

@@ -7,7 +7,7 @@ namespace api
 {
 public class ServerOutput : IDeviceOutput
 {
-	public ServerOutput()
+	public ServerOutput(string server_url)
 	{
 	}
 

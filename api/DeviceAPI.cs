@@ -7,18 +7,20 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Hats.Time;
+using PortableRest;
 
 namespace api
 {
 
 public class Interfaces
 {
-	protected HttpClient _http;
+	protected RestClient _http;
 	protected Uri _server;
 
 	public Interfaces(Uri serverAddress)
 	{
-		_http = new HttpClient();
+		_http = new RestClient();
+		_http.BaseUrl = serverAddress.ToString();
 		_server = serverAddress;
 	}
 
@@ -89,7 +91,20 @@ public class Interfaces
 	}
 
 	/**
-	 * Given a JSON string representing a device, instantiates the device as desired.
+	 * Given relevant information string, attempts to create a device capable of communicating with a device through the server.
+	 * \param[in] info JSON string representing the device, which came from the server
+	 * \param[in] frame TimeFrame for timestamping data for this device
+	 */
+	public Device CreateDevice(string info, TimeFrame frame)
+	{
+		var inp = new ServerInput(_server.ToString());
+		var outp = new ServerOutput(_server.ToString());
+		return Interfaces.DeserializeDevice(info, inp, outp, frame);
+	}
+
+	/**
+	 * Given a JSON string representing a device, instantiates the device as desired. Raw instantiation, which shouldn't
+	 * be used by end-clients typically
 	 * \param[in] info JSON string representing device. Must have a key named "class" which
 	 *            names the class deriving from Device to instantiate.
 	 */
