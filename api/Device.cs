@@ -69,7 +69,7 @@ public abstract class Device
 		{
 			return _last_time;
 		}
-		private set
+		set
 		{
 			_last_time = value;
 		}
@@ -96,7 +96,7 @@ public abstract class Device
 	public string Class
 	{
 		get;
-		set;
+		protected set;
 	}
 
 	[JsonIgnore]
@@ -104,7 +104,6 @@ public abstract class Device
 	{
 		get
 		{
-			_update_ok = _in.read(this);
 			return _frame;
 		}
 		set
