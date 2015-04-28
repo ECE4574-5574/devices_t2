@@ -15,6 +15,19 @@ public abstract class Device
 {
 	public Device(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
 	{
+		//Force sane defaults, so we can assume these are always valid
+		if(inp == null)
+		{
+			inp = new NullDeviceInput();
+		}
+		if(outp == null)
+		{
+			outp = new NullDeviceOutput();
+		}
+		if(frame == null)
+		{
+			frame = new TimeFrame();
+		}
 		_in = inp;
 		_out = outp;
 		_frame = frame;
@@ -102,24 +115,14 @@ public abstract class Device
 	}
 
 	/**
-		 * Grabs the latest available information about this device, and updates
-		 * internal state to match it. This should also update LastUpdated as a post condition.
-		 * \param[out] Flag indicating success
-		 */
+	 * Grabs the latest available information about this device, and updates
+	 * internal state to match it. This should also update LastUpdated as a post condition.
+	 * \param[out] Flag indicating success
+	 */
 	public bool update()
 	{
-		//TODO: This function should grab the latest state of the device
-		//using the IDeviceInput, without worrying about any particular parameter
-		if(_in.read(this))
-		{
-			_update_ok = true;
-			return _update_ok;
-		}
-		else
-		{
-			_update_ok = false;
-			return _update_ok;
-		}
+		_update_ok = _in.read(this);
+		return _update_ok;
 	}
 
 	protected IDeviceInput _in;
