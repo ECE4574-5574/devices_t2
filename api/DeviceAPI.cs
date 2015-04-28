@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using api;
+using Hats.Time;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Hats.Time;
 using PortableRest;
 
 namespace api
@@ -193,6 +194,55 @@ public class Interfaces
 		}
 
 		return updated_value;
+	}
+
+	/**
+	 * Given an instance of the device, attempts to update all public properties with info
+	 * from the new device instance. Note that devices currently must have the same ID, but
+	 * the actual classes do not need to be the same.
+	 * \param[in] old_dev Device which will be updated.
+	 * \param[in] new_dev Device which contains values to be updated with
+	 * \param[out] Flag indicating if a field was updated with a new value
+	 */
+	public static bool UpdateDevice(Device old_dev, Device new_dev)
+	{
+		if(old_dev == null || new_dev == null)
+		{
+			return false;
+		}
+
+		if(old_dev.ID != new_dev.ID)
+		{
+			return false;
+		}
+			
+		var old_props = old_dev.GetType().GetRuntimeProperties();
+		var new_props = new_dev.GetType().GetRuntimeProperties();
+		bool update_field = false;
+
+		foreach(var old_info in old_props)
+		{
+			//Can't update this method
+			if(!old_info.SetMethod.IsPublic)
+			{
+				continue;
+			}
+			foreach(var new_info in new_props)
+			{
+				if(!new_info.GetMethod.IsPublic)
+				{
+					continue;
+				}
+
+				if(new_info.Name == old_info.Name)
+				{
+					update_field |= old_info.GetValue(old_dev) != new_info.GetValue(new_info);
+					old_info.SetValue(old_dev, new_info.GetValue(new_dev));
+					break;
+				}
+			}
+		}
+		return update_field;
 	}
 }
 
