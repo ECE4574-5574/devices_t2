@@ -40,21 +40,13 @@ public abstract class Device
 	{
 		get
 		{
-			if(_in.read(this))
-			{
-				_update_ok = true;
-				return _id;
-			}
-			else
-			{
-				_update_ok = false;
-				return _id;
-			}
+			_update_ok = _in.read(this);
+			return _id;
 		}
 		set
 		{
 			_id = value;
-			_out.write(this);
+			_update_ok = _out.write(this);
 		}
 	}
 
@@ -62,22 +54,11 @@ public abstract class Device
 	{
 		get
 		{
-			if(_in.read(this))
-			{
-				_update_ok = true;
-				return _last_time;
-			}
-			else
-			{
-				_update_ok = false;
-				return System.DateTime.MinValue;
-			}
-					
+			return _last_time;
 		}
-		set
+		private set
 		{
 			_last_time = value;
-			_out.write(this);
 		}
 	}
 
@@ -88,16 +69,8 @@ public abstract class Device
 	{
 		get
 		{
-			if(_in.read(this))
-			{
-				_update_ok = true;
-				return _name;
-			}
-			else
-			{
-				_update_ok = false;
-				return _name;
-			}
+			_update_ok = _in.read(this);
+			return _name;
 		}
 		set
 		{
@@ -118,16 +91,8 @@ public abstract class Device
 	{
 		get
 		{
-			if(_in.read(this))
-			{
-				_update_ok = true;
-				return _frame;
-			}
-			else
-			{
-				_update_ok = false;
-				return _frame;
-			}
+			_update_ok = _in.read(this);
+			return _frame;
 		}
 		set
 		{
