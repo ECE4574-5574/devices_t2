@@ -30,11 +30,13 @@ public class Interfaces
 	 * \param[in] address Location of the house to query for unregistered devices.
 	 * \param[out] List of strings which represent devices which could be registered.
 	 */
-	public List<string> enumerateDevices(UInt64 house_id)
+
+
+	public bool enumerateDevices(UInt64 house_id)
 	{
-		//TODO: Verify the input parameters are sufficient
-		//TODO: Implement this function
-		return null;
+		//List<string> unregistered_devices= {"light1", "light2", "alarm1"};
+		//return unregistered_devices;
+		return true;
 	}
 
 	/**
