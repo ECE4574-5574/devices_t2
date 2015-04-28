@@ -15,23 +15,51 @@ public abstract class Device
 {
 	public Device(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
 	{
+		//Force sane defaults, so we can assume these are always valid
+		if(inp == null)
+		{
+			inp = new NullDeviceInput();
+		}
+		if(outp == null)
+		{
+			outp = new NullDeviceOutput();
+		}
+		if(frame == null)
+		{
+			frame = new TimeFrame();
+		}
 		_in = inp;
 		_out = outp;
 		_frame = frame;
 		_last_time = DateTime.MinValue; //Set to minimum possible time
 		_id = new FullID();
 		_name = "";
+		_update_ok = false;
+	}
+
+	public bool UpdateOk
+	{
+		get
+		{
+			return _update_ok;
+		}
+		private set
+		{
+			_update_ok = value;
+		}
 	}
 
 	public FullID ID
 	{
 		get
 		{
+			_update_ok = _in.read(this);
 			return _id;
 		}
 		set
 		{
 			_id = value;
+			_update_ok = _out.write(this);
 		}
 	}
 
@@ -54,11 +82,13 @@ public abstract class Device
 	{
 		get
 		{
+			_update_ok = _in.read(this);
 			return _name;
 		}
 		set
 		{
 			_name = value;
+			_out.write(this);
 		}
 
 	}
@@ -66,7 +96,7 @@ public abstract class Device
 	public string Class
 	{
 		get;
-		set;
+		protected set;
 	}
 
 	[JsonIgnore]
@@ -79,6 +109,7 @@ public abstract class Device
 		set
 		{
 			_frame = value;
+			_out.write(this);
 		}
 	}
 
@@ -89,9 +120,8 @@ public abstract class Device
 	 */
 	public bool update()
 	{
-		//TODO: This function should grab the latest state of the device
-		//using the IDeviceInput, without worrying about any particular parameter
-		return true;
+		_update_ok = _in.read(this);
+		return _update_ok;
 	}
 
 	protected IDeviceInput _in;
@@ -100,6 +130,7 @@ public abstract class Device
 	protected DateTime _last_time;
 	protected string _name;
 	protected FullID _id;
+	private bool _update_ok;
 }
 
 }
