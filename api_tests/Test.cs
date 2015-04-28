@@ -92,7 +92,7 @@ public class APITest
     public void TestDeviceTimeUpdate()
     {
         var device = new LightSwitch(null, null, null);
-		Assert.AreNotEqual(device.Name, null);
+		device.update();
         Assert.AreNotEqual(device.LastUpdate, DateTime.MinValue);
     }
 
