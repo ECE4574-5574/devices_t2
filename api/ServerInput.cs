@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Text;
 using System.Diagnostics;
-using PortableRest;//This class cannot use RestSharp as they are configured to be compatible with PCL libraries
-using Newtonsoft.Json;
+using PortableRest;
 
+//This class cannot use RestSharp as they are configured to be compatible with PCL libraries
+using Newtonsoft.Json;
+using System.IO;
 
 namespace api
 {
@@ -17,9 +19,9 @@ public class ServerInput : IDeviceInput
 {
 	string _server_uri;
 
-	public ServerInput(string server_uri) 
+	public ServerInput(string server_url)
 	{
-		_server_uri= server_uri;
+		_server_uri = server_url;
 	}
 
 	/**
@@ -34,7 +36,7 @@ public class ServerInput : IDeviceInput
 		try
 		{
 			var client = new RestClient();
-			client.BaseUrl ="http://serverapi1.azurewebsites.net/";
+			client.BaseUrl = _server_uri;
 			/*
 		client.BaseUrl = _server_uri;
 		var request = new RestRequest("api/storage/device/{house}/{space}/{device}");//the default request is GET
@@ -44,12 +46,12 @@ public class ServerInput : IDeviceInput
 		*/
 			var request = new RestRequest("api/app/device/");
 
-			var response = client.ExecuteAsync<string>(request);//tries to get a deserialized string of device state as the response.
+			var response = client.SendAsync<string>(request);//tries to get a deserialized string of device state as the response.
+			response.Wait();
 
-			if(response.Status ==TaskStatus.WaitingForActivation)//condition check for a successful completion of the GET request
+			if(response.Result.HttpResponseMessage.StatusCode == HttpStatusCode.OK)//condition check for a successful completion of the GET request
 			{	
 				return true;
-
 				/*
 			bool update_status = Interfaces.UpdateDevice(dev, response.Result);// updating the device state obtained from server
 															//the assumption is that response.Result has the deserialized device state
@@ -67,7 +69,7 @@ public class ServerInput : IDeviceInput
 		*/
 			}
 		}
-		catch (Exception e)
+		catch(Exception e)
 		{
 			Debug.WriteLine("Server Input Error: " + e.Message);
 			Debug.WriteLine("Server Input Error: " + e.InnerException.Message);
