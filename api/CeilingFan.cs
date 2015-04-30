@@ -30,14 +30,30 @@ public class CeilingFan : Device, IEnableable, IDiscreteSetting
 	}
 	public bool Enabled
 	{
-		get;
-		set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return Enabled;
+		}
+		set
+		{
+			Enabled = value;
+			_out.write(this);
+		}
 	}
 
 	public Int64 State
 	{
-		get;
-		set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return State;
+		}
+		set
+		{
+			State = value;
+			_out.write(this);
+		}
 	}
 
 	public Int64 MinState()
