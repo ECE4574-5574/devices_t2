@@ -1,30 +1,44 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using api;
-using Hats.Time;
-using Newtonsoft.Json;
 using NUnit.Framework;
-
+using System;
+//using HomeAutomationApp;
+using System.Collections.Generic;
+using api;
+using Newtonsoft.Json.Linq;
+using System.Net.Http;
+//using System;
+//using System.Net;
+using System.Threading.Tasks;
+//using System.Net.Http;
+using System.Text;
+using System.Diagnostics;
+//using PortableRest;//This class cannot use RestSharp as they are configured to be compatible with PCL libraries
+using Newtonsoft.Json;
+using System.Net.Http;
+//using System.Web;
 namespace api_tests
 {
 [TestFixture]
 public class APITest
 {
-    [SetUp]
-    public void Init()
-    {
-    }
+	[SetUp]
+	public void Init()
+	{
+	}
 
-    [Test]
-    public void TestServerInput()
-    {
-        var input = new ServerInput("");
-        var device = new LightSwitch(input, null, null);
-        var response = input.read(device);
-        Assert.AreEqual(true, response);
-    }
+	[Test]
+	public void TestServerInput()
+	{
+		var input = new ServerInput1();
+		//  var device = new LightSwitch(input, null, null);
+		//var response = input.read(device);
+		return_value = input.read();
 
+		Assert.IsTrue(input.read().Equals("OK"));
+		//VoiceCommandController.SendBrighterAsync(blob, User).Equals(HttpStatusCode.OK)
+		//Assert.IsTrue(VoiceCommandController.SendBrighterAsync(blob, User).Equals(HttpStatusCode.OK));
+	}
+
+	/*
     [Test]
     public void TestLightSerialization()
     {
@@ -84,15 +98,18 @@ public class APITest
     [Test()]
     public void TestDeviceTimeInit()
     {
-        var device = new LightSwitch(null, null, null);
+        
+		var input = new ServerInput1("http://serverapi1.azurewebsites.net");
+        var device = new LightSwitch(input, null, null);
         Assert.AreEqual(device.LastUpdate, DateTime.MinValue);
     }
 
     [Test()]
     public void TestDeviceTimeUpdate()
     {
-        var device = new LightSwitch(null, null, null);
-		Assert.AreNotEqual(device.Name, null);
+		var input = new ServerInput1("http://serverapi1.azurewebsites.net");
+        var device = new LightSwitch(input, null, null);
+        device.LastUpdate = DateTime.Now.ToUniversalTime();
         Assert.AreNotEqual(device.LastUpdate, DateTime.MinValue);
     }
 
@@ -223,6 +240,7 @@ public class APITest
 
 
 	}
+*/
 }
 
 }
