@@ -21,6 +21,7 @@ namespace api
  */
 public class AlarmSystem : Device, IEnableable
 {
+	protected bool _enabled;
 	public AlarmSystem(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame) :
 	base(inp, outp, frame)
 	{
@@ -33,11 +34,11 @@ public class AlarmSystem : Device, IEnableable
 		get
 		{
 			UpdateOk = _in.read(this);
-			return Enabled;
+			return _enabled;
 		}
 		set
 		{
-			Enabled = value;
+			_enabled = value;
 			_out.write(this);
 		}
 	}

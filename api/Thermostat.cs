@@ -21,6 +21,10 @@ namespace api
  */
 public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IReadable<Temperature>
 {
+	protected bool _enabled;
+	protected Temperature _setpoint;
+	protected Temperature _temp;
+
 	public Thermostat(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame) :
 	base(inp, outp, frame)
 	{
@@ -40,11 +44,11 @@ public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IRead
 		get
 		{
 			UpdateOk = _in.read(this);
-			return Enabled;
+			return _enabled;
 		}
 		set
 		{
-			Enabled = value;
+			_enabled = value;
 			_out.write(this);
 		}
 	}
@@ -54,11 +58,11 @@ public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IRead
 		get
 		{
 			UpdateOk = _in.read(this);
-			return SetPoint;
+			return _setpoint;
 		}
 		set
 		{
-			SetPoint = value;
+			_setpoint = value;
 			_out.write(this);
 		}
 	}
@@ -68,11 +72,11 @@ public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IRead
 		get
 		{
 			UpdateOk = _in.read(this);
-			return Value;
+			return _temp;
 		}
 		protected set
 		{
-			Value = value;
+			_temp = value;
 			_out.write(this);
 		}
 	}

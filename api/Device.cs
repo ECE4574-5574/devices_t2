@@ -31,13 +31,14 @@ public abstract class Device
 	 * Flag indicating if the previous attempt to communicate with a remote
 	 * authority succeeded.
 	 */
+	[JsonIgnore]
 	public bool UpdateOk
 	{
 		get
 		{
 			return _update_ok;
 		}
-		private set
+		protected set
 		{
 			_update_ok = value;
 		}
