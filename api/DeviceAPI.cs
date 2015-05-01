@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Hats.Time;
+using System.Linq;
+
 
 namespace api
 {
@@ -34,18 +36,55 @@ public class Interfaces
 	{
 		//TODO: Verify the input parameters are sufficient
 		//TODO: Implement this function
-		if (house_id == 0)
-	        {
-	            return null;
-	        }
-	        //get device list
-	        var devicelist = new List<string>();
-	        var devices = new List<Device>();
-	        var dlist =
-	            (from device in devices
-	             where device.ID.HouseID == house_id
-	             select device);
-	        return devicelist;
+        if (house_id < 0)
+        {
+            return null;
+        }
+        	public List<string> enumerateDevices(UInt64 house_id)
+	{
+		//TODO: Verify the input parameters are sufficient
+		//TODO: Implement this function
+        if (house_id < 0)
+        {
+            return null;
+        }
+        //get device list
+		var server = new Interfaces("http://serverapi1.azurewebsites.net");
+		// get some device list
+		WebRequest request = WebRequest.Create(server._http + "/api/storage/device/" + house_id);
+		request.ContentType = "application/json";
+		request.Method = "GET";
+		JObject jobject = new JObject();
+		string json = jobject.ToString();
+		try
+		{
+			using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+			{
+				var stream = response.GetResponseStream();
+				var reader = new StreamReader(stream);
+				json = reader.ReadToEnd();
+			}
+		}
+		catch (WebException we)
+		{
+			Console.WriteLine("StorageGetDevicesInHouse fails.");
+			return null;
+		}
+        var devicelist = new List<string>();
+		foreach(var dev in devicelist)//fake_Devices)
+		{
+			JObject device_list = JObject.Parse(json);
+			JToken type_tok;
+			if (!device_list.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
+			{
+				return null;
+			}
+			var houseID = type_tok.ToUint64();
+			if(houseID == house_id)
+				devicelist.Add(dev);
+		}
+        return device;
+	}
 	}
 
 	/**
@@ -60,25 +99,28 @@ public class Interfaces
 	{
 		//TODO: Verify parameters here are sufficient
 		//TODO: Post to Server API to request the device be recorded, and get the device.
-		if (String.IsNullOrEmpty(name) || house_id == 0 || String.IsNullOrEmpty(info))
-	        {
-	            return null;
-	        }
-	        JObject device_obj = JObject.Parse(info);
-	        JToken type_tok;
-	        if (!device_obj.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out type_tok))
-	        {
-	            return null;
-	        }
-	
-	        var device_name = GetDeviceType(type_tok.ToString());
-	        Device device = null;
-	        if (device_name != null)
-	        {
-	            device = (Device)Activator.CreateInstance(device_name, house_id, room_id);
-	            JsonConvert.PopulateObject(info, device);
-	        }
-	        return device;
+        if (String.IsNullOrEmpty(name) || house_id < 0 || String.IsNullOrEmpty(info))
+        {
+            return null;
+        }
+        JObject device_obj = JObject.Parse(info);
+        JToken type_tok;
+        if (!device_obj.TryGetValue("class", StringComparison.OrdinalIgnoreCase, out type_tok))
+        {
+            return null;
+        }
+		var device_type = GetDeviceType(type_tok.ToString());
+        var device_name = name;
+        Device device = null;
+        if (device_name != null)
+        {
+            device = (Device)Activator.CreateInstance(device_type, house_id, room_id);
+			device.Name = device_name;
+			JsonConvert.PopulateObject(info, device);
+        }
+        return device;
+
+		
 	}
 
 	/**
@@ -89,16 +131,16 @@ public class Interfaces
 	 */
 	public bool deleteDevice(Device dev)
 	{
-		if (dev == null)
-            		return false;
-	        //Get[] device list from server API
-	        var dlist = new List<Device>();
-	        //Get[] device list from server API
-	        var item = dlist.First(x => x == dev);
-	        dlist.Remove(item);
+        if (dev == null)
+            return false;
+
+        var dlist = new List<Device>();
+        //dlist = Get[] device list from server API
+        var item = dlist.First(x => x == dev);
+        dlist.Remove(item);
 		return true;
 	}
-
+		
 	/**
 	 * Function to get a list of devices from the server.
 	 * \param[in] ID of the House to get devices for
@@ -106,8 +148,55 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID)
 	{
-		var devices = new List<Device>();
+		if (houseID < 0)
+		{
+			return null;
+		}
+
+		// testing
+		List<Device> fake_Devices = new List<Device>()
+		{
+			new AlarmSystem(null, null, null),
+			new CeilingFan(null, null, null),
+			new GarageDoor(null, null, null),
+			new LightSwitch(null, null, null),
+			new Thermostat(null, null, null)
+		};
+		foreach (var device in fake_Devices)//devices)
+		{
+			device.ID.HouseID = 1;
+			device.ID.RoomID = 2;
+			device.ID.DeviceID = 3;
+		}
+		//ending test
+		//get device list
+		var client = new RestClient("http://127.0.0.1:8081");
+		var query = new RestRequest(Method.GET);
+		query.Resource = "api/storage/device/{houseid}";
+		query.RequestFormat = DataFormat.Json;
+		var resp = client.Execute(query);
+		var respList = JArray.Parse(resp.Content);
+		// get some device list
+		var devicelist = new List<Device>();
+		devicelist = respList.ToObject<List<Device>>();
+
+		//var address = new Interfaces(address);
+		// get some device list
+		//var devices = new List<Device>();
 		//TODO: Query all devices in a given house.
+		var devices = new List<Device>();
+		foreach (var device in devicelist)//fake_Devices)
+        {
+			JToken type_tok;
+			if(!dev.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
+			{
+				return null;
+			}
+			if(type_tok == houseID)
+				devices.Add(device);
+        }
+
+			
 		return devices;
 	}
 
@@ -119,12 +208,37 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID, UInt64 roomID)
 	{
+		if(houseID < 0)
+			return null;
+		//get device list
+		var client = new RestClient("http://127.0.0.1:8081");
+		var query = new RestRequest(Method.GET);
+		query.Resource = "api/storage/device/{houseid}";
+		query.RequestFormat = DataFormat.Json;
+		var resp = client.Execute(query);
+		var respList = JArray.Parse(resp.Content);
+		// get some device list
+		var devicelist = new List<Device>();
+		devicelist = respList.ToObject<List<Device>>();
+
+		//var address = new Interfaces(address);
+		// get some device list
+		//var devices = new List<Device>();
+		//TODO: Query all devices in a given house.
 		var devices = new List<Device>();
-		//TODO: Query all devices in a given room.
-		IEnumerable<Device> dlist =
-            		(from device in devices
-             		where device.ID.HouseID == houseID
-             		select device);
+		foreach (var device in devicelist)//fake_Devices)
+		{
+			JToken type_tok;
+			if(!dev.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
+			{
+				return null;
+			}
+			if(type_tok == houseID && roomID != 0)
+				devices.Add(device);
+			else if(type_tok == houseID && roomID == 0)
+				registerDevice(device.Name, houseID, device.Content);
+		}
+			
 		return devices;
 	}
 
