@@ -16,18 +16,10 @@ namespace api
 public class Interfaces
 {
 	protected Uri _server;
-	protected TimeFrame _frame;
 
-	public Interfaces(Uri serverAddress, TimeFrame frame = default(TimeFrame))
+	public Interfaces(Uri serverAddress)
 	{
 		_server = serverAddress;
-
-		if(frame == null)
-		{
-			frame = new TimeFrame();
-		}
-
-		_frame = frame;
 	}
 
 	/**
@@ -40,12 +32,8 @@ public class Interfaces
 	 */
 	public List<string> enumerateDevices(UInt64 house_id)
 	{
-		//Post GET call to _server + "/api/app/device/enumeratedevices/{house_id}"
-		//Get result of GET
-		//Turn Content into JArray
-		//Iterate over JArray, for each JToken inside, call List.Add(JToken.ToString());
-		//Parse Contents to a list of strings, where the strings are JSON blobs
-		//return
+		//TODO: Verify the input parameters are sufficient
+		//TODO: Implement this function
 		return null;
 	}
 
