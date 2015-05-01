@@ -50,29 +50,51 @@ public class Interfaces
         {
             return null;
         }
+        	public List<string> enumerateDevices(UInt64 house_id)
+	{
+		//TODO: Verify the input parameters are sufficient
+		//TODO: Implement this function
+        if (house_id < 0)
+        {
+            return null;
+        }
         //get device list
-		var client = new RestClient("http://127.0.0.1:8081");
-		var query = new RestRequest(Method.GET);
-		query.Resource = "api/storage/device/{houseid}";
-		query.RequestFormat = DataFormat.Json;
-		var resp = client.Execute(query);
-		var respList = JArray.Parse(resp.Content);
+		var server = new Interfaces("http://serverapi1.azurewebsites.net");
 		// get some device list
+		WebRequest request = WebRequest.Create(server._http + "/api/storage/device/" + house_id);
+		request.ContentType = "application/json";
+		request.Method = "GET";
+		JObject jobject = new JObject();
+		string json = jobject.ToString();
+		try
+		{
+			using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+			{
+				var stream = response.GetResponseStream();
+				var reader = new StreamReader(stream);
+				json = reader.ReadToEnd();
+			}
+		}
+		catch (WebException we)
+		{
+			Console.WriteLine("StorageGetDevicesInHouse fails.");
+			return null;
+		}
         var devicelist = new List<string>();
-		devicelist = respList.ToObject<List<string>>();
-		var device = new List<string>();
 		foreach(var dev in devicelist)//fake_Devices)
 		{
+			JObject device_list = JObject.Parse(json);
 			JToken type_tok;
-			if (!dev.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
+			if (!device_list.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
 			{
 				return null;
 			}
-			if(type_tok.ToString() == house_id.ToString())
-				device.Add(dev);
+			var houseID = type_tok.ToUint64();
+			if(houseID == house_id)
+				devicelist.Add(dev);
 		}
-
         return device;
+	}
 	}
 
 	/**
