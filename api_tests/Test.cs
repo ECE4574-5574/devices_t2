@@ -188,7 +188,7 @@ public class APITest
 		//		URL below (http://postcatcher.in/catchers/5536e135f9562d0300003e57) with the
 		//		URL from postcatcher
 
-		const string url = "http://postcatcher.in/catchers/55437cf10e99fb030000afe4";
+		const string url = "http://postcatcher.in/catchers/55439a9f51155a03000005a5";
 		var testHO = new HouseOutput(url, null);
 
 		Assert.IsNotNull(testHO);
@@ -218,6 +218,48 @@ public class APITest
 		Assert.IsNull(testBadURLHO.getURLException());
 		Assert.IsNotNull(testBadURLHO.getStreamException());
 		Assert.IsNull(testBadURLHO.getRequestException());
+	}
+
+	[Test()]
+	public void TestServerOutput()
+	{
+		//Test valid URL and Device
+		//	to view correct POST:
+		//		go to http://postcatcher.in/ and click "Start testing your POST requests now"
+		//		copy the URL directly after "Content-Type: application/json" and replace the
+		//		URL below (http://postcatcher.in/catchers/5536e135f9562d0300003e57) with the
+		//		URL from postcatcher
+
+		const string url = "http://postcatcher.in/catchers/55439a9f51155a03000005a5";
+		var testSO = new ServerOutput(url);
+
+		Assert.IsNotNull(testSO);
+		Assert.IsTrue(url == testSO.getServerURL());
+
+		testSO.write(new GarageDoor(null, null, null));
+
+		Assert.IsNotNull(Encoding.UTF8.GetString(testSO.getData(), 0, testSO.getData().Length));
+		Assert.IsNull(testSO.getURLException());
+
+		//Test null URL
+		const string nullURL = null;
+		var testNullURLSO = new ServerOutput(nullURL);
+
+		testNullURLSO.write(new AlarmSystem(null, null, null));
+
+		Assert.IsNotNull(testNullURLSO.getURLException());
+		Assert.IsNull(testNullURLSO.getStreamException());
+		Assert.IsNull(testNullURLSO.getRequestException());
+
+		//Test bad URL
+		const string badURL = "http://bkicia";
+		var testBadURLSO = new ServerOutput(badURL);
+
+		testBadURLSO.write(new GarageDoor(null, null, null));
+
+		Assert.IsNull(testBadURLSO.getURLException());
+		Assert.IsNotNull(testBadURLSO.getStreamException());
+		Assert.IsNull(testBadURLSO.getRequestException());
 	}
 }
 }
