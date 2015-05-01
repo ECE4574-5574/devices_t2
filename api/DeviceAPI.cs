@@ -41,18 +41,28 @@ public class Interfaces
             return null;
         }
         //get device list
-		//var address = new Interfaces(address);
+		var client = new RestClient("http://127.0.0.1:8081");
+		var query = new RestRequest(Method.GET);
+		query.Resource = "api/storage/device/{houseid}";
+		query.RequestFormat = DataFormat.Json;
+		var resp = client.Execute(query);
+		var respList = JArray.Parse(resp.Content);
 		// get some device list
         var devicelist = new List<string>();
-		/*
+		devicelist = respList.ToObject<List<string>>();
+		var device = new List<string>();
 		foreach(var dev in devicelist)//fake_Devices)
 		{
-			if(house_id == dev.ID.HouseID)
-				devicelist.Add(dev.Name);
+			JToken type_tok;
+			if (!dev.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
+			{
+				return null;
+			}
+			if(type_tok.ToString() == house_id.ToString())
+				device.Add(dev);
 		}
 
-             */
-        return devicelist;
+        return device;
 	}
 
 	/**
@@ -108,15 +118,7 @@ public class Interfaces
         dlist.Remove(item);
 		return true;
 	}
-
-	public bool Equals(Device x, Device y)
-	{
-		if (object.ReferenceEquals(x, y)) return true;
-
-		if (object.ReferenceEquals(x, null) || object.ReferenceEquals(y, null)) return false;
-
-		return x.ID.HouseID == y.ID.HouseID;
-	}
+		
 	/**
 	 * Function to get a list of devices from the server.
 	 * \param[in] ID of the House to get devices for
@@ -145,15 +147,34 @@ public class Interfaces
 			device.ID.DeviceID = 3;
 		}
 		//ending test
+		//get device list
+		var client = new RestClient("http://127.0.0.1:8081");
+		var query = new RestRequest(Method.GET);
+		query.Resource = "api/storage/device/{houseid}";
+		query.RequestFormat = DataFormat.Json;
+		var resp = client.Execute(query);
+		var respList = JArray.Parse(resp.Content);
+		// get some device list
+		var devicelist = new List<Device>();
+		devicelist = respList.ToObject<List<Device>>();
+
 		//var address = new Interfaces(address);
 		// get some device list
-		var devices = new List<Device>();
+		//var devices = new List<Device>();
 		//TODO: Query all devices in a given house.
-		foreach (var device in fake_Devices)//devices)
+		var devices = new List<Device>();
+		foreach (var device in devicelist)//fake_Devices)
         {
-			if(device.ID.HouseID == houseID)
+			JToken type_tok;
+			if(!dev.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
+			{
+				return null;
+			}
+			if(type_tok == houseID)
 				devices.Add(device);
         }
+
+			
 		return devices;
 	}
 
@@ -167,18 +188,35 @@ public class Interfaces
 	{
 		if(houseID < 0)
 			return null;
-		
+		//get device list
+		var client = new RestClient("http://127.0.0.1:8081");
+		var query = new RestRequest(Method.GET);
+		query.Resource = "api/storage/device/{houseid}";
+		query.RequestFormat = DataFormat.Json;
+		var resp = client.Execute(query);
+		var respList = JArray.Parse(resp.Content);
+		// get some device list
+		var devicelist = new List<Device>();
+		devicelist = respList.ToObject<List<Device>>();
+
+		//var address = new Interfaces(address);
+		// get some device list
+		//var devices = new List<Device>();
+		//TODO: Query all devices in a given house.
 		var devices = new List<Device>();
-        //get device list from server api
-		//TODO: Query all devices in a given room.
-		string info = null;
-		foreach(var dev in devices)
+		foreach (var device in devicelist)//fake_Devices)
 		{
-			if(dev.ID.HouseID == houseID && roomID != 0)
-				devices.Add(dev);
-			if(roomID == 0)
-				registerDevice(dev.Name, houseID, info);
+			JToken type_tok;
+			if(!dev.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
+			{
+				return null;
+			}
+			if(type_tok == houseID && roomID != 0)
+				devices.Add(device);
+			else if(type_tok == houseID && roomID == 0)
+				registerDevice(device.Name, houseID, device.Content);
 		}
+			
 		return devices;
 	}
 
