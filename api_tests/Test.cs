@@ -188,20 +188,20 @@ public class APITest
 		//		URL below (http://postcatcher.in/catchers/5536e135f9562d0300003e57) with the
 		//		URL from postcatcher
 
-		const string url = "http://postcatcher.in/catchers/5536e135f9562d0300003e57";
-		var testHO = new HouseOutput(url);
+		const string url = "http://postcatcher.in/catchers/55437cf10e99fb030000afe4";
+		var testHO = new HouseOutput(url, null);
 
 		Assert.IsNotNull(testHO);
-		Assert.IsTrue(url == testHO.getURL());
+		Assert.IsTrue(url == testHO.getHouseInfo());
 
 		testHO.write(new AlarmSystem(null, null, null));
 
-		Assert.IsTrue(testHO.getJSON() == Encoding.UTF8.GetString(testHO.getData(), 0, testHO.getData().Length));
+		Assert.IsNotNull(Encoding.UTF8.GetString(testHO.getData(), 0, testHO.getData().Length));
 		Assert.IsNull(testHO.getURLException());
 
 		//Test null URL
 		const string nullURL = null;
-		var testNullURLHO = new HouseOutput(nullURL);
+		var testNullURLHO = new HouseOutput(nullURL, null);
 
 		testNullURLHO.write(new AlarmSystem(null, null, null));
 
@@ -211,7 +211,7 @@ public class APITest
 
 		//Test bad URL
 		const string badURL = "http://bkicia";
-		var testBadURLHO = new HouseOutput(badURL);
+		var testBadURLHO = new HouseOutput(badURL, null);
 
 		testBadURLHO.write(new AlarmSystem(null, null, null));
 

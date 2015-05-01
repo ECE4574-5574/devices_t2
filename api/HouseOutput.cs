@@ -19,31 +19,36 @@ namespace api
  */
 public class HouseOutput : IDeviceOutput
 {
-	public HouseOutput(string URL)
+	public HouseOutput(string house_info, string device_info)
 	{
-		_URL = URL;
+		_houseInfo = house_info;
+		_deviceInfo = device_info;
 	}
 
 	public bool write(Device dev)
 	{
 		string json = JsonConvert.SerializeObject(dev);
-		_json = json;
-		var _ = writeHelper(json);
+		string houseID = dev.ID.HouseID.ToString();
+		string roomID = dev.ID.RoomID.ToString();
+		string deviceID = dev.ID.DeviceID.ToString();
+
+		var _ = writeHelper(json, houseID, roomID, deviceID);
 
 		return true;
 	}
 
-	private async Task<string> writeHelper(string json)
-	{
+	private async Task<string> writeHelper(string json, string houseID, string roomID, string deviceID)
+	{	
 		try
 		{
-			var request = (HttpWebRequest)WebRequest.Create(_URL);
+			var request = (HttpWebRequest)WebRequest.Create(_houseInfo);
 
 			var data = Encoding.UTF8.GetBytes(json);
 			_data = data;
 
 			request.Method = "POST";
 			request.ContentType = "application/json";
+			request.Headers["myValue"] = ("api/house/device/" + houseID + "/" + roomID + "/" + deviceID);
 
 			try {
 				using (var stream = await Task<Stream>.Factory.FromAsync(request.BeginGetRequestStream, request.EndGetRequestStream, request))
@@ -78,19 +83,14 @@ public class HouseOutput : IDeviceOutput
 	}
 
 
-	public string getURL()
+	public string getHouseInfo()
 	{
-		return _URL;
+		return _houseInfo;
 	}
 
 	public byte[] getData()
 	{
 		return _data;
-	}
-
-	public string getJSON()
-	{
-		return _json;
 	}
 
 	public Exception getURLException()
@@ -108,8 +108,8 @@ public class HouseOutput : IDeviceOutput
 		return _RequestException;
 	}
 
-	protected string _URL;
-	protected string _json;
+	protected string _houseInfo;
+	protected string _deviceInfo;
 	protected byte[] _data;
 	protected Exception _URLException;
 	protected Exception _StreamException;
