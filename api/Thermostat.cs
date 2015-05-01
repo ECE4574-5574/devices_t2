@@ -37,20 +37,44 @@ public class Thermostat : Device, IEnableable, ISetPointable<Temperature>, IRead
 	}
 	public bool Enabled
 	{
-		get;
-		set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return Enabled;
+		}
+		set
+		{
+			Enabled = value;
+			_out.write(this);
+		}
 	}
 
 	public Temperature SetPoint
 	{
-		get;
-		set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return SetPoint;
+		}
+		set
+		{
+			SetPoint = value;
+			_out.write(this);
+		}
 	}
 
 	public Temperature Value
 	{
-		get;
-		protected set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return Value;
+		}
+		protected set
+		{
+			Value = value;
+			_out.write(this);
+		}
 	}
 
 	public Int64 MinState()
