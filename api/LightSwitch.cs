@@ -32,6 +32,7 @@ public class LightSwitch : Device, IEnableable, IReadable<Light>
 	{
 		get
 		{
+			UpdateOk = _in.read(this);
 			return _enabled;
 		}
 		set
@@ -45,6 +46,7 @@ public class LightSwitch : Device, IEnableable, IReadable<Light>
 				_light.Brightness = 0.0;
 			}
 			_enabled = value;
+			_out.write(this);
 		}
 	}
 
@@ -52,11 +54,13 @@ public class LightSwitch : Device, IEnableable, IReadable<Light>
 	{
 		get
 		{
+			UpdateOk = _in.read(this);
 			return _light;
 		}
 		protected set
 		{
 			_light = value;
+			_out.write(this);
 		}
 	}
 	protected Light _light;

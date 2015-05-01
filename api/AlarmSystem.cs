@@ -30,8 +30,16 @@ public class AlarmSystem : Device, IEnableable
 
 	public bool Enabled
 	{
-		get;
-		set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return Enabled;
+		}
+		set
+		{
+			Enabled = value;
+			_out.write(this);
+		}
 	}
 }
 
