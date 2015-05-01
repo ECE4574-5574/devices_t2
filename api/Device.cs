@@ -15,21 +15,11 @@ public abstract class Device
 {
 	public Device(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
 	{
-		//Force sane defaults, so we can assume these are always valid
-		if(inp == null)
-		{
-			inp = new NullDeviceInput();
-		}
-		if(outp == null)
-		{
-			outp = new NullDeviceOutput();
-		}
+		resetIO(inp, outp);
 		if(frame == null)
 		{
 			frame = new TimeFrame();
 		}
-		_in = inp;
-		_out = outp;
 		_frame = frame;
 		_last_time = DateTime.MinValue; //Set to minimum possible time
 		_id = new FullID();
@@ -37,6 +27,10 @@ public abstract class Device
 		_update_ok = false;
 	}
 
+	/**
+	 * Flag indicating if the previous attempt to communicate with a remote
+	 * authority succeeded.
+	 */
 	public bool UpdateOk
 	{
 		get
@@ -49,6 +43,9 @@ public abstract class Device
 		}
 	}
 
+	/**
+	 * Unique identifier for this device in the HATS system.
+	 */
 	public FullID ID
 	{
 		get
@@ -63,6 +60,9 @@ public abstract class Device
 		}
 	}
 
+	/**
+	 * The last time this Device was updated from a remote read.
+	 */
 	public DateTime LastUpdate
 	{
 		get
@@ -93,12 +93,18 @@ public abstract class Device
 
 	}
 
+	/**
+	 * Name of this class for reconstructions.
+	 */
 	public string Class
 	{
 		get;
 		protected set;
 	}
 
+	/**
+	 * TimeFrame for computing "now".
+	 */
 	[JsonIgnore]
 	public TimeFrame Frame
 	{
@@ -122,6 +128,28 @@ public abstract class Device
 	{
 		_update_ok = _in.read(this);
 		return _update_ok;
+	}
+
+	/**
+	 * Rests internal IO objects for this Device. With no arguments, the
+	 * device will no longer communicate with any remote authority, making this object
+	 * useful for storing old results/dumb usage.
+	 * \param[in] inp IDeviceInput instance, defaults to a NullDeviceInput.
+	 * \param[out] outp IDeviceOutput instance, defaults to a NullDeviceOutput.
+	 */
+	public void resetIO(IDeviceInput inp = default(IDeviceInput), IDeviceOutput outp = default(IDeviceOutput))
+	{
+		//Force sane defaults, so we can assume these are always valid
+		if(inp == null)
+		{
+			inp = new NullDeviceInput();
+		}
+		if(outp == null)
+		{
+			outp = new NullDeviceOutput();
+		}
+		_in = inp;
+		_out = outp;
 	}
 
 	protected IDeviceInput _in;
