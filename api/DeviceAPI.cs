@@ -8,17 +8,20 @@ using Hats.Time;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Hats.Time;
+using PortableRest;
 
 namespace api
 {
 
 public class Interfaces
 {
+	protected RestClient _http;
 	protected Uri _server;
 
 	public Interfaces(Uri serverAddress)
 	{
+		_http = new RestClient();
+		_http.BaseUrl = serverAddress.ToString();
 		_server = serverAddress;
 	}
 
