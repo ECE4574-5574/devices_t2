@@ -32,8 +32,25 @@ public class Interfaces
 	 */
 	public List<string> enumerateDevices(UInt64 house_id)
 	{
-		//TODO: Verify the input parameters are sufficient
-		//TODO: Implement this function
+		var client = new HttpClient();
+		client.BaseAddress = _server;
+		var resp_task = client.GetAsync("api/app/device/enumeratedevices/" + house_id.ToString());
+		resp_task.Wait(5000);
+		var resp = resp_task.Result;
+		if(resp.IsSuccessStatusCode)
+		{
+			var json_task = resp.Content.ReadAsStringAsync();
+			json_task.Wait();
+			var json = json_task.Result;
+			JArray array = JArray.Parse(json);
+			//Iterate over contents here
+		}
+		//Post GET call to _server + "/api/app/device/enumeratedevices/{house_id}"
+		//Get result of GET
+		//Turn Content into JArray
+		//Iterate over JArray, for each JToken inside, call List.Add(JToken.ToString());
+		//Parse Contents to a list of strings, where the strings are JSON blobs
+		//return
 		return null;
 	}
 
