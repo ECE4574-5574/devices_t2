@@ -37,7 +37,7 @@ public class HouseOutput : IDeviceOutput
 		return true;
 	}
 
-	private async Task<string> writeHelper(string json, string houseID, string roomID, string deviceID)
+	async Task<string> writeHelper(string json, string houseID, string roomID, string deviceID)
 	{	
 		try
 		{
@@ -48,7 +48,7 @@ public class HouseOutput : IDeviceOutput
 
 			request.Method = "POST";
 			request.ContentType = "application/json";
-			request.Headers["myValue"] = ("api/house/device/" + houseID + "/" + roomID + "/" + deviceID);
+			request.Headers["header"] = ("api/house/device/" + houseID + "/" + roomID + "/" + deviceID);
 
 			try {
 				using (var stream = await Task<Stream>.Factory.FromAsync(request.BeginGetRequestStream, request.EndGetRequestStream, request))
