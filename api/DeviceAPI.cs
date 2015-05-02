@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Diagnostics;
+using api.Converters;
 
 namespace api
 {
@@ -117,8 +118,13 @@ public class Interfaces
 	 * be used by end-clients typically
 	 * \param[in] info JSON string representing device. Must have a key named "class" which
 	 *            names the class deriving from Device to instantiate.
+	 * \param[in] inp IDeviceInput to create device with
+	 * \param[in] outp IDeviceOutput to create device with
+	 * \param[in] frame TimeFrame to initialize the frame
+	 * \param[in] from_house Flag indicating if the JSON blob comes from the house
 	 */
-	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame, bool from_house = false)
+	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame,
+		bool from_house = false)
 	{
 		if(String.IsNullOrEmpty(info))
 		{
@@ -139,7 +145,7 @@ public class Interfaces
 			if(device_type != null)
 			{
 				device = (Device)Activator.CreateInstance(device_type, null, null, frame);
-				UpdateDevice(device, info, from_house:from_house);
+				update(device, info, from_house:from_house, update_id:true, force:true);
 
 				device.resetIO(inp, outp); //this way, population doesn't trigger house comms
 			}
@@ -164,66 +170,20 @@ public class Interfaces
 
 	/**
 	 * Given a device and the JSON string to update it with, this will update
-	 * all public properties which are not the DeviceID or TimeFrame to
+	 * all public properties which are not the TimeFrame to
 	 * whatever value is in the JSON blob.
 	 * \param[in] dev Device to be updated
 	 * \param[in] json JSON blob of fields to update
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
+	 * \param[in] from_house Indicates if the JSON string is from the house app, which means ID is a single value
+	 * \param[in] update_id Flag indicating if the DeviceID should be updated at all
+	 * \param[in] force Flag indicating if public/private flags should be respected for the update
 	 * \param[out] Flag indicating if at least one field was updated
 	 */
-	public static bool UpdateDevice(Device dev, string json, bool silence_io = false, bool from_house = false)
+	public static bool UpdateDevice(Device dev, string json, bool silence_io = false, bool from_house = false,
+		bool update_id = false)
 	{
-		if(dev == null)
-		{
-			return false;
-		}
-
-		IDeviceInput inp = null;
-		IDeviceOutput outp = null;
-		if(silence_io)
-		{
-			inp = dev.Input;
-			outp = dev.Output;
-			dev.resetIO();
-		}
-		bool updated_value = true;
-		try
-		{
-			var props = dev.GetType().GetRuntimeProperties();
-			var json_obj = JObject.Parse(json);
-
-			foreach(var info in props)
-			{
-				if(info.SetMethod == null || !info.SetMethod.IsPublic || info.Name == "Frame")
-				{
-					continue;
-				}
-				JToken field;
-				if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
-				{
-					continue;
-				}
-				if(from_house && info.Name == "ID")
-				{
-					dev.ID.DeviceID = field.ToObject<UInt64>();
-				}
-				else
-				{
-					var value = field.ToObject(info.PropertyType);
-					info.SetValue(dev, value);
-				}
-				updated_value = true;
-			}
-		}
-		catch(JsonException ex)
-		{
-			//TODO: Report error somehow?
-		}
-
-		if(silence_io)
-		{
-			dev.resetIO(inp, outp);
-		}
-		return updated_value;
+		return update(dev, json, silence_io, from_house, update_id, force: false);
 	}
 
 	/**
@@ -232,6 +192,7 @@ public class Interfaces
 	 * the actual classes do not need to be the same.
 	 * \param[in] old_dev Device which will be updated.
 	 * \param[in] new_dev Device which contains values to be updated with
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
 	 * \param[out] Flag indicating if a field was updated with a new value
 	 */
 	public static bool UpdateDevice(Device old_dev, Device new_dev, bool silence_io = false)
@@ -287,6 +248,77 @@ public class Interfaces
 			old_dev.resetIO(inp, outp);
 		}
 		return update_field;
+	}
+
+	/**
+	 * Internal device updating function.
+	 * \param[in] dev Device to be updated
+	 * \param[in] json JSON blob of fields to update
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
+	 * \param[in] from_house Indicates if the JSON string is from the house app, which means ID is a single value
+	 * \param[in] update_id Flag indicating if the DeviceID should be updated at all
+	 * \param[in] force Flag indicating if public/private flags should be respected for the update
+	 * \param[out] Flag indicating if at least one field was updated
+	 */
+	protected static bool update(Device dev, string json, bool silence_io = false, bool from_house = false,
+		bool update_id = false, bool force = false)
+	{
+		if(dev == null)
+		{
+			return false;
+		}
+
+		IDeviceInput inp = null;
+		IDeviceOutput outp = null;
+		if(silence_io)
+		{
+			inp = dev.Input;
+			outp = dev.Output;
+			dev.resetIO();
+		}
+		bool updated_value = true;
+		try
+		{
+			var props = dev.GetType().GetRuntimeProperties();
+			var json_obj = JObject.Parse(json);
+
+			foreach(var info in props)
+			{
+				if(info.SetMethod == null || !(force || info.SetMethod.IsPublic) || info.Name == "Frame")
+				{
+					continue;
+				}
+				JToken field;
+				if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
+				{
+					continue;
+				}
+
+				if(from_house && info.Name == "ID")
+				{
+					dev.ID.DeviceID = field.ToObject<UInt64>();
+				}
+				else
+				{
+					if(update_id || info.Name != "ID")
+					{
+						var value = field.ToObject(info.PropertyType);
+						info.SetValue(dev, value);
+					}
+				}
+				updated_value = true;
+			}
+		}
+		catch(JsonException ex)
+		{
+			//TODO: Report error somehow?
+		}
+
+		if(silence_io)
+		{
+			dev.resetIO(inp, outp);
+		}
+		return updated_value;
 	}
 }
 
