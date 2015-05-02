@@ -39,19 +39,26 @@ public class Interfaces
 
 	public List<string> enumerateDevices(UInt64 house_id)
 	{
-	 //return true;
-		//var response = HttpRequest(house_id.ToString());
 		string houseID = house_id.ToString();
 		var client = new HttpClient();
 		client.Timeout = TimeSpan.FromSeconds(50);
 		client.BaseAddress = new Uri ("http://serverapi1.azurewebsites.net");
 
-		var response = client.GetAsync("api/app/device/enumeratedevices/" +houseID).Result;
-		JArray unregisteredDevices = JArray.Parse(response.Content.ToString());
+		var response = client.GetAsync("api/app/device/enumeratedevices/" + houseID).Result;
+
 		List<string> listOfDevices= new List<string>();
-		foreach(JToken Device in unregisteredDevices)
+		try
 		{
-			listOfDevices.Add(Device.ToString());
+			var content = response.Content.ReadAsStringAsync();
+			content.Wait();
+			JArray unregisteredDevices = JArray.Parse(content.Result);
+			foreach(JToken Device in unregisteredDevices)
+			{
+				listOfDevices.Add(Device.ToString());
+			}
+		}
+		catch(JsonException ex)
+		{
 		}
 		return listOfDevices;
 	
