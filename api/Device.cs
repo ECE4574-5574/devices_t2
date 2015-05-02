@@ -116,7 +116,24 @@ public abstract class Device
 		set
 		{
 			_frame = value;
-			_out.write(this);
+		}
+	}
+
+	[JsonIgnore]
+	public IDeviceInput Input
+	{
+		get
+		{
+			return _in;
+		}
+	}
+
+	[JsonIgnore]
+	public IDeviceOutput Output
+	{
+		get
+		{
+			return _out;
 		}
 	}
 
