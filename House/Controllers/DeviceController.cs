@@ -91,7 +91,7 @@ public class DeviceController : ApiController
 			throw new HttpResponseException(HttpStatusCode.NotFound);
 		}
 
-		if(!Interfaces.UpdateDevice(result, data))
+		if(!Interfaces.UpdateDevice(result, data, update_id:false))
 		{
 			throw new HttpResponseException(HttpStatusCode.BadGateway);
 		}
