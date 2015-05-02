@@ -78,10 +78,10 @@ public class Test
 
 		foreach(var obj in resp_obj)
 		{
-			var resp_dev = Interfaces.DeserializeDevice(obj.ToString(), null, null, _frame, true);
+			var resp_dev = Interfaces.DeserializeDevice(obj.ToString(), null, null, _frame);
 			foreach(var exp_obj in test_obj)
 			{
-				var exp_dev = Interfaces.DeserializeDevice(exp_obj.ToString(), null, null, _frame, true);
+				var exp_dev = Interfaces.DeserializeDevice(exp_obj.ToString(), null, null, _frame);
 				if(resp_dev.ID.DeviceID == exp_dev.ID.DeviceID)
 				{
 					Assert.AreEqual(resp_dev.ID.DeviceID, exp_dev.ID.DeviceID);
@@ -118,7 +118,7 @@ public class Test
 
 		Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
 
-		var dev = (LightSwitch)Interfaces.DeserializeDevice(resp.Content, null, null, _frame, true);
+		var dev = (LightSwitch)Interfaces.DeserializeDevice(resp.Content, null, null, _frame);
 
 		Assert.IsNotNull(dev);
 		Assert.IsTrue(dev.UpdateOk);
@@ -178,7 +178,7 @@ public class Test
 		var resp = check.Result.Content.ReadAsStringAsync();
 		resp.Wait();
 
-		return (Thermostat)Interfaces.DeserializeDevice(resp.Result, null, null, _frame, true);
+		return (Thermostat)Interfaces.DeserializeDevice(resp.Result, null, null, _frame);
 	}
 }
 

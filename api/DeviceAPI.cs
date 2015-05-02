@@ -121,10 +121,8 @@ public class Interfaces
 	 * \param[in] inp IDeviceInput to create device with
 	 * \param[in] outp IDeviceOutput to create device with
 	 * \param[in] frame TimeFrame to initialize the frame
-	 * \param[in] from_house Flag indicating if the JSON blob comes from the house
 	 */
-	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame,
-		bool from_house = false)
+	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
 	{
 		if(String.IsNullOrEmpty(info))
 		{
@@ -145,7 +143,7 @@ public class Interfaces
 			if(device_type != null)
 			{
 				device = (Device)Activator.CreateInstance(device_type, null, null, frame);
-				update(device, info, from_house:from_house, update_id:true, force:true);
+				update(device, info, update_id:true, force:true);
 
 				device.resetIO(inp, outp); //this way, population doesn't trigger house comms
 			}
@@ -175,15 +173,14 @@ public class Interfaces
 	 * \param[in] dev Device to be updated
 	 * \param[in] json JSON blob of fields to update
 	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
-	 * \param[in] from_house Indicates if the JSON string is from the house app, which means ID is a single value
 	 * \param[in] update_id Flag indicating if the DeviceID should be updated at all
 	 * \param[in] force Flag indicating if public/private flags should be respected for the update
 	 * \param[out] Flag indicating if at least one field was updated
 	 */
-	public static bool UpdateDevice(Device dev, string json, bool silence_io = false, bool from_house = false,
+	public static bool UpdateDevice(Device dev, string json, bool silence_io = false,
 		bool update_id = false)
 	{
-		return update(dev, json, silence_io, from_house, update_id, force: false);
+		return update(dev, json, silence_io, update_id, force: false);
 	}
 
 	/**
@@ -255,12 +252,11 @@ public class Interfaces
 	 * \param[in] dev Device to be updated
 	 * \param[in] json JSON blob of fields to update
 	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
-	 * \param[in] from_house Indicates if the JSON string is from the house app, which means ID is a single value
 	 * \param[in] update_id Flag indicating if the DeviceID should be updated at all
 	 * \param[in] force Flag indicating if public/private flags should be respected for the update
 	 * \param[out] Flag indicating if at least one field was updated
 	 */
-	protected static bool update(Device dev, string json, bool silence_io = false, bool from_house = false,
+	protected static bool update(Device dev, string json, bool silence_io = false,
 		bool update_id = false, bool force = false)
 	{
 		if(dev == null)
@@ -294,17 +290,21 @@ public class Interfaces
 					continue;
 				}
 
-				if(from_house && info.Name == "ID")
+				if(update_id && info.Name == "ID")
 				{
-					dev.ID.DeviceID = field.ToObject<UInt64>();
-				}
-				else
-				{
-					if(update_id || info.Name != "ID")
+					if(field.Type == JTokenType.Integer)
 					{
-						var value = field.ToObject(info.PropertyType);
-						info.SetValue(dev, value);
+						dev.ID.DeviceID = field.ToObject<UInt64>();
 					}
+					else
+					{
+						dev.ID = field.ToObject<FullID>();
+					}
+				}
+				else if(info.Name != "ID")
+				{
+					var value = field.ToObject(info.PropertyType);
+					info.SetValue(dev, value);
 				}
 				updated_value = true;
 			}
