@@ -79,52 +79,6 @@ public class Interfaces
 		//return
 		return devicelist;
 	}
-        	public List<string> enumerateDevices(UInt64 house_id)
-	{
-		//TODO: Verify the input parameters are sufficient
-		//TODO: Implement this function
-        if (house_id < 0)
-        {
-            return null;
-        }
-        //get device list
-		var server = new Interfaces("http://serverapi1.azurewebsites.net");
-		// get some device list
-		WebRequest request = WebRequest.Create(server._http + "/api/storage/device/" + house_id);
-		request.ContentType = "application/json";
-		request.Method = "GET";
-		JObject jobject = new JObject();
-		string json = jobject.ToString();
-		try
-		{
-			using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-			{
-				var stream = response.GetResponseStream();
-				var reader = new StreamReader(stream);
-				json = reader.ReadToEnd();
-			}
-		}
-		catch (WebException we)
-		{
-			Console.WriteLine("StorageGetDevicesInHouse fails.");
-			return null;
-		}
-        var devicelist = new List<string>();
-		foreach(var dev in devicelist)//fake_Devices)
-		{
-			JObject device_list = JObject.Parse(json);
-			JToken type_tok;
-			if (!device_list.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
-			{
-				return null;
-			}
-			var houseID = type_tok.ToUint64();
-			if(houseID == house_id)
-				devicelist.Add(dev);
-		}
-        return device;
-	}
-	}
 
 	/**
 	 * Registers a device with the server, in essence creating it for use in HATS.
