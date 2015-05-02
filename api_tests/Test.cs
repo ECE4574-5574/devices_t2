@@ -8,6 +8,7 @@ using NUnit.Framework;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net;
+
 namespace api_tests
 {
 [TestFixture]
@@ -24,22 +25,19 @@ public class APITest
 		var input = new ServerInput("http://serverapi1.azurewebsites.net");
         var device = new LightSwitch(input, null, null);
         var response = input.read(device);
-        Assert.AreEqual(true, response);
+		Assert.AreEqual(true, response);
     }
 
 		[Test]
 		public void TestEnumerateDevices()
 		{
 		
-		//In the code which is commented out Uri class is not shown to be referenced even though System namespace is included	
-		//string serverAddr = "http://serverapi1.azurewebsites.net/";
-			//Interfaces inter = new Interfaces(new Uri(serverAddr));
-		
-				ulong houseID = 4;
-
-		//List<string> response = inter.enumerateDevices(houseID);
-					//Assert.That((response.GetType().Equals(List<string>)));
-			Assert.That(true);
+			
+			Interfaces inter = new Interfaces();
+			ulong houseID = 4;
+			List<string> response = inter.enumerateDevices(houseID);
+			//Assert.That((response.GetType().Equals(List<string>)));
+			//Assert.That(true);
 			
 		}
 

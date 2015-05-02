@@ -21,6 +21,11 @@ public class Interfaces
 		_http = new HttpClient();
 		_server = serverAddress;
 	}
+	public Interfaces()
+	{
+		_http = new HttpClient();
+		_server = new Uri ("http://serverapi1.azurewebsites.net");
+	}
 
 	/**
 	 * Function which is called to request a list of devices present at a given location, which
@@ -29,7 +34,7 @@ public class Interfaces
 	 * 
 	 * \param[in] address Location of the house to query for unregistered devices.
 	 * \param[out] List of strings which represent devices which could be registered.
-	 */
+	*/
 
 
 	public List<string> enumerateDevices(UInt64 house_id)
