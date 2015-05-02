@@ -13,7 +13,8 @@ namespace api
  */
 public abstract class Device
 {
-	public Device(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
+	public Device(IDeviceInput inp, IDeviceOutput outp,
+		TimeFrame frame)
 	{
 		resetIO(inp, outp);
 		if(frame == null)
@@ -91,7 +92,6 @@ public abstract class Device
 			_name = value;
 			_out.write(this);
 		}
-
 	}
 
 	/**
@@ -116,7 +116,24 @@ public abstract class Device
 		set
 		{
 			_frame = value;
-			_out.write(this);
+		}
+	}
+
+	[JsonIgnore]
+	public IDeviceInput Input
+	{
+		get
+		{
+			return _in;
+		}
+	}
+
+	[JsonIgnore]
+	public IDeviceOutput Output
+	{
+		get
+		{
+			return _out;
 		}
 	}
 

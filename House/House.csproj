@@ -71,6 +71,7 @@
     <Compile Include="HouseStartup.cs" />
     <Compile Include="Controllers\DeviceController.cs" />
     <Compile Include="Models\DeviceModel.cs" />
+    <Compile Include="SimTempInput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

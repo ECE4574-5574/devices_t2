@@ -25,6 +25,15 @@ public class ControlTypes
 [JsonConverter(typeof(LightConverter))]
 public class Light : ControlTypes
 {
+	public Light()
+	{
+		Brightness = 0.0;
+	}
+	public Light(double brightness)
+	{
+		Brightness = brightness;
+	}
+
 	public double Brightness
 	{
 		get;
@@ -38,6 +47,18 @@ public class Light : ControlTypes
 [JsonConverter(typeof(TemperatureConverter))]
 public class Temperature : ControlTypes
 {
+	public Temperature()
+	{
+		C = Double.NaN;
+	}
+
+	public static implicit operator Temperature(double temp)
+	{
+		return new Temperature()
+		{
+			C = temp
+		};
+	}
 	/**
 	 * Generic accessor, which returns underlying measure without explicit type.
 	 */

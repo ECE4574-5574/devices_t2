@@ -8,7 +8,8 @@ using Hats.Time;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Hats.Time;
+using System.Diagnostics;
+using api.Converters;
 
 namespace api
 {
@@ -117,6 +118,9 @@ public class Interfaces
 	 * be used by end-clients typically
 	 * \param[in] info JSON string representing device. Must have a key named "class" which
 	 *            names the class deriving from Device to instantiate.
+	 * \param[in] inp IDeviceInput to create device with
+	 * \param[in] outp IDeviceOutput to create device with
+	 * \param[in] frame TimeFrame to initialize the frame
 	 */
 	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
 	{
@@ -138,8 +142,10 @@ public class Interfaces
 			var device_type = GetDeviceType(type_tok.ToString());
 			if(device_type != null)
 			{
-				device = (Device)Activator.CreateInstance(device_type, inp, outp, frame);
-				JsonConvert.PopulateObject(info, device);
+				device = (Device)Activator.CreateInstance(device_type, null, null, frame);
+				update(device, info, update_id:true, force:true);
+
+				device.resetIO(inp, outp); //this way, population doesn't trigger house comms
 			}
 		}
 		catch(JsonException ex)
@@ -162,47 +168,19 @@ public class Interfaces
 
 	/**
 	 * Given a device and the JSON string to update it with, this will update
-	 * all public properties which are not the DeviceID or TimeFrame to
+	 * all public properties which are not the TimeFrame to
 	 * whatever value is in the JSON blob.
 	 * \param[in] dev Device to be updated
 	 * \param[in] json JSON blob of fields to update
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
+	 * \param[in] update_id Flag indicating if the DeviceID should be updated at all
+	 * \param[in] force Flag indicating if public/private flags should be respected for the update
 	 * \param[out] Flag indicating if at least one field was updated
 	 */
-	public static bool UpdateDevice(Device dev, string json)
+	public static bool UpdateDevice(Device dev, string json, bool silence_io = false,
+		bool update_id = false)
 	{
-		if(dev == null || String.IsNullOrEmpty(json))
-		{
-			return false;
-		}
-
-		bool updated_value = false;
-		try
-		{
-			var props = dev.GetType().GetRuntimeProperties();
-			var json_obj = JObject.Parse(json);
-
-			foreach(var info in props)
-			{
-				if(!info.SetMethod.IsPublic || info.Name == "DeviceID" || info.Name == "Frame")
-				{
-					continue;
-				}
-				JToken field;
-				if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
-				{
-					continue;
-				}
-				var value = field.ToObject(info.PropertyType);
-				info.SetValue(dev, value);
-				updated_value = true;
-			}
-		}
-		catch(JsonException ex)
-		{
-			//TODO: Report error somehow?
-		}
-
-		return updated_value;
+		return update(dev, json, silence_io, update_id, force: false);
 	}
 
 	/**
@@ -211,9 +189,10 @@ public class Interfaces
 	 * the actual classes do not need to be the same.
 	 * \param[in] old_dev Device which will be updated.
 	 * \param[in] new_dev Device which contains values to be updated with
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
 	 * \param[out] Flag indicating if a field was updated with a new value
 	 */
-	public static bool UpdateDevice(Device old_dev, Device new_dev)
+	public static bool UpdateDevice(Device old_dev, Device new_dev, bool silence_io = false)
 	{
 		if(old_dev == null || new_dev == null)
 		{
@@ -229,16 +208,25 @@ public class Interfaces
 		var new_props = new_dev.GetType().GetRuntimeProperties();
 		bool update_field = false;
 
+
+		IDeviceInput inp = null;
+		IDeviceOutput outp = null;
+
+		if(silence_io)
+		{
+			inp = old_dev.Input;
+			outp = old_dev.Output;
+		}
 		foreach(var old_info in old_props)
 		{
 			//Can't update this method
-			if(!old_info.SetMethod.IsPublic)
+			if(old_info.SetMethod == null || !old_info.SetMethod.IsPublic)
 			{
 				continue;
 			}
 			foreach(var new_info in new_props)
 			{
-				if(!new_info.GetMethod.IsPublic)
+				if(new_info.GetMethod == null || !new_info.GetMethod.IsPublic)
 				{
 					continue;
 				}
@@ -251,7 +239,86 @@ public class Interfaces
 				}
 			}
 		}
+
+		if(silence_io)
+		{
+			old_dev.resetIO(inp, outp);
+		}
 		return update_field;
+	}
+
+	/**
+	 * Internal device updating function.
+	 * \param[in] dev Device to be updated
+	 * \param[in] json JSON blob of fields to update
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
+	 * \param[in] update_id Flag indicating if the DeviceID should be updated at all
+	 * \param[in] force Flag indicating if public/private flags should be respected for the update
+	 * \param[out] Flag indicating if at least one field was updated
+	 */
+	protected static bool update(Device dev, string json, bool silence_io = false,
+		bool update_id = false, bool force = false)
+	{
+		if(dev == null)
+		{
+			return false;
+		}
+
+		IDeviceInput inp = null;
+		IDeviceOutput outp = null;
+		if(silence_io)
+		{
+			inp = dev.Input;
+			outp = dev.Output;
+			dev.resetIO();
+		}
+		bool updated_value = true;
+		try
+		{
+			var props = dev.GetType().GetRuntimeProperties();
+			var json_obj = JObject.Parse(json);
+
+			foreach(var info in props)
+			{
+				if(info.SetMethod == null || !(force || info.SetMethod.IsPublic) || info.Name == "Frame")
+				{
+					continue;
+				}
+				JToken field;
+				if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
+				{
+					continue;
+				}
+
+				if(update_id && info.Name == "ID")
+				{
+					if(field.Type == JTokenType.Integer)
+					{
+						dev.ID.DeviceID = field.ToObject<UInt64>();
+					}
+					else
+					{
+						dev.ID = field.ToObject<FullID>();
+					}
+				}
+				else if(info.Name != "ID")
+				{
+					var value = field.ToObject(info.PropertyType);
+					info.SetValue(dev, value);
+				}
+				updated_value = true;
+			}
+		}
+		catch(JsonException ex)
+		{
+			//TODO: Report error somehow?
+		}
+
+		if(silence_io)
+		{
+			dev.resetIO(inp, outp);
+		}
+		return updated_value;
 	}
 }
 

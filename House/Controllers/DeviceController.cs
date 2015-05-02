@@ -41,12 +41,12 @@ public class DeviceController : ApiController
 	/**
 	 * If a device is called with an ID, return that device
 	 */
-	public HttpResponseMessage Get(int id)
+	public HttpResponseMessage Get(UInt64 id)
 	{
 		Device result = null;
 		foreach(Device dev in DeviceModel.Instance.Devices)
 		{
-			if(dev.ID.DeviceID == (ulong)id)
+			if(dev.ID.DeviceID == id)
 			{
 				dev.LastUpdate = dev.Frame.now();
 				result = dev;
@@ -67,11 +67,11 @@ public class DeviceController : ApiController
 	}
 		
 	[HttpPost]
-	public async Task UpdateDevice(int id)
+	public async Task UpdateDevice(UInt64 id)
 	{
 		string data = await Request.Content.ReadAsStringAsync();
 
-		if(data.Length == 0)
+		if(String.IsNullOrEmpty(data))
 		{
 			throw new HttpResponseException(HttpStatusCode.BadRequest);
 		}
@@ -79,7 +79,7 @@ public class DeviceController : ApiController
 		Device result = null;
 		foreach(Device dev in DeviceModel.Instance.Devices)
 		{
-			if(dev.ID.DeviceID == (ulong)id)
+			if(dev.ID.DeviceID == id)
 			{
 				result = dev;
 				break;
@@ -91,9 +91,9 @@ public class DeviceController : ApiController
 			throw new HttpResponseException(HttpStatusCode.NotFound);
 		}
 
-		if(!Interfaces.UpdateDevice(result, data))
+		if(!Interfaces.UpdateDevice(result, data, update_id:false))
 		{
-			throw new HttpResponseException(HttpStatusCode.BadRequest);
+			throw new HttpResponseException(HttpStatusCode.BadGateway);
 		}
 	}
 }

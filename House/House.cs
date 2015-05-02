@@ -13,6 +13,7 @@ using Microsoft.Owin.Hosting;
 using NDesk.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Threading;
 
 namespace House
 {
@@ -48,6 +49,11 @@ public class HouseMain
 				"Port to listen for calls on.",
 				v => config.Add("port", v)
 			},
+			{
+				"f|frame=",
+				"Time Frame JSON blob to immediately parse",
+				v => config.Add("time", v)
+			},
             {
 				"h|help",
 				"Display the help message",
@@ -81,20 +87,31 @@ public class HouseMain
 
 		InitListener(_port);
 
-		var input = Console.ReadLine();
-
-		while(!input.Equals("q", StringComparison.OrdinalIgnoreCase))
+		//Wait until we read 
+		while(_time == null)
 		{
-			if(_time != null)
+			var input = Console.ReadLine();
+			UpdateTime(input);
+		}
+
+		while(true)
+		{
+			if(Console.KeyAvailable)
 			{
-				_time = JsonConvert.DeserializeObject<TimeFrame>(input);
-				foreach(Device dev in DeviceModel.Instance.Devices)
+				ConsoleKeyInfo key = Console.ReadKey(true);
+				if(key.Key == ConsoleKey.Q) //bail bail bail
 				{
-					dev.Frame = _time;
+					break;
 				}
-				DeviceModel.Instance.Responding = true;
 			}
-			input = Console.ReadLine();
+
+			//This gives simulated thermostats a chance to update, or other simulation work to happen
+			foreach(Device dev in DeviceModel.Instance.Devices)
+			{
+				dev.update();
+			}
+
+			Thread.Sleep(100);
 		}
         return 0;
 	}
@@ -103,6 +120,7 @@ public class HouseMain
 	{
 		const string IDKey = "house_id";
 		const string ScenarioKey = "test_scenario";
+		const string TimeFrameKey = "time";
 
 		if(!config.ContainsKey(IDKey) || !config.ContainsKey(ScenarioKey))
 		{
@@ -112,6 +130,11 @@ public class HouseMain
 		string scenario = config[ScenarioKey];
 
 		_is_sim = GenerateSimulatedHouse(house_id, scenario);
+
+		if(config.ContainsKey(TimeFrameKey))
+		{
+			UpdateTime(config[TimeFrameKey]);
+		}
 
 		return _is_sim;
 	}
@@ -204,6 +227,35 @@ public class HouseMain
 		}
 
 		return status;
+	}
+
+	static void UpdateTime(string input)
+	{
+		if(_time != null)
+		{
+			return;
+		}
+
+		try
+		{
+			_time = JsonConvert.DeserializeObject<TimeFrame>(input);
+			foreach(Device dev in DeviceModel.Instance.Devices)
+			{
+				dev.Frame = _time;
+				var thermo = dev as Thermostat;
+				if(thermo != null)
+				{
+					var simio = new SimTempInput(_weather);
+					thermo.resetIO(simio, simio);
+				}
+			}
+			_weather.Frame = _time;
+			DeviceModel.Instance.Responding = true;
+		}
+		catch(JsonException ex)
+		{
+			_time = null;
+		}
 	}
 
 	/**
