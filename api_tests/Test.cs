@@ -28,18 +28,17 @@ public class APITest
 		Assert.AreEqual(true, response);
     }
 
-		[Test]
-		public void TestEnumerateDevices()
-		{
+	[Test]
+	public void TestEnumerateDevices()
+	{
+		Interfaces inter = new Interfaces();
+		ulong houseID = 4;
+		Console.WriteLine("Hello");
+		List<string> response = inter.enumerateDevices(houseID);
+		//Assert.That((response.GetType().Equals(List<string>)));
+		//Assert.That(true);
 		
-			
-			Interfaces inter = new Interfaces();
-			ulong houseID = 4;
-			List<string> response = inter.enumerateDevices(houseID);
-			//Assert.That((response.GetType().Equals(List<string>)));
-			//Assert.That(true);
-			
-		}
+	}
 
     [Test]
     public void TestLightSerialization()
