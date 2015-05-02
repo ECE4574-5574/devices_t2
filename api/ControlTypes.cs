@@ -38,6 +38,18 @@ public class Light : ControlTypes
 [JsonConverter(typeof(TemperatureConverter))]
 public class Temperature : ControlTypes
 {
+	public Temperature()
+	{
+		C = Double.NaN;
+	}
+
+	public static implicit operator Temperature(double temp)
+	{
+		return new Temperature()
+		{
+			C = temp
+		};
+	}
 	/**
 	 * Generic accessor, which returns underlying measure without explicit type.
 	 */
