@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using RestSharp;
+using System.Reflection;
 
 namespace HouseTest
 {
@@ -102,6 +103,7 @@ public class Test
 
 		var ls = new LightSwitch(null, null, null);
 		ls.Enabled = true;
+		ls.GetType().GetRuntimeProperty("Value").SetValue(ls, new Light(4000.0)); //this shouldn't survive the pose
 		post.AddJsonBody(ls);
 
 		var resp = _client.Execute(post);
@@ -121,6 +123,7 @@ public class Test
 		Assert.IsNotNull(dev);
 		Assert.IsTrue(dev.UpdateOk);
 		Assert.IsTrue(dev.Enabled);
+		Assert.AreEqual(dev.Value.Brightness, 1.0);
 	}
 
 	[Test]
