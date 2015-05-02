@@ -31,7 +31,7 @@ public class APITest
 	[Test]
 	public void TestEnumerateDevices()
 	{
-		Interfaces inter = new Interfaces();
+		Interfaces inter = new Interfaces("http://serverapi1.azurewebsites.net");
 		ulong houseID = 4;
 		Console.WriteLine("Hello");
 		List<string> response = inter.enumerateDevices(houseID);

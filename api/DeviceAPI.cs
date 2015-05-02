@@ -21,10 +21,11 @@ public class Interfaces
 		_http = new HttpClient();
 		_server = serverAddress;
 	}
-	public Interfaces()
+
+	public Interfaces(string serverAddress)
 	{
 		_http = new HttpClient();
-		_server = new Uri ("http://serverapi1.azurewebsites.net");
+		_server = new Uri(serverAddress);
 	}
 
 	/**
