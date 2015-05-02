@@ -19,11 +19,21 @@ public class APITest
     [Test]
     public void TestServerInput()
     {
-        var input = new ServerInput("");
+		var input = new ServerInput("http://serverapi1.azurewebsites.net");
         var device = new LightSwitch(input, null, null);
         var response = input.read(device);
         Assert.AreEqual(true, response);
     }
+
+	[Test]
+	public void TestEnumerateDevices()
+	{
+		Interfaces inter = new Interfaces("http://serverapi1.azurewebsites.net");
+		ulong houseID = 4;
+		Console.WriteLine("Hello");
+		List<string> response = inter.enumerateDevices(houseID);
+
+	}
 
     [Test]
     public void TestLightSerialization()

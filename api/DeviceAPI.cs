@@ -8,15 +8,23 @@ using Hats.Time;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Hats.Time;
+using System.Diagnostics;
+
 
 namespace api
 {
 
 public class Interfaces
 {
+	protected HttpClient _http;
 	protected Uri _server;
 	protected TimeFrame _frame;
+
+	public Interfaces(string serverAddress)
+	{
+		_http = new HttpClient();
+		_server = new Uri(serverAddress);
+	}
 
 	public Interfaces(Uri serverAddress, TimeFrame frame = default(TimeFrame))
 	{
@@ -30,6 +38,7 @@ public class Interfaces
 		_frame = frame;
 	}
 
+
 	/**
 	 * Function which is called to request a list of devices present at a given location, which
 	 * are not currently registered in the HATS system. Since these devices are not registered,
@@ -40,13 +49,36 @@ public class Interfaces
 	 */
 	public List<string> enumerateDevices(UInt64 house_id)
 	{
-		//Post GET call to _server + "/api/app/device/enumeratedevices/{house_id}"
-		//Get result of GET
-		//Turn Content into JArray
-		//Iterate over JArray, for each JToken inside, call List.Add(JToken.ToString());
-		//Parse Contents to a list of strings, where the strings are JSON blobs
-		//return
-		return null;
+		string houseID = house_id.ToString();
+		var client = new HttpClient();
+		client.Timeout = TimeSpan.FromSeconds(50);
+		client.BaseAddress = new Uri ("http://serverapi1.azurewebsites.net");
+
+		var response = client.GetAsync("api/app/device/enumeratedevices/" + houseID).Result;
+
+		List<string> listOfDevices= new List<string>();
+
+		if(!response.IsSuccessStatusCode)
+		{
+			return listOfDevices;
+		}
+
+		try
+		{
+			var content = response.Content.ReadAsStringAsync();
+			content.Wait();
+			JArray unregisteredDevices = JArray.Parse(content.Result);
+			foreach(JToken Device in unregisteredDevices)
+			{
+				listOfDevices.Add(Device.ToString());
+			}
+		}
+		catch(JsonException ex)
+		{
+			Debug.WriteLine("Error reading the list of devices" + ex.Message);
+			Debug.WriteLine("Error reading the list of devices" + ex.InnerException.Message);
+		}
+		return listOfDevices;
 	}
 
 	/**
