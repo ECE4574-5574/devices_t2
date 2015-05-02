@@ -154,11 +154,11 @@ public class HouseMain
 		foreach(JToken house in houses)
 		{
 			JObject house_obj = JObject.Parse(house.ToString());
-			JToken name;
+			JToken id_tok;
 
 			//found our house
-			if(house_obj.TryGetValue("name", out name) &&
-				name.ToString() == house_id)
+			if(house_obj.TryGetValue("id", out id_tok) &&
+				id_tok.ToString() == house_id)
 			{
 				JToken port_tok;
 				JToken dev_tok;
