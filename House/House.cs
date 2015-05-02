@@ -104,6 +104,13 @@ public class HouseMain
 					break;
 				}
 			}
+
+			//This gives simulated thermostats a chance to update, or other simulation work to happen
+			foreach(Device dev in DeviceModel.Instance.Devices)
+			{
+				dev.update();
+			}
+
 			Thread.Sleep(100);
 		}
         return 0;
