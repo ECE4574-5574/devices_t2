@@ -118,7 +118,7 @@ public class Interfaces
 	 * \param[in] info JSON string representing device. Must have a key named "class" which
 	 *            names the class deriving from Device to instantiate.
 	 */
-	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
+	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame, bool from_house = false)
 	{
 		if(String.IsNullOrEmpty(info))
 		{
@@ -139,7 +139,8 @@ public class Interfaces
 			if(device_type != null)
 			{
 				device = (Device)Activator.CreateInstance(device_type, null, null, frame);
-				JsonConvert.PopulateObject(info, device);
+				UpdateDevice(device, info, from_house:from_house);
+
 				device.resetIO(inp, outp); //this way, population doesn't trigger house comms
 			}
 		}
@@ -169,7 +170,7 @@ public class Interfaces
 	 * \param[in] json JSON blob of fields to update
 	 * \param[out] Flag indicating if at least one field was updated
 	 */
-	public static bool UpdateDevice(Device dev, string json, bool silence_io = false)
+	public static bool UpdateDevice(Device dev, string json, bool silence_io = false, bool from_house = false)
 	{
 		if(dev == null)
 		{
@@ -192,7 +193,7 @@ public class Interfaces
 
 			foreach(var info in props)
 			{
-				if(info.SetMethod == null || !info.SetMethod.IsPublic || info.Name == "ID" || info.Name == "Frame")
+				if(info.SetMethod == null || !info.SetMethod.IsPublic || info.Name == "Frame")
 				{
 					continue;
 				}
@@ -201,9 +202,15 @@ public class Interfaces
 				{
 					continue;
 				}
-
-				var value = field.ToObject(info.PropertyType);
-				info.SetValue(dev, value);
+				if(from_house && info.Name == "ID")
+				{
+					dev.ID.DeviceID = field.ToObject<UInt64>();
+				}
+				else
+				{
+					var value = field.ToObject(info.PropertyType);
+					info.SetValue(dev, value);
+				}
 				updated_value = true;
 			}
 		}
