@@ -44,12 +44,41 @@ public class Interfaces
 	 */
 	public List<string> enumerateDevices(UInt64 house_id)
 	{
-		//TODO: Verify the input parameters are sufficient
-		//TODO: Implement this function
-        if (house_id < 0)
-        {
-            return null;
-        }
+		if(house_id < 0)
+			return null;
+		//Post GET call to _server + "/api/app/device/enumeratedevices/{house_id}"
+		WebRequest request = WebRequest.Create(_server + "/api/app/device/enumeratedevices/{house_id}");
+		request.ContentType = "application/json";
+		request.Method = "GET";
+		string str;
+		try
+		{
+			using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+			{
+				var stream = response.GetResponseStream();
+				var reader = new StreamReader(stream);
+				str = reader.ReadToEnd();
+			}
+		}
+					
+		catch (Exception ex) {
+			_StreamException = ex;
+			return null;
+		}
+		//Get result of GET
+		//Turn Content into JArray
+		JArray jArr =  JArray.Parse(str);
+		//JToken jTok;
+		List<string> devicelist = new List<string>();
+		//Iterate over JArray, for each JToken inside, call List.Add(JToken.ToString());
+		//Parse Contents to a list of strings, where the strings are JSON blobs
+		foreach(var jTok in jArr)
+		{
+			devicelist.Add(jTok.ToString());
+		}
+		//return
+		return devicelist;
+	}
         	public List<string> enumerateDevices(UInt64 house_id)
 	{
 		//TODO: Verify the input parameters are sufficient
