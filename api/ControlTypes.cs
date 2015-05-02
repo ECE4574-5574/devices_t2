@@ -25,6 +25,15 @@ public class ControlTypes
 [JsonConverter(typeof(LightConverter))]
 public class Light : ControlTypes
 {
+	public Light()
+	{
+		Brightness = 0.0;
+	}
+	public Light(double brightness)
+	{
+		Brightness = brightness;
+	}
+
 	public double Brightness
 	{
 		get;
