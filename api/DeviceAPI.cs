@@ -192,7 +192,7 @@ public class Interfaces
 
 			foreach(var info in props)
 			{
-				if(!info.SetMethod.IsPublic || info.Name == "ID" || info.Name == "Frame")
+				if(info.SetMethod == null || !info.SetMethod.IsPublic || info.Name == "ID" || info.Name == "Frame")
 				{
 					continue;
 				}
@@ -202,8 +202,7 @@ public class Interfaces
 					continue;
 				}
 
-				var value = JsonConvert.DeserializeObject(field.ToString(), info.PropertyType);
-//				var value = field.ToObject(info.PropertyType);
+				var value = field.ToObject(info.PropertyType);
 				info.SetValue(dev, value);
 				updated_value = true;
 			}
@@ -256,13 +255,13 @@ public class Interfaces
 		foreach(var old_info in old_props)
 		{
 			//Can't update this method
-			if(!old_info.SetMethod.IsPublic)
+			if(old_info.SetMethod == null || !old_info.SetMethod.IsPublic)
 			{
 				continue;
 			}
 			foreach(var new_info in new_props)
 			{
-				if(!new_info.GetMethod.IsPublic)
+				if(new_info.GetMethod == null || !new_info.GetMethod.IsPublic)
 				{
 					continue;
 				}

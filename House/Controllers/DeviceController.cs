@@ -67,11 +67,11 @@ public class DeviceController : ApiController
 	}
 		
 	[HttpPost]
-	public async Task UpdateDevice(int id)
+	public async Task UpdateDevice(UInt64 id)
 	{
 		string data = await Request.Content.ReadAsStringAsync();
 
-		if(data.Length == 0)
+		if(String.IsNullOrEmpty(data))
 		{
 			throw new HttpResponseException(HttpStatusCode.BadRequest);
 		}
@@ -79,7 +79,7 @@ public class DeviceController : ApiController
 		Device result = null;
 		foreach(Device dev in DeviceModel.Instance.Devices)
 		{
-			if(dev.ID.DeviceID == (ulong)id)
+			if(dev.ID.DeviceID == id)
 			{
 				result = dev;
 				break;
@@ -93,7 +93,7 @@ public class DeviceController : ApiController
 
 		if(!Interfaces.UpdateDevice(result, data))
 		{
-			throw new HttpResponseException(HttpStatusCode.BadRequest);
+			throw new HttpResponseException(HttpStatusCode.BadGateway);
 		}
 	}
 }
