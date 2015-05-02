@@ -41,12 +41,12 @@ public class DeviceController : ApiController
 	/**
 	 * If a device is called with an ID, return that device
 	 */
-	public HttpResponseMessage Get(int id)
+	public HttpResponseMessage Get(UInt64 id)
 	{
 		Device result = null;
 		foreach(Device dev in DeviceModel.Instance.Devices)
 		{
-			if(dev.ID.DeviceID == (ulong)id)
+			if(dev.ID.DeviceID == id)
 			{
 				dev.LastUpdate = dev.Frame.now();
 				result = dev;
