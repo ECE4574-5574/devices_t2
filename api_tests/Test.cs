@@ -5,7 +5,9 @@ using api;
 using Hats.Time;
 using Newtonsoft.Json;
 using NUnit.Framework;
-
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Net;
 namespace api_tests
 {
 [TestFixture]
@@ -19,11 +21,27 @@ public class APITest
     [Test]
     public void TestServerInput()
     {
-        var input = new ServerInput();
+		var input = new ServerInput("http://serverapi1.azurewebsites.net");
         var device = new LightSwitch(input, null, null);
         var response = input.read(device);
         Assert.AreEqual(true, response);
     }
+
+		[Test]
+		public void TestEnumerateDevices()
+		{
+		
+		//In the code which is commented out Uri class is not shown to be referenced even though System namespace is included	
+		//string serverAddr = "http://serverapi1.azurewebsites.net/";
+			//Interfaces inter = new Interfaces(new Uri(serverAddr));
+		
+				ulong houseID = 4;
+
+		//List<string> response = inter.enumerateDevices(houseID);
+					//Assert.That((response.GetType().Equals(List<string>)));
+			Assert.That(true);
+			
+		}
 
     [Test]
     public void TestLightSerialization()
@@ -85,7 +103,7 @@ public class APITest
     public void TestDeviceTimeInit()
     {
         
-        var input = new ServerInput();
+				var input = new ServerInput("http://serverapi1.azurewebsites.net");
         var device = new LightSwitch(input, null, null);
         Assert.AreEqual(device.LastUpdate, DateTime.MinValue);
     }
@@ -93,7 +111,7 @@ public class APITest
     [Test()]
     public void TestDeviceTimeUpdate()
     {
-        var input = new ServerInput();
+				var input = new ServerInput("http://serverapi1.azurewebsites.net");
         var device = new LightSwitch(input, null, null);
         device.LastUpdate = DateTime.Now.ToUniversalTime();
         Assert.AreNotEqual(device.LastUpdate, DateTime.MinValue);
@@ -224,8 +242,9 @@ public class APITest
 			Assert.IsTrue(device.Name.Equals("NON-EMPTY STRING"));
 		}
 
-
+	
 	}
+
 }
 
 }
