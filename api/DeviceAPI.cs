@@ -47,6 +47,12 @@ public class Interfaces
 		var response = client.GetAsync("api/app/device/enumeratedevices/" + houseID).Result;
 
 		List<string> listOfDevices= new List<string>();
+
+		if(!response.IsSuccessStatusCode)
+		{
+			return listOfDevices;
+		}
+
 		try
 		{
 			var content = response.Content.ReadAsStringAsync();
