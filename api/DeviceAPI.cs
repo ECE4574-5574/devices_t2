@@ -8,7 +8,7 @@ using Hats.Time;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Hats.Time;
+using System.Diagnostics;
 
 namespace api
 {
@@ -138,8 +138,9 @@ public class Interfaces
 			var device_type = GetDeviceType(type_tok.ToString());
 			if(device_type != null)
 			{
-				device = (Device)Activator.CreateInstance(device_type, inp, outp, frame);
+				device = (Device)Activator.CreateInstance(device_type, null, null, frame);
 				JsonConvert.PopulateObject(info, device);
+				device.resetIO(inp, outp); //this way, population doesn't trigger house comms
 			}
 		}
 		catch(JsonException ex)
@@ -168,14 +169,22 @@ public class Interfaces
 	 * \param[in] json JSON blob of fields to update
 	 * \param[out] Flag indicating if at least one field was updated
 	 */
-	public static bool UpdateDevice(Device dev, string json)
+	public static bool UpdateDevice(Device dev, string json, bool silence_io = false)
 	{
-		if(dev == null || String.IsNullOrEmpty(json))
+		if(dev == null)
 		{
 			return false;
 		}
 
-		bool updated_value = false;
+		IDeviceInput inp = null;
+		IDeviceOutput outp = null;
+		if(silence_io)
+		{
+			inp = dev.Input;
+			outp = dev.Output;
+			dev.resetIO();
+		}
+		bool updated_value = true;
 		try
 		{
 			var props = dev.GetType().GetRuntimeProperties();
@@ -183,7 +192,7 @@ public class Interfaces
 
 			foreach(var info in props)
 			{
-				if(!info.SetMethod.IsPublic || info.Name == "DeviceID" || info.Name == "Frame")
+				if(!info.SetMethod.IsPublic || info.Name == "ID" || info.Name == "Frame")
 				{
 					continue;
 				}
@@ -192,7 +201,9 @@ public class Interfaces
 				{
 					continue;
 				}
-				var value = field.ToObject(info.PropertyType);
+
+				var value = JsonConvert.DeserializeObject(field.ToString(), info.PropertyType);
+//				var value = field.ToObject(info.PropertyType);
 				info.SetValue(dev, value);
 				updated_value = true;
 			}
@@ -202,6 +213,10 @@ public class Interfaces
 			//TODO: Report error somehow?
 		}
 
+		if(silence_io)
+		{
+			dev.resetIO(inp, outp);
+		}
 		return updated_value;
 	}
 
@@ -213,7 +228,7 @@ public class Interfaces
 	 * \param[in] new_dev Device which contains values to be updated with
 	 * \param[out] Flag indicating if a field was updated with a new value
 	 */
-	public static bool UpdateDevice(Device old_dev, Device new_dev)
+	public static bool UpdateDevice(Device old_dev, Device new_dev, bool silence_io = false)
 	{
 		if(old_dev == null || new_dev == null)
 		{
@@ -229,6 +244,15 @@ public class Interfaces
 		var new_props = new_dev.GetType().GetRuntimeProperties();
 		bool update_field = false;
 
+
+		IDeviceInput inp = null;
+		IDeviceOutput outp = null;
+
+		if(silence_io)
+		{
+			inp = old_dev.Input;
+			outp = old_dev.Output;
+		}
 		foreach(var old_info in old_props)
 		{
 			//Can't update this method
@@ -250,6 +274,11 @@ public class Interfaces
 					break;
 				}
 			}
+		}
+
+		if(silence_io)
+		{
+			old_dev.resetIO(inp, outp);
 		}
 		return update_field;
 	}
