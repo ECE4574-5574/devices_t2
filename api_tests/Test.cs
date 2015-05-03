@@ -20,7 +20,10 @@ public class APITest
     public void TestServerInput()
     {
 		var input = new ServerInput("http://serverapi1.azurewebsites.net");
-        var device = new LightSwitch(input, null, null);
+		var device = new LightSwitch(input, null, null)
+		{
+			ID = new FullID(3, 1, 2)
+		};
         var response = input.read(device);
         Assert.AreEqual(true, response);
     }
@@ -30,7 +33,6 @@ public class APITest
 	{
 		Interfaces inter = new Interfaces("http://serverapi1.azurewebsites.net");
 		ulong houseID = 4;
-		Console.WriteLine("Hello");
 		List<string> response = inter.enumerateDevices(houseID);
 
 	}
