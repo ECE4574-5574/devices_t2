@@ -21,10 +21,6 @@ public class ServerInput : IDeviceInput
 	{
 		_serverURL = server_URL;
 	}
-	public ServerInput()
-	{
-		_serverURL = "http://serverapi1.azurewebsites.net/";
-	}
 
 	public bool read(Device dev)
 	{
@@ -32,11 +28,13 @@ public class ServerInput : IDeviceInput
 
 		try
 		{
-			var response = HttpRequest(dev);
+			var response = GetResponse(dev);
 			if(response.StatusCode == HttpStatusCode.OK)
 			{
 
-				bool update_success = Interfaces.UpdateDevice(dev, response.Content.ToString());
+				var content = response.Content.ReadAsStringAsync();
+				content.Wait();
+				bool update_success = Interfaces.UpdateDevice(dev, content.Result);
 				return true;
 			}
 			else
@@ -52,7 +50,7 @@ public class ServerInput : IDeviceInput
 		}
 	}
 
-	public HttpResponseMessage HttpRequest(Device dev1)
+	public HttpResponseMessage GetResponse(Device dev1)
 	{	
 
 		try
