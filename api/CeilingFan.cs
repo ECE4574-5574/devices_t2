@@ -21,6 +21,8 @@ namespace api
  */
 public class CeilingFan : Device, IEnableable, IDiscreteSetting
 {
+	protected bool _enabled;
+	protected Int64 _state;
 	public CeilingFan(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame) :
 	base(inp, outp, frame)
 	{
@@ -30,14 +32,30 @@ public class CeilingFan : Device, IEnableable, IDiscreteSetting
 	}
 	public bool Enabled
 	{
-		get;
-		set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return _enabled;
+		}
+		set
+		{
+			_enabled = value;
+			_out.write(this);
+		}
 	}
 
 	public Int64 State
 	{
-		get;
-		set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return _state;
+		}
+		set
+		{
+			_state = value;
+			_out.write(this);
+		}
 	}
 
 	public Int64 MinState()

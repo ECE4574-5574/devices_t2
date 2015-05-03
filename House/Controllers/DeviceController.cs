@@ -3,12 +3,13 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Web.Http;
-using Newtonsoft.Json;
-using api;
 using System.Net;
-using System.Threading.Tasks;
 using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using api;
+using api.Converters;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace House
@@ -40,12 +41,12 @@ public class DeviceController : ApiController
 	/**
 	 * If a device is called with an ID, return that device
 	 */
-	public HttpResponseMessage Get(int id)
+	public HttpResponseMessage Get(UInt64 id)
 	{
 		Device result = null;
 		foreach(Device dev in DeviceModel.Instance.Devices)
 		{
-			if(dev.ID.DeviceID == (ulong)id)
+			if(dev.ID.DeviceID == id)
 			{
 				dev.LastUpdate = dev.Frame.now();
 				result = dev;
@@ -66,11 +67,11 @@ public class DeviceController : ApiController
 	}
 		
 	[HttpPost]
-	public async Task UpdateDevice(int id)
+	public async Task UpdateDevice(UInt64 id)
 	{
 		string data = await Request.Content.ReadAsStringAsync();
 
-		if(data.Length == 0)
+		if(String.IsNullOrEmpty(data))
 		{
 			throw new HttpResponseException(HttpStatusCode.BadRequest);
 		}
@@ -78,7 +79,7 @@ public class DeviceController : ApiController
 		Device result = null;
 		foreach(Device dev in DeviceModel.Instance.Devices)
 		{
-			if(dev.ID.DeviceID == (ulong)id)
+			if(dev.ID.DeviceID == id)
 			{
 				result = dev;
 				break;
@@ -90,21 +91,9 @@ public class DeviceController : ApiController
 			throw new HttpResponseException(HttpStatusCode.NotFound);
 		}
 
-		var props = result.GetType().GetProperties();
-		var json_obj = JObject.Parse(data);
-		foreach(var info in props)
+		if(!Interfaces.UpdateDevice(result, data, update_id:false))
 		{
-			if(info.GetSetMethod() == null  || !info.GetSetMethod().IsPublic || info.Name == "DeviceID" || info.Name == "Frame")
-			{
-				continue;
-			}
-			JToken field;
-			if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
-			{
-				continue;
-			}
-			var value = field.ToObject(info.PropertyType);
-			info.SetValue(result, value);
+			throw new HttpResponseException(HttpStatusCode.BadGateway);
 		}
 	}
 }

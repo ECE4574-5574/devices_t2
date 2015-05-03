@@ -5,21 +5,15 @@
 * Json implementation will be handled in the devices class
 */
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using api;
+using Hats.SimWeather;
+using Hats.Time;
+using Microsoft.Owin.Hosting;
 using NDesk.Options;
 using Newtonsoft.Json;
-using System.Text.RegularExpressions;
-using System.Text;
-using Hats.Time;
 using Newtonsoft.Json.Linq;
-using Hats.SimWeather;
-using Microsoft.Owin.Hosting;
-using System.Net.Http;
+using System.Threading;
 
 namespace House
 {
@@ -55,6 +49,11 @@ public class HouseMain
 				"Port to listen for calls on.",
 				v => config.Add("port", v)
 			},
+			{
+				"f|frame=",
+				"Time Frame JSON blob to immediately parse",
+				v => config.Add("time", v)
+			},
             {
 				"h|help",
 				"Display the help message",
@@ -72,7 +71,7 @@ public class HouseMain
             return 1;
         }
 
-        if(show_help)
+		if(show_help || optargs.Count == 0)
         {
             PrintHelp(optargs);
 			return 1;
@@ -88,20 +87,31 @@ public class HouseMain
 
 		InitListener(_port);
 
-		var input = Console.ReadLine();
-
-		while(!input.Equals("q", StringComparison.OrdinalIgnoreCase))
+		//Wait until we read 
+		while(_time == null)
 		{
-			if(_time != null)
+			var input = Console.ReadLine();
+			UpdateTime(input);
+		}
+
+		while(true)
+		{
+			if(Console.KeyAvailable)
 			{
-				_time = JsonConvert.DeserializeObject<TimeFrame>(input);
-				foreach(Device dev in DeviceModel.Instance.Devices)
+				ConsoleKeyInfo key = Console.ReadKey(true);
+				if(key.Key == ConsoleKey.Q) //bail bail bail
 				{
-					dev.Frame = _time;
+					break;
 				}
-				DeviceModel.Instance.Responding = true;
 			}
-			input = Console.ReadLine();
+
+			//This gives simulated thermostats a chance to update, or other simulation work to happen
+			foreach(Device dev in DeviceModel.Instance.Devices)
+			{
+				dev.update();
+			}
+
+			Thread.Sleep(100);
 		}
         return 0;
 	}
@@ -110,6 +120,7 @@ public class HouseMain
 	{
 		const string IDKey = "house_id";
 		const string ScenarioKey = "test_scenario";
+		const string TimeFrameKey = "time";
 
 		if(!config.ContainsKey(IDKey) || !config.ContainsKey(ScenarioKey))
 		{
@@ -119,6 +130,11 @@ public class HouseMain
 		string scenario = config[ScenarioKey];
 
 		_is_sim = GenerateSimulatedHouse(house_id, scenario);
+
+		if(config.ContainsKey(TimeFrameKey))
+		{
+			UpdateTime(config[TimeFrameKey]);
+		}
 
 		return _is_sim;
 	}
@@ -136,7 +152,17 @@ public class HouseMain
 			return false;
 		}
 
-		JObject info = JObject.Parse(scenario);
+		JObject info = null;
+		try
+		{
+			info = JObject.Parse(scenario);
+		}
+		catch(JsonException ex)
+		{
+			var error = String.Format("Scenario parsing error: {0}", ex.Message);
+			Console.WriteLine(error);
+			return false;
+		}
 		JToken house_list;
 
 		if(!info.TryGetValue("houses", out house_list))
@@ -151,11 +177,11 @@ public class HouseMain
 		foreach(JToken house in houses)
 		{
 			JObject house_obj = JObject.Parse(house.ToString());
-			JToken name;
+			JToken id_tok;
 
 			//found our house
-			if(house_obj.TryGetValue("name", out name) &&
-				name.ToString() == house_id)
+			if(house_obj.TryGetValue("id", out id_tok) &&
+				id_tok.ToString() == house_id)
 			{
 				JToken port_tok;
 				JToken dev_tok;
@@ -203,12 +229,39 @@ public class HouseMain
 		return status;
 	}
 
-	static String GetDeviceState(UInt64 house, UInt64 room, UInt64 device)
+	static void UpdateTime(string input)
 	{
-		return "";
+		if(_time != null)
+		{
+			return;
+		}
+
+		try
+		{
+			_time = JsonConvert.DeserializeObject<TimeFrame>(input);
+			foreach(Device dev in DeviceModel.Instance.Devices)
+			{
+				dev.Frame = _time;
+				var thermo = dev as Thermostat;
+				if(thermo != null)
+				{
+					var simio = new SimTempInput(_weather);
+					thermo.resetIO(simio, simio);
+				}
+			}
+			_weather.Frame = _time;
+			DeviceModel.Instance.Responding = true;
+		}
+		catch(JsonException ex)
+		{
+			_time = null;
+		}
 	}
 
-    public static void PrintHelp(OptionSet p)
+	/**
+	 * Helper function to print out usage help.
+	 */
+    private static void PrintHelp(OptionSet p)
     {
         Console.WriteLine("Usage: House [Options]");
         Console.WriteLine("Provides the House Interface for a collection of devices.");

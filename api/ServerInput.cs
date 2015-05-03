@@ -7,7 +7,7 @@ namespace api
 {
 public class ServerInput : IDeviceInput
 {
-	public ServerInput() 
+	public ServerInput(string server_url) 
 	{
 	}
 

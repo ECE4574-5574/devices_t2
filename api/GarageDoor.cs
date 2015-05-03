@@ -21,6 +21,7 @@ namespace api
  */
 public class GarageDoor : Device, IEnableable
 {
+	protected bool _enabled;
 	public GarageDoor(IDeviceInput inp, IDeviceOutput outp, TimeFrame frame) :
 	base(inp, outp, frame)
 	{
@@ -30,8 +31,16 @@ public class GarageDoor : Device, IEnableable
 
 	public bool Enabled
 	{
-		get;
-		set;
+		get
+		{
+			UpdateOk = _in.read(this);
+			return _enabled;
+		}
+		set
+		{
+			_enabled = value;
+			_out.write(this);
+		}
 	}
 }
 

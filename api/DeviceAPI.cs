@@ -1,25 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using api;
+using Hats.Time;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using Hats.Time;
+using System.Diagnostics;
+using api.Converters;
 
 namespace api
 {
 
 public class Interfaces
 {
-	protected HttpClient _http;
 	protected Uri _server;
+	protected TimeFrame _frame;
 
-	public Interfaces(Uri serverAddress)
+	public Interfaces(Uri serverAddress, TimeFrame frame = default(TimeFrame))
 	{
-		_http = new HttpClient();
 		_server = serverAddress;
+
+		if(frame == null)
+		{
+			frame = new TimeFrame();
+		}
+
+		_frame = frame;
 	}
 
 	/**
@@ -32,8 +41,12 @@ public class Interfaces
 	 */
 	public List<string> enumerateDevices(UInt64 house_id)
 	{
-		//TODO: Verify the input parameters are sufficient
-		//TODO: Implement this function
+		//Post GET call to _server + "/api/app/device/enumeratedevices/{house_id}"
+		//Get result of GET
+		//Turn Content into JArray
+		//Iterate over JArray, for each JToken inside, call List.Add(JToken.ToString());
+		//Parse Contents to a list of strings, where the strings are JSON blobs
+		//return
 		return null;
 	}
 
@@ -89,9 +102,25 @@ public class Interfaces
 	}
 
 	/**
-	 * Given a JSON string representing a device, instantiates the device as desired.
+	 * Given relevant information string, attempts to create a device capable of communicating with a device through the server.
+	 * \param[in] info JSON string representing the device, which came from the server
+	 * \param[in] frame TimeFrame for timestamping data for this device
+	 */
+	public Device CreateDevice(string info, TimeFrame frame)
+	{
+		var inp = new ServerInput(_server.ToString());
+		var outp = new ServerOutput(_server.ToString());
+		return Interfaces.DeserializeDevice(info, inp, outp, frame);
+	}
+
+	/**
+	 * Given a JSON string representing a device, instantiates the device as desired. Raw instantiation, which shouldn't
+	 * be used by end-clients typically
 	 * \param[in] info JSON string representing device. Must have a key named "class" which
 	 *            names the class deriving from Device to instantiate.
+	 * \param[in] inp IDeviceInput to create device with
+	 * \param[in] outp IDeviceOutput to create device with
+	 * \param[in] frame TimeFrame to initialize the frame
 	 */
 	public static Device DeserializeDevice(string info, IDeviceInput inp, IDeviceOutput outp, TimeFrame frame)
 	{
@@ -100,19 +129,28 @@ public class Interfaces
 			return null;
 		}
 
-		JObject device_obj = JObject.Parse(info);
-		JToken type_tok;
-		if(!device_obj.TryGetValue("class", StringComparison.OrdinalIgnoreCase, out type_tok))
-		{
-			return null;
-		}
-
-		var device_type = GetDeviceType(type_tok.ToString());
 		Device device = null;
-		if(device_type != null)
+		try
 		{
-			device = (Device)Activator.CreateInstance(device_type, inp, outp, frame);
-			JsonConvert.PopulateObject(info, device);
+			JObject device_obj = JObject.Parse(info);
+			JToken type_tok;
+			if(!device_obj.TryGetValue("class", StringComparison.OrdinalIgnoreCase, out type_tok))
+			{
+				return null;
+			}
+
+			var device_type = GetDeviceType(type_tok.ToString());
+			if(device_type != null)
+			{
+				device = (Device)Activator.CreateInstance(device_type, null, null, frame);
+				update(device, info, update_id:true, force:true);
+
+				device.resetIO(inp, outp); //this way, population doesn't trigger house comms
+			}
+		}
+		catch(JsonException ex)
+		{
+			//TODO: Figure out how to pass exceptions up, or record error
 		}
 		return device;
 	}
@@ -125,25 +163,163 @@ public class Interfaces
 	 */
 	private static Type GetDeviceType(string typeName)
 	{
-		Type device_type = Type.GetType("api." + typeName);
-		if(device_type != null)
-		{
-			return device_type;
-		}
-		/*
-		foreach(var a in AppDomain.CurrentDomain.GetAssemblies())
-		{
-			device_type = a.GetType(typeName);
+		return Type.GetType("api." + typeName);
+	}
 
-			if(type != null && device_type.IsSubclassOf(typeof(Device)))
+	/**
+	 * Given a device and the JSON string to update it with, this will update
+	 * all public properties which are not the TimeFrame to
+	 * whatever value is in the JSON blob.
+	 * \param[in] dev Device to be updated
+	 * \param[in] json JSON blob of fields to update
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
+	 * \param[in] update_id Flag indicating if the DeviceID should be updated at all
+	 * \param[in] force Flag indicating if public/private flags should be respected for the update
+	 * \param[out] Flag indicating if at least one field was updated
+	 */
+	public static bool UpdateDevice(Device dev, string json, bool silence_io = false,
+		bool update_id = false)
+	{
+		return update(dev, json, silence_io, update_id, force: false);
+	}
+
+	/**
+	 * Given an instance of the device, attempts to update all public properties with info
+	 * from the new device instance. Note that devices currently must have the same ID, but
+	 * the actual classes do not need to be the same.
+	 * \param[in] old_dev Device which will be updated.
+	 * \param[in] new_dev Device which contains values to be updated with
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
+	 * \param[out] Flag indicating if a field was updated with a new value
+	 */
+	public static bool UpdateDevice(Device old_dev, Device new_dev, bool silence_io = false)
+	{
+		if(old_dev == null || new_dev == null)
+		{
+			return false;
+		}
+
+		if(old_dev.ID != new_dev.ID)
+		{
+			return false;
+		}
+			
+		var old_props = old_dev.GetType().GetRuntimeProperties();
+		var new_props = new_dev.GetType().GetRuntimeProperties();
+		bool update_field = false;
+
+
+		IDeviceInput inp = null;
+		IDeviceOutput outp = null;
+
+		if(silence_io)
+		{
+			inp = old_dev.Input;
+			outp = old_dev.Output;
+		}
+		foreach(var old_info in old_props)
+		{
+			//Can't update this method
+			if(old_info.SetMethod == null || !old_info.SetMethod.IsPublic)
 			{
-				return type;
+				continue;
+			}
+			foreach(var new_info in new_props)
+			{
+				if(new_info.GetMethod == null || !new_info.GetMethod.IsPublic)
+				{
+					continue;
+				}
+
+				if(new_info.Name == old_info.Name)
+				{
+					update_field |= old_info.GetValue(old_dev) != new_info.GetValue(new_info);
+					old_info.SetValue(old_dev, new_info.GetValue(new_dev));
+					break;
+				}
 			}
 		}
-		*/
 
-		return null;
+		if(silence_io)
+		{
+			old_dev.resetIO(inp, outp);
+		}
+		return update_field;
+	}
+
+	/**
+	 * Internal device updating function.
+	 * \param[in] dev Device to be updated
+	 * \param[in] json JSON blob of fields to update
+	 * \param[in] silence_io Temporarily disable the Device IO for simple value updating
+	 * \param[in] update_id Flag indicating if the DeviceID should be updated at all
+	 * \param[in] force Flag indicating if public/private flags should be respected for the update
+	 * \param[out] Flag indicating if at least one field was updated
+	 */
+	protected static bool update(Device dev, string json, bool silence_io = false,
+		bool update_id = false, bool force = false)
+	{
+		if(dev == null)
+		{
+			return false;
+		}
+
+		IDeviceInput inp = null;
+		IDeviceOutput outp = null;
+		if(silence_io)
+		{
+			inp = dev.Input;
+			outp = dev.Output;
+			dev.resetIO();
+		}
+		bool updated_value = true;
+		try
+		{
+			var props = dev.GetType().GetRuntimeProperties();
+			var json_obj = JObject.Parse(json);
+
+			foreach(var info in props)
+			{
+				if(info.SetMethod == null || !(force || info.SetMethod.IsPublic) || info.Name == "Frame")
+				{
+					continue;
+				}
+				JToken field;
+				if(!json_obj.TryGetValue(info.Name, StringComparison.OrdinalIgnoreCase, out field))
+				{
+					continue;
+				}
+
+				if(update_id && info.Name == "ID")
+				{
+					if(field.Type == JTokenType.Integer)
+					{
+						dev.ID.DeviceID = field.ToObject<UInt64>();
+					}
+					else
+					{
+						dev.ID = field.ToObject<FullID>();
+					}
+				}
+				else if(info.Name != "ID")
+				{
+					var value = field.ToObject(info.PropertyType);
+					info.SetValue(dev, value);
+				}
+				updated_value = true;
+			}
+		}
+		catch(JsonException ex)
+		{
+			//TODO: Report error somehow?
+		}
+
+		if(silence_io)
+		{
+			dev.resetIO(inp, outp);
+		}
+		return updated_value;
 	}
 }
-}
 
+}
