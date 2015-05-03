@@ -60,8 +60,7 @@ public class ServerInput : IDeviceInput
 		HttpResponseMessage resp = null;
 		try
 		{
-			var resource_address = String.Format("api/storage/device/{0}/{1}/{2}", dev1.ID.HouseID, dev1.ID.RoomID,
-				dev1.ID.DeviceID);
+			var resource_address = String.Format("api/storage/device/3/1/2");
 			var rr = _client.GetAsync(resource_address);
 			rr.Wait();
 			resp = rr.Result;
