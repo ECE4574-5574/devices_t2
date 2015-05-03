@@ -21,7 +21,7 @@ public class APITest
     [Test]
     public void TestServerInput()
     {
-        var input = new ServerInput();
+		var input = new ServerInput("");
         var device = new LightSwitch(input, null, null);
         var response = input.read(device);
         Assert.AreEqual(true, response);
@@ -87,7 +87,7 @@ public class APITest
     public void TestDeviceTimeInit()
     {
         
-        var input = new ServerInput();
+        var input = new ServerInput("");
         var device = new LightSwitch(input, null, null);
         Assert.AreEqual(device.LastUpdate, DateTime.MinValue);
     }
@@ -95,7 +95,7 @@ public class APITest
     [Test()]
     public void TestDeviceTimeUpdate()
     {
-        var input = new ServerInput();
+        var input = new ServerInput("");
         var device = new LightSwitch(input, null, null);
         device.LastUpdate = DateTime.Now.ToUniversalTime();
         Assert.AreNotEqual(device.LastUpdate, DateTime.MinValue);
