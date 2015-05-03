@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Threading.Tasks;
 using System.Text;
+using Hats.Time;
 
 namespace api
 {
@@ -27,12 +28,12 @@ public class HouseOutput : IDeviceOutput
 
 	public bool write(Device dev)
 	{
-		string json = JsonConvert.SerializeObject(dev);
+		string desiredState = JsonConvert.SerializeObject(dev);
 		string houseID = dev.ID.HouseID.ToString();
 		string roomID = dev.ID.RoomID.ToString();
 		string deviceID = dev.ID.DeviceID.ToString();
 
-		var _ = writeHelper(json, houseID, roomID, deviceID);
+		var _ = writeHelper(desiredState, houseID, roomID, deviceID);
 
 		return true;
 	}
