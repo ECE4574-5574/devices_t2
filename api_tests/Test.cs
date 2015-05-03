@@ -20,12 +20,41 @@ public class APITest
     public void TestServerInput()
     {
 		var input = new ServerInput("http://serverapi1.azurewebsites.net");
-		var device = new LightSwitch(input, null, null)
+		var device1 = new LightSwitch(input, null, null)
 		{
 			ID = new FullID(3, 1, 2)
 		};
-        var response = input.read(device);
-        Assert.AreEqual(true, response);
+		var device2 =new AlarmSystem(input, null, null)
+		{
+			ID = new FullID(4, 3, 7)
+		};
+		var device3 =new CeilingFan(input, null, null)
+		{
+			ID = new FullID(1, 3, 6)
+		};
+		var device4 =new GarageDoor(input, null, null)
+		{
+			ID = new FullID(2, 4, 3)
+		};
+		var device5 =new LightSwitch(input, null, null)
+		{
+			ID = new FullID(1, 1, 1)
+		};
+		var device6 =new Thermostat(input, null, null)
+		{
+			ID = new FullID(0, 0, 0)
+		};
+		var response1 = input.read(device1);
+		var response2 = input.read(device2);
+		var response3 = input.read(device3);
+		var response4 = input.read(device4);
+		var response5 = input.read(device5);
+        Assert.AreEqual(true, response1);
+		Assert.AreEqual(true, response2);
+		Assert.AreEqual(true, response3);
+		Assert.AreEqual(true, response4);
+		Assert.AreEqual(true, response5);
+
     }
 
 	[Test]
