@@ -13,7 +13,6 @@ using api.Converters;
 using Hats.Time;
 using System.Linq;
 
-
 namespace api
 {
 
@@ -45,7 +44,9 @@ public class Interfaces
 	public List<string> enumerateDevices(UInt64 house_id)
 	{
 		if(house_id < 0)
+		{
 			return null;
+		}
 		//Post GET call to _server + "/api/app/device/enumeratedevices/{house_id}"
 		WebRequest request = WebRequest.Create(_server + "/api/app/device/enumeratedevices/{house_id}");
 		request.ContentType = "application/json";
