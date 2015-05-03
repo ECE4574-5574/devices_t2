@@ -19,10 +19,17 @@ public class Interfaces
 	protected Uri _server;
 	protected TimeFrame _frame;
 
-	public Interfaces(string serverAddress)
+	public Interfaces(string serverAddress, TimeFrame frame = default(TimeFrame))
 	{
 		_http = new HttpClient();
 		_server = new Uri(serverAddress);
+
+		if(frame == null)
+		{
+			frame = new TimeFrame();
+		}
+
+		_frame = frame;
 	}
 
 	public Interfaces(Uri serverAddress, TimeFrame frame = default(TimeFrame))
@@ -51,7 +58,7 @@ public class Interfaces
 		string houseID = house_id.ToString();
 		var client = new HttpClient();
 		client.Timeout = TimeSpan.FromSeconds(50);
-		client.BaseAddress = new Uri ("http://serverapi1.azurewebsites.net");
+		client.BaseAddress = _server;
 
 		var response = client.GetAsync("api/app/device/enumeratedevices/" + houseID).Result;
 

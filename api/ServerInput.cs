@@ -2,20 +2,20 @@
  * Input for reading device state from the Server API
  */
 using System;
-using System.Threading;
-using System.IO;
 using System.Diagnostics;
-using Newtonsoft.Json;
+using System.IO;
 using System.Net;
-using System.Threading.Tasks;
-using System.Text;
 using System.Net.Http;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace api
 {
+
 public class ServerInput : IDeviceInput
 {
-
 	string _serverURL;
 	public ServerInput(string server_URL)
 	{
@@ -24,53 +24,48 @@ public class ServerInput : IDeviceInput
 
 	public bool read(Device dev)
 	{
-		//string json = JsonConvert.SerializeObject(dev);
-
+		var result = false;
 		try
 		{
 			var response = GetResponse(dev);
-			if(response.StatusCode == HttpStatusCode.OK)
+			if(response == null)
 			{
-
+				return result;
+			}
+			result = response.IsSuccessStatusCode;
+			if(result)
+			{
 				var content = response.Content.ReadAsStringAsync();
 				content.Wait();
-				bool update_success = Interfaces.UpdateDevice(dev, content.Result);
-				return true;
-			}
-			else
-			{
-				return false;
+				result = Interfaces.UpdateDevice(dev, content.Result);
 			}
 		}
 		catch (Exception e)
 		{
 			Debug.WriteLine("Server Input Error: " + e.Message);
-			Debug.WriteLine("Server Input Error: " + e.InnerException.Message);
-			return false;
 		}
+
+		return result;
 	}
 
 	public HttpResponseMessage GetResponse(Device dev1)
-	{	
-
+	{
+		HttpResponseMessage resp = null;
 		try
 		{
 			var client = new HttpClient();
 			client.Timeout = TimeSpan.FromSeconds(10);
 			client.BaseAddress = new Uri(_serverURL);
-			string houseID = dev1.ID.HouseID.ToString();
-			string roomID = dev1.ID.RoomID.ToString();
-			string deviceID = dev1.ID.DeviceID.ToString();
-			var response = client.GetAsync("/api/storage/device/" +houseID+ "/"+roomID+"/"+deviceID).Result;
-			return response;
+			var resource_address = String.Format("/api/storage/device/{0}/{1}/{2}", dev1.ID.HouseID, dev1.ID.RoomID,
+				dev1.ID.DeviceID);
+			resp = client.GetAsync(resource_address).Result;
 		}
 		catch (Exception e)
 		{
 			Debug.WriteLine("Server Input Error: " + e.Message);
-			Debug.WriteLine("Server Input Error: " + e.InnerException.Message);
-			return null;
 		}
 
+		return resp;
 	}
 }
 }
