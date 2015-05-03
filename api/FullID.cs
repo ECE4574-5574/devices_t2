@@ -14,6 +14,13 @@ public class FullID
 		RoomID = 0;
 		DeviceID = 0;
 	}
+
+	public FullID(UInt64 house, UInt64 room, UInt64 device)
+	{
+		HouseID = house;
+		RoomID = room;
+		DeviceID = device;
+	}
 	/**
 	 * Identifier for the house this device is contained within
 	 */
