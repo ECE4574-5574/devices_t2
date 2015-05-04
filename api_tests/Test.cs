@@ -7,6 +7,7 @@ using api;
 using Hats.Time;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System.Diagnostics;
 
 namespace api_tests
 {
@@ -16,6 +17,7 @@ public class APITest
 	[SetUp]
 	public void Init()
 	{
+		System.Diagnostics.Trace.Listeners.Add(new ConsoleTraceListener());
 	}
 
 	[Test]
@@ -229,36 +231,34 @@ public class APITest
 		//		URL below (http://postcatcher.in/catchers/5536e135f9562d0300003e57) with the
 		//		URL from postcatcher
 
-		const string url = "http://postcatcher.in/catchers/55439a9f51155a03000005a5";
-		var testHO = new HouseOutput(url, null);
+		const string url = "{\"house_url\": \"http://postcatcher.in/catchers/55439a9f51155a03000005a5\"}";
+		const string dev_info = "{\"ID\": 0}";
+		var testHO = new HouseOutput(url, dev_info);
 
 		Assert.IsNotNull(testHO);
-		Assert.IsTrue(url == testHO.getHouseInfo());
+		Assert.AreEqual(url, testHO.getHouseInfo());
 
-		testHO.write(new AlarmSystem(null, null, null));
-
-		Assert.IsNotNull(Encoding.UTF8.GetString(testHO.getData(), 0, testHO.getData().Length));
-		Assert.IsNull(testHO.getURLException());
-
-		//Test null URL
-		const string nullURL = null;
-		var testNullURLHO = new HouseOutput(nullURL, null);
-
-		testNullURLHO.write(new AlarmSystem(null, null, null));
-
-		Assert.IsNotNull(testNullURLHO.getURLException());
-		Assert.IsNull(testNullURLHO.getStreamException());
-		Assert.IsNull(testNullURLHO.getRequestException());
+		Assert.IsTrue(testHO.write(new AlarmSystem(null, null, null)));
 
 		//Test bad URL
-		const string badURL = "http://bkicia";
-		var testBadURLHO = new HouseOutput(badURL, null);
+		const string badURL = "{\"house_url\":\"http://bkicia\"}";
+		var testBadURLHO = new HouseOutput(badURL, dev_info);
 
-		testBadURLHO.write(new AlarmSystem(null, null, null));
+		Assert.IsFalse(testBadURLHO.write(new AlarmSystem(null, null, null)));
+	}
 
-		Assert.IsNull(testBadURLHO.getURLException());
-//		Assert.IsNotNull(testBadURLHO.getStreamException());
-		Assert.IsNull(testBadURLHO.getRequestException());
+	[Test]
+	[ExpectedException(typeof(ArgumentNullException))]
+	public void NullHouseOutputURL()
+	{
+		var testHO = new HouseOutput(null, null);
+	}
+
+	[Test]
+	[ExpectedException(typeof(ArgumentException))]
+	public void BadHouseOutputURL()
+	{
+		var testHO = new HouseOutput("", "");
 	}
 
 	[Test]
