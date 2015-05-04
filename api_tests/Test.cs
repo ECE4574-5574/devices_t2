@@ -222,32 +222,6 @@ public class APITest
 	}
 
 	[Test]
-	public void TestHouseOutput()
-	{
-		//Test valid URL and Device
-		//	to view correct POST:
-		//		go to http://postcatcher.in/ and click "Start testing your POST requests now"
-		//		copy the URL directly after "Content-Type: application/json" and replace the
-		//		URL below (http://postcatcher.in/catchers/5536e135f9562d0300003e57) with the
-		//		URL from postcatcher
-
-		const string url = "{\"house_url\": \"http://postcatcher.in/catchers/55439a9f51155a03000005a5\"}";
-		const string dev_info = "{\"ID\": 0}";
-		var testHO = new HouseOutput(url, dev_info);
-
-		Assert.IsNotNull(testHO);
-		Assert.AreEqual(url, testHO.getHouseInfo());
-
-		Assert.IsTrue(testHO.write(new AlarmSystem(null, null, null)));
-
-		//Test bad URL
-		const string badURL = "{\"house_url\":\"http://bkicia\"}";
-		var testBadURLHO = new HouseOutput(badURL, dev_info);
-
-		Assert.IsFalse(testBadURLHO.write(new AlarmSystem(null, null, null)));
-	}
-
-	[Test]
 	[ExpectedException(typeof(ArgumentNullException))]
 	public void NullHouseOutputURL()
 	{
