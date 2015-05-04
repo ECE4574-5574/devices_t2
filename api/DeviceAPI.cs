@@ -181,7 +181,7 @@ public class Interfaces
 			{
 				device = (Device)Activator.CreateInstance(device_type, null, null, frame);
 				update(device, info, update_id:true, force:true);
-
+				device.update();
 				device.resetIO(inp, outp); //this way, population doesn't trigger house comms
 			}
 		}
