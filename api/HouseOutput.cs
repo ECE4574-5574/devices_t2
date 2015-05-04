@@ -51,17 +51,21 @@ public class HouseOutput : IDeviceOutput
 			request.ContentType = "application/json";
 			request.Headers["header"] = ("api/house/device/" + houseID + "/" + roomID + "/" + deviceID);
 
-			try {
-				using (var stream = await Task<Stream>.Factory.FromAsync(request.BeginGetRequestStream, request.EndGetRequestStream, request))
+			try
+			{
+				using(var stream = await Task<Stream>.Factory.FromAsync(request.BeginGetRequestStream, request.EndGetRequestStream, request))
 				{
 					await stream.WriteAsync(data, 0, data.Length);
 				}				
-			} catch (Exception ex) {
+			}
+			catch(Exception ex)
+			{
 				_StreamException = ex;
 				return null;
 			}
 
-			try {
+			try
+			{
 
 				WebResponse responseObject = await Task<WebResponse>.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, request);
 
@@ -71,7 +75,9 @@ public class HouseOutput : IDeviceOutput
 
 				return received;
 				
-			} catch (Exception ex) {
+			}
+			catch(Exception ex)
+			{
 				_RequestException = ex;
 				return null;
 			}
