@@ -7,6 +7,7 @@ using api;
 using Hats.Time;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System.Diagnostics;
 
 namespace api_tests
 {
@@ -16,6 +17,7 @@ public class APITest
 	[SetUp]
 	public void Init()
 	{
+		System.Diagnostics.Trace.Listeners.Add(new ConsoleTraceListener());
 	}
 
 	[Test]
@@ -220,45 +222,17 @@ public class APITest
 	}
 
 	[Test]
-	public void TestHouseOutput()
+	[ExpectedException(typeof(ArgumentNullException))]
+	public void NullHouseOutputURL()
 	{
-		//Test valid URL and Device
-		//	to view correct POST:
-		//		go to http://postcatcher.in/ and click "Start testing your POST requests now"
-		//		copy the URL directly after "Content-Type: application/json" and replace the
-		//		URL below (http://postcatcher.in/catchers/5536e135f9562d0300003e57) with the
-		//		URL from postcatcher
+		var testHO = new HouseOutput(null, null);
+	}
 
-		const string url = "http://postcatcher.in/catchers/55439a9f51155a03000005a5";
-		var testHO = new HouseOutput(url, null);
-
-		Assert.IsNotNull(testHO);
-		Assert.IsTrue(url == testHO.getHouseInfo());
-
-		testHO.write(new AlarmSystem(null, null, null));
-
-		Assert.IsNotNull(Encoding.UTF8.GetString(testHO.getData(), 0, testHO.getData().Length));
-		Assert.IsNull(testHO.getURLException());
-
-		//Test null URL
-		const string nullURL = null;
-		var testNullURLHO = new HouseOutput(nullURL, null);
-
-		testNullURLHO.write(new AlarmSystem(null, null, null));
-
-		Assert.IsNotNull(testNullURLHO.getURLException());
-		Assert.IsNull(testNullURLHO.getStreamException());
-		Assert.IsNull(testNullURLHO.getRequestException());
-
-		//Test bad URL
-		const string badURL = "http://bkicia";
-		var testBadURLHO = new HouseOutput(badURL, null);
-
-		testBadURLHO.write(new AlarmSystem(null, null, null));
-
-		Assert.IsNull(testBadURLHO.getURLException());
-//		Assert.IsNotNull(testBadURLHO.getStreamException());
-		Assert.IsNull(testBadURLHO.getRequestException());
+	[Test]
+	[ExpectedException(typeof(ArgumentException))]
+	public void BadHouseOutputURL()
+	{
+		var testHO = new HouseOutput("", "");
 	}
 
 	[Test]
