@@ -2,13 +2,16 @@
  * Reading device state from the house app.
  */
 using System;
-using System.Threading;
-using System.IO;
 using System.Diagnostics;
-using Newtonsoft.Json;
+using System.IO;
 using System.Net;
-using System.Threading.Tasks;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Hats.Time;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace api
 {
@@ -19,60 +22,62 @@ public class HouseInput : IDeviceInput
 {
 	public HouseInput(string house_info, string device_info)
 	{
+	
+		_houseInfo = house_info;
+		_deviceInfo = device_info;
+		_Http_Client = new HttpClient();
+
+		try
+		{
+			var house_addr = JObject.Parse(house_info);
+			var temp_url = house_addr.GetValue("house_url").ToObject<string>();
+			Debug.WriteLine(temp_url);
+			_Http_Client.Timeout = TimeSpan.FromSeconds(10);
+			_Http_Client.BaseAddress = new Uri(temp_url);
+		}
+		catch(JsonException exception)
+		{
+			throw new ArgumentException(exception.Message);
+		}
+
 	}
 
 	public bool read(Device dev)
 	{
-		var _ = readHelper(dev);
 
-		return true;
+		return read_driver(dev);
 	}
 
-	private async Task<string> readHelper(Device dev)
-	{
-		try
-		{
-			var request = (HttpWebRequest)WebRequest.Create(_URL);
-			request.Method = "GET";
-			request.ContentType = "application/json";
+	protected bool read_driver(Device dev)
+	{	
 
+		var response = false;
+		try {
+		UInt64 devID = 0;
 			try
 			{
-				using(var stream = await Task<Stream>.Factory.FromAsync(request.BeginGetRequestStream, request.EndGetRequestStream, request))
-				{
-					result = new byte[stream.Length];
-					await stream.ReadAsync(result, 0, (int)stream.Length);
-				}
-
-				Interfaces.UpdateDevice(dev, result.ToString());
+				var dev_info = JObject.Parse(_deviceInfo);
+				devID = dev_info.GetValue("ID").ToObject<UInt64>();
 			}
-			catch(Exception ex)
+			catch(JsonException ex)
 			{
-				_StreamException = ex;
-				return null;
+				return false;
 			}
 
-			try
-			{
+			var query = _Http_Client.GetAsync(String.Format("api/device/{0}", devID));
+		
+			query.Wait();
 
-				WebResponse responseObject = await Task<WebResponse>.Factory.FromAsync(request.BeginGetResponse, request.EndGetResponse, request);
-				var responseString = responseObject.GetResponseStream();
-				var streamread = new StreamReader(responseString);
-				string confirm = await streamread.ReadToEndAsync();
-				return confirm;
-
-			}
-			catch(Exception ex)
-			{
-				_RequestException = ex;
-				return null;
-			}
+			result = query.Result.IsSuccessStatusCode;
 		}
 		catch(Exception ex)
 		{
-			_URLException = ex;
-			return null;
+			Debug.WriteLine("HouseInput failed: " + ex.Message);
+			response = false;
 		}
+
+		return response;
+
 	}
 
 	public string getURL()
@@ -80,25 +85,14 @@ public class HouseInput : IDeviceInput
 		return _URL;
 	}
 
-	public Exception getURLException()
-	{
-		return _URLException;
-	}
-
-	public Exception getStreamException()
-	{
-		return _StreamException;
-	}
-
-	public Exception getRequestException()
-	{
-		return _RequestException;
-	}
 
 	protected string _URL;
-	protected byte[] result;
+	protected bool result;
 	protected Exception _URLException;
 	protected Exception _StreamException;
+	protected string _houseInfo;
+	protected string _deviceInfo;
+	protected HttpClient _Http_Client;
 	protected Exception _RequestException;
 }
 
