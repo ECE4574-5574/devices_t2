@@ -83,8 +83,36 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID)
 	{
-		var devices = new List<Device>();
-		//TODO: Query all devices in a given house.
+			var devices = new List<Device>();
+
+        string house_ID = houseID.ToString();
+        var client = new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(50);
+        client.BaseAddress = _server;
+
+        var response = client.GetAsync("api/app/device/getDevices/" + houseID).Result;
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return devices;
+        }
+        try
+        {
+            var content = response.Content.ReadAsStringAsync();
+            content.Wait();
+            JArray devicesinHouse = JArray.Parse(content.Result);
+            foreach (JToken Device in devicesinHouse)
+            {
+              //TODO: add devices found to list
+                //devices.Add(Device.ToString());
+            }
+        }
+        catch (JsonException ex)
+        {
+           // Console.WriteLine("Error reading the list of devices" + ex.Message);
+           /// Debug.WriteLine("Error reading the list of devices" + ex.InnerException.Message);
+        }
+
 		return devices;
 	}
 
