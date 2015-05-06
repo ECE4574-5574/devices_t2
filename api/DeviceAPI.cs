@@ -220,12 +220,10 @@ public class Interfaces
 			var content = response.Content.ReadAsStringAsync();
 			content.Wait();
 			JArray unregisteredDevices = JArray.Parse(content.Result);
-			foreach(JToken Device in unregisteredDevices)
+			foreach(JToken tok in unregisteredDevices)
 			{
-				if(roomID == 0)
-					registerDevice(Device.ToString(), houseID, Device.ToString(), roomID);
-				else
-					devices.Add(CreateDevice(Device.ToString(),_frame));
+				var device = CreateDevice(tok.ToString(),_frame);
+				devices.Add(device);
 			}
 		}
 		catch(JsonException ex)
