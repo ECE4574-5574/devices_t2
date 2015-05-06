@@ -129,7 +129,7 @@ public class APITest
 	[Test]
 	public void TestDeviceTimeInit()
 	{
-        
+
 		var input = new ServerInput("http://serverapi1.azurewebsites.net");
 		var device = new LightSwitch(input, null, null);
 		Assert.AreEqual(device.LastUpdate, DateTime.MinValue);
@@ -275,6 +275,22 @@ public class APITest
 		Assert.IsNull(testBadURLSO.getURLException());
 		//Assert.IsNotNull(testBadURLSO.getStreamException());
 		Assert.IsNull(testBadURLSO.getRequestException());
+	}
+	[Test()]
+	public void TestRegisterAndGetDevice()
+	{
+		const string url = "http://postcatcher.in/catchers/55439a9f51155a03000005a5";
+		Interfaces inter = new Interfaces(url);
+		Assert.IsNotNull(inter);
+
+		ulong houseID = 4;
+		string name = "light1";
+		string info = "";
+		ulong roomID = 3;
+		//List<Device> response = inter.getDevices(houseID);
+		Device response1 = inter.registerDevice(name, houseID, info, roomID);
+		//List<Device> response2 = inter.getDevices(houseID, roomID);
+		//List<string> response = inter.enumerateDevices(houseID);
 	}
 }
 }
