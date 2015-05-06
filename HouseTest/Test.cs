@@ -97,56 +97,51 @@ public class Test
 	[Test]
 	public void SetLightTest()
 	{
-		var post = new RestRequest(Method.POST);
-		post.Resource = "api/device/0";
-		post.RequestFormat = DataFormat.Json;
+		var id = new FullID(0, 0, 0);
+		const string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
+		const string DeviceString = "{\"ID\": 0, \"Class\": \"LightSwitch\"}";
+		var dev_out = ServerSideAPI.CreateDevice(id, HouseString, DeviceString, _frame);
 
-		var ls = new LightSwitch(null, null, null);
+		Assert.IsNotNull(dev_out);
+		var ls = (LightSwitch)dev_out;
+
+		Assert.IsNotNull(ls);
 		ls.Enabled = true;
-		ls.GetType().GetRuntimeProperty("Value").SetValue(ls, new Light(4000.0)); //this shouldn't survive the pose
-		post.AddJsonBody(ls);
 
-		var resp = _client.Execute(post);
+		Assert.IsTrue(ls.Enabled);
+		Assert.IsTrue(ls.UpdateOk);
+		Assert.AreEqual(ls.Value.Brightness, 1.0);
+	}
 
-		Assert.AreEqual(HttpStatusCode.NoContent, resp.StatusCode);
-
-		var check = new RestRequest(Method.GET);
-		check.Resource = "api/device/0";
-		check.RequestFormat = DataFormat.Json;
-
-		resp = _client.Execute(check);
-
-		Assert.AreEqual(HttpStatusCode.OK, resp.StatusCode);
-
-		var dev = (LightSwitch)Interfaces.DeserializeDevice(resp.Content, null, null, _frame);
-
-		Assert.IsNotNull(dev);
-		Assert.IsTrue(dev.UpdateOk);
-		Assert.IsTrue(dev.Enabled);
-		Assert.AreEqual(dev.Value.Brightness, 1.0);
+	[Test]
+	public void TestHouseInput()
+	{
+		const string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
+		const string DeviceString = "{\"ID\": 0, \"Class\": \"LightSwitch\"}";
+		var inp = new HouseInput(HouseString, DeviceString);
+		var ls = new LightSwitch(inp, null, _frame);
+		Assert.IsTrue(ls.update());
+		Assert.AreEqual(ls.Enabled, false);
 	}
 
 	[Test]
 	public void SetThermoTest()
 	{
-		var client = new HttpClient();
-		client.BaseAddress = new Uri("http://127.0.0.1:8081");
+		var id = new FullID(0, 0, 2);
+		const string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
+		const string DeviceString = "{\"ID\": 2, \"Class\": \"Thermostat\"}";
+		var dev_out = ServerSideAPI.CreateDevice(id, HouseString, DeviceString, _frame);
 
-		var therm = new Thermostat(null, null, null);
+		var therm = (Thermostat)dev_out;
+		Assert.IsNotNull(therm);
 		therm.Enabled = true;
-		therm.SetPoint.C = 45.0;
-		var post = client.PostAsync("api/device/2",
-			new StringContent(JsonConvert.SerializeObject(therm, new DeviceIDOnlyConverter()), Encoding.UTF8, "application/json"));
-		post.Wait();
+		Assert.IsTrue(therm.UpdateOk);
+		therm.SetPoint = 45.0;
 
-		Assert.AreEqual(HttpStatusCode.NoContent, post.Result.StatusCode);
-
-		var dev = GetThermostat();
-
-		Assert.IsNotNull(dev);
-		Assert.IsTrue(dev.UpdateOk);
-		Assert.AreEqual(therm.Enabled, dev.Enabled);
-		Assert.AreEqual(therm.SetPoint.C, dev.SetPoint.C);
+		therm.update();
+		Assert.IsTrue(therm.UpdateOk);
+		Assert.AreEqual(therm.Enabled, true);
+		Assert.AreEqual(therm.SetPoint.C, 45.0);
 	}
 
 	[Test]
