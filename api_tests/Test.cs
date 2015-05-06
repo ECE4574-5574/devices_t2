@@ -67,7 +67,6 @@ public class APITest
 		Interfaces inter = new Interfaces("http://serverapi1.azurewebsites.net");
 		ulong houseID = 4;
 		List<string> response = inter.enumerateDevices(houseID);
-
 	}
 
 	[Test]
@@ -234,6 +233,13 @@ public class APITest
 	{
 		var testHO = new HouseOutput("", "");
 	}
+
+    [Test]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void NullTestHouseInput()
+    {
+        var testHI = new HouseInput(null, null);
+    }
 
 	[Test]
 	public void TestServerOutput()
