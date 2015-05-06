@@ -36,6 +36,7 @@
     <Compile Include="DeviceAPI.cs" />
     <Compile Include="ControlTypes.cs" />
     <Compile Include="IEnableable.cs" />
+    <Compile Include="Thermostat.cs" />
     <Compile Include="IDiscreteSetting.cs" />
     <Compile Include="ISetPointable.cs" />
     <Compile Include="IReadable.cs" />
@@ -47,7 +48,6 @@
     <Compile Include="CeilingFan.cs" />
     <Compile Include="AlarmSystem.cs" />
     <Compile Include="LightSwitch.cs" />
-    <Compile Include="Thermostat.cs" />
     <Compile Include="ServerInput.cs" />
     <Compile Include="ServerOutput.cs" />
     <Compile Include="HouseOutput.cs" />

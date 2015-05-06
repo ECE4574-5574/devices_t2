@@ -52,13 +52,11 @@ public abstract class Device
 	{
 		get
 		{
-			_update_ok = _in.read(this);
 			return _id;
 		}
 		set
 		{
 			_id = value;
-			_update_ok = _out.write(this);
 		}
 	}
 

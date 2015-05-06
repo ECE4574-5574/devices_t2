@@ -34,8 +34,12 @@ public class ServerSideAPI
 	{
 		var inp = new HouseInput(house_json, device_json);
 		var outp = new HouseOutput(house_json, device_json);
-		//TODO: Rebuild device string here to incorporate the FullID
-		return Interfaces.DeserializeDevice(device_json, inp, outp, frame);
+		var device = Interfaces.DeserializeDevice(device_json, inp, outp, frame);
+		if(device != null)
+		{
+			device.ID = id;
+		}
+		return device;
 	}
 }
 

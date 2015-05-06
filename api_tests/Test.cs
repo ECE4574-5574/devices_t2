@@ -154,7 +154,7 @@ public class APITest
 			new LightSwitch(null, null, null),
 			new Thermostat(null, null, null)
 		};
-        
+
 		foreach(var device in devices)
 		{
 			Assert.IsTrue(device as IEnableable != null);
@@ -252,14 +252,14 @@ public class APITest
         string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
         string DeviceString = "{\"ID\": 0, \"Class\": \"LightSwitch\"}";
         _frame = JsonConvert.DeserializeObject<TimeFrame>("{\"SimEpoch\": \"2015-04-08T13:25:20.0-04:00\"}");
-        
+
         device = inter.CreateDevice(DeviceString, _frame);
 
         var testHI = new HouseInput(HouseString,DeviceString);
 
         Assert.IsTrue(testHI.read(device));
     }
-    
+
 	[Test]
 	public void TestServerOutput()
 	{
