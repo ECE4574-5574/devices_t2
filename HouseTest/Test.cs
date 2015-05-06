@@ -114,26 +114,34 @@ public class Test
 	}
 
 	[Test]
+	public void TestHouseInput()
+	{
+		const string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
+		const string DeviceString = "{\"ID\": 0, \"Class\": \"LightSwitch\"}";
+		var inp = new HouseInput(HouseString, DeviceString);
+		var ls = new LightSwitch(inp, null, _frame);
+		Assert.IsTrue(ls.update());
+		Assert.AreEqual(ls.Enabled, false);
+	}
+
+	[Test]
 	public void SetThermoTest()
 	{
-		var client = new HttpClient();
-		client.BaseAddress = new Uri("http://127.0.0.1:8081");
+		var id = new FullID(0, 0, 2);
+		const string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
+		const string DeviceString = "{\"ID\": 2, \"Class\": \"Thermostat\"}";
+		var dev_out = ServerSideAPI.CreateDevice(id, HouseString, DeviceString, _frame);
 
-		var therm = new Thermostat(null, null, null);
+		var therm = (Thermostat)dev_out;
+		Assert.IsNotNull(therm);
 		therm.Enabled = true;
-		therm.SetPoint.C = 45.0;
-		var post = client.PostAsync("api/device/2",
-			new StringContent(JsonConvert.SerializeObject(therm, new DeviceIDOnlyConverter()), Encoding.UTF8, "application/json"));
-		post.Wait();
+		Assert.IsTrue(therm.UpdateOk);
+		therm.SetPoint = 45.0;
 
-		Assert.AreEqual(HttpStatusCode.NoContent, post.Result.StatusCode);
-
-		var dev = GetThermostat();
-
-		Assert.IsNotNull(dev);
-		Assert.IsTrue(dev.UpdateOk);
-		Assert.AreEqual(therm.Enabled, dev.Enabled);
-		Assert.AreEqual(therm.SetPoint.C, dev.SetPoint.C);
+		therm.update();
+		Assert.IsTrue(therm.UpdateOk);
+		Assert.AreEqual(therm.Enabled, true);
+		Assert.AreEqual(therm.SetPoint.C, 45.0);
 	}
 
 	[Test]

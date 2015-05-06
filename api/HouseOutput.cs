@@ -32,7 +32,6 @@ public class HouseOutput : IDeviceOutput
 		{
 			var house_tok = JObject.Parse(house_info);
 			var url = house_tok.GetValue("house_url").ToObject<string>();
-			Debug.WriteLine(url);
 			_client.BaseAddress = new Uri(url);
 		}
 		catch(JsonException ex)
@@ -43,9 +42,13 @@ public class HouseOutput : IDeviceOutput
 
 	public bool write(Device dev)
 	{
+		var outp = dev.Output;
+		var inp = dev.Input;
+		dev.resetIO();
 		string desiredState = JsonConvert.SerializeObject(dev);
-
-		return writeHelper(desiredState);
+		var result = writeHelper(desiredState);
+		dev.resetIO(inp, outp);
+		return result;
 	}
 
 	protected bool writeHelper(string json)

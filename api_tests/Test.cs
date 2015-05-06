@@ -67,7 +67,6 @@ public class APITest
 		Interfaces inter = new Interfaces("http://serverapi1.azurewebsites.net");
 		ulong houseID = 4;
 		List<string> response = inter.enumerateDevices(houseID);
-
 	}
 
 	[Test]
@@ -234,6 +233,32 @@ public class APITest
 	{
 		var testHO = new HouseOutput("", "");
 	}
+
+    [Test]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void NullTestHouseInput()
+    {
+        var testHI = new HouseInput(null, null);
+    }
+
+    [Test]
+    public void TestHouseInput()
+    {
+        TimeFrame _frame;
+        Device device = null;
+        Interfaces inter = new Interfaces("http://serverapi1.azurewebsites.net");
+
+        var id = new FullID(0, 0, 0);
+        string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
+        string DeviceString = "{\"ID\": 0, \"Class\": \"LightSwitch\"}";
+        _frame = JsonConvert.DeserializeObject<TimeFrame>("{\"SimEpoch\": \"2015-04-08T13:25:20.0-04:00\"}");
+
+        device = inter.CreateDevice(DeviceString, _frame);
+
+        var testHI = new HouseInput(HouseString,DeviceString);
+
+        Assert.IsTrue(testHI.read(device));
+    }
 
 	[Test]
 	public void TestServerOutput()
