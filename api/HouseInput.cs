@@ -31,7 +31,6 @@ public class HouseInput : IDeviceInput
 		{
 			var house_addr = JObject.Parse(house_info);
 			var temp_url = house_addr.GetValue("house_url").ToObject<string>();
-			Debug.WriteLine(temp_url);
 			_Http_Client.Timeout = TimeSpan.FromSeconds(10);
 			_Http_Client.BaseAddress = new Uri(temp_url);
 		}
@@ -44,7 +43,6 @@ public class HouseInput : IDeviceInput
 
 	public bool read(Device dev)
 	{
-
 		return read_driver(dev);
 	}
 
@@ -73,7 +71,7 @@ public class HouseInput : IDeviceInput
 			{
 				var data = query.Result.Content.ReadAsStringAsync();
 				data.Wait();
-				Interfaces.UpdateDevice(dev, data.Result, silence_io:false);
+				Interfaces.UpdateDevice(dev, data.Result, silence_io:true);
 			}
 		}
 		catch(Exception ex)
