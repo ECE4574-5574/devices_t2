@@ -9,17 +9,29 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Diagnostics;
-using api.Converters;
-using Hats.Time;
-using System.Linq;
+using System.Text;
 
 namespace api
 {
 
 public class Interfaces
 {
+	protected HttpClient _http;
 	protected Uri _server;
 	protected TimeFrame _frame;
+
+	public Interfaces(string serverAddress, TimeFrame frame = default(TimeFrame))
+	{
+		_http = new HttpClient();
+		_server = new Uri(serverAddress);
+
+		if(frame == null)
+		{
+			frame = new TimeFrame();
+		}
+
+		_frame = frame;
+	}
 
 	public Interfaces(Uri serverAddress, TimeFrame frame = default(TimeFrame))
 	{
@@ -33,52 +45,47 @@ public class Interfaces
 		_frame = frame;
 	}
 
+
 	/**
 	 * Function which is called to request a list of devices present at a given location, which
 	 * are not currently registered in the HATS system. Since these devices are not registered,
 	 * no ID has been assigned.
-	 * 
+	 *
 	 * \param[in] address Location of the house to query for unregistered devices.
 	 * \param[out] List of strings which represent devices which could be registered.
 	 */
 	public List<string> enumerateDevices(UInt64 house_id)
 	{
-		if(house_id < 0)
+		string houseID = house_id.ToString();
+		var client = new HttpClient();
+		client.Timeout = TimeSpan.FromSeconds(50);
+		client.BaseAddress = _server;
+
+		var response = client.GetAsync("api/app/device/enumeratedevices/" + houseID).Result;
+
+		List<string> listOfDevices= new List<string>();
+
+		if(!response.IsSuccessStatusCode)
 		{
-			return null;
+			return listOfDevices;
 		}
-		//Post GET call to _server + "/api/app/device/enumeratedevices/{house_id}"
-		WebRequest request = WebRequest.Create(_server + "/api/app/device/enumeratedevices/{house_id}");
-		request.ContentType = "application/json";
-		request.Method = "GET";
-		string str;
+
 		try
 		{
-			using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+			var content = response.Content.ReadAsStringAsync();
+			content.Wait();
+			JArray unregisteredDevices = JArray.Parse(content.Result);
+			foreach(JToken Device in unregisteredDevices)
 			{
-				var stream = response.GetResponseStream();
-				var reader = new StreamReader(stream);
-				str = reader.ReadToEnd();
+				listOfDevices.Add(Device.ToString());
 			}
 		}
-					
-		catch (Exception ex) {
-			_StreamException = ex;
-			return null;
-		}
-		//Get result of GET
-		//Turn Content into JArray
-		JArray jArr =  JArray.Parse(str);
-		//JToken jTok;
-		List<string> devicelist = new List<string>();
-		//Iterate over JArray, for each JToken inside, call List.Add(JToken.ToString());
-		//Parse Contents to a list of strings, where the strings are JSON blobs
-		foreach(var jTok in jArr)
+		catch(JsonException ex)
 		{
-			devicelist.Add(jTok.ToString());
+			Debug.WriteLine("Error reading the list of devices" + ex.Message);
+			Debug.WriteLine("Error reading the list of devices" + ex.InnerException.Message);
 		}
-		//return
-		return devicelist;
+		return listOfDevices;
 	}
 
 	/**
@@ -92,29 +99,43 @@ public class Interfaces
 	public Device registerDevice(string name, UInt64 house_id, string info, UInt64 room_id = 0)
 	{
 		//TODO: Verify parameters here are sufficient
+		if(String.IsNullOrEmpty(info) || String.IsNullOrEmpty(name))
+		{
+			return null;
+		}
 		//TODO: Post to Server API to request the device be recorded, and get the device.
-        if (String.IsNullOrEmpty(name) || house_id < 0 || String.IsNullOrEmpty(info))
-        {
-            return null;
-        }
-        JObject device_obj = JObject.Parse(info);
-        JToken type_tok;
-        if (!device_obj.TryGetValue("class", StringComparison.OrdinalIgnoreCase, out type_tok))
-        {
-            return null;
-        }
-		var device_type = GetDeviceType(type_tok.ToString());
-        var device_name = name;
-        Device device = null;
-        if (device_name != null)
-        {
-            device = (Device)Activator.CreateInstance(device_type, house_id, room_id);
-			device.Name = device_name;
-			JsonConvert.PopulateObject(info, device);
-        }
-        return device;
+		string houseID = house_id.ToString();
+		var client = new HttpClient();
+		client.Timeout = TimeSpan.FromSeconds(50);
+		client.BaseAddress = _server;
 
-		
+		string type = "";
+		try
+		{
+			var obj = JObject.Parse(info);
+			obj.GetValue("Class").ToObject<string>();
+		}
+		catch(JsonException ex)
+		{
+			return null;
+		}
+		var device_register = new
+		{
+			houseID = house_id,
+			roomID = room_id,
+			Type = type
+		};
+		var response = client.PostAsync("api/storage/device/", new StringContent(JsonConvert.SerializeObject(device_register), Encoding.UTF8, "application/json"));
+		response.Wait();
+
+		Device output = null;
+		if(response.Result.IsSuccessStatusCode)
+		{
+			var data = response.Result.Content.ReadAsStringAsync();
+			data.Wait();
+			output = CreateDevice(data.Result, _frame);
+		}
+		return output;
 	}
 
 	/**
@@ -125,16 +146,10 @@ public class Interfaces
 	 */
 	public bool deleteDevice(Device dev)
 	{
-        if (dev == null)
-            return false;
-
-        var dlist = new List<Device>();
-        //dlist = Get[] device list from server API
-        var item = dlist.First(x => x == dev);
-        dlist.Remove(item);
+		
 		return true;
 	}
-		
+
 	/**
 	 * Function to get a list of devices from the server.
 	 * \param[in] ID of the House to get devices for
@@ -142,55 +157,38 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID)
 	{
-		if (houseID < 0)
+		var devices = new List<Device>();
+		string house_id = houseID.ToString();
+		var client = new HttpClient();
+		client.Timeout = TimeSpan.FromSeconds(50);
+		client.BaseAddress = _server;
+
+		var response = client.GetAsync("api/storage/device/{houseid}" + houseID).Result;
+
+		List<string> listOfDevices= new List<string>();
+
+		if(!response.IsSuccessStatusCode)
 		{
 			return null;
 		}
-
-		// testing
-		List<Device> fake_Devices = new List<Device>()
-		{
-			new AlarmSystem(null, null, null),
-			new CeilingFan(null, null, null),
-			new GarageDoor(null, null, null),
-			new LightSwitch(null, null, null),
-			new Thermostat(null, null, null)
-		};
-		foreach (var device in fake_Devices)//devices)
-		{
-			device.ID.HouseID = 1;
-			device.ID.RoomID = 2;
-			device.ID.DeviceID = 3;
-		}
-		//ending test
-		//get device list
-		var client = new RestClient("http://127.0.0.1:8081");
-		var query = new RestRequest(Method.GET);
-		query.Resource = "api/storage/device/{houseid}";
-		query.RequestFormat = DataFormat.Json;
-		var resp = client.Execute(query);
-		var respList = JArray.Parse(resp.Content);
-		// get some device list
-		var devicelist = new List<Device>();
-		devicelist = respList.ToObject<List<Device>>();
-
-		//var address = new Interfaces(address);
-		// get some device list
-		//var devices = new List<Device>();
 		//TODO: Query all devices in a given house.
-		var devices = new List<Device>();
-		foreach (var device in devicelist)//fake_Devices)
-        {
-			JToken type_tok;
-			if(!dev.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
+		try
+		{
+			var content = response.Content.ReadAsStringAsync();
+			content.Wait();
+			JArray unregisteredDevices = JArray.Parse(content.Result);
+			foreach(JToken Device in unregisteredDevices)
 			{
-				return null;
+				devices.Add(CreateDevice(Device.ToString(),_frame));
 			}
-			if(type_tok == houseID)
-				devices.Add(device);
-        }
+		}
+		catch(JsonException ex)
+		{
+			Debug.WriteLine("Error reading the list of devices" + ex.Message);
+			Debug.WriteLine("Error reading the list of devices" + ex.InnerException.Message);
+		}
 
-			
+
 		return devices;
 	}
 
@@ -202,37 +200,39 @@ public class Interfaces
 	 */
 	public List<Device> getDevices(UInt64 houseID, UInt64 roomID)
 	{
-		if(houseID < 0)
-			return null;
-		//get device list
-		var client = new RestClient("http://127.0.0.1:8081");
-		var query = new RestRequest(Method.GET);
-		query.Resource = "api/storage/device/{houseid}";
-		query.RequestFormat = DataFormat.Json;
-		var resp = client.Execute(query);
-		var respList = JArray.Parse(resp.Content);
-		// get some device list
-		var devicelist = new List<Device>();
-		devicelist = respList.ToObject<List<Device>>();
-
-		//var address = new Interfaces(address);
-		// get some device list
-		//var devices = new List<Device>();
-		//TODO: Query all devices in a given house.
 		var devices = new List<Device>();
-		foreach (var device in devicelist)//fake_Devices)
+		string house_id = houseID.ToString();
+		var client = new HttpClient();
+		client.Timeout = TimeSpan.FromSeconds(50);
+		client.BaseAddress = _server;
+
+		var response = client.GetAsync("api/storage/device/{houseid}/{spaceid}" + houseID + roomID).Result;
+
+		List<string> listOfDevices= new List<string>();
+
+		if(!response.IsSuccessStatusCode)
 		{
-			JToken type_tok;
-			if(!dev.TryGetValue("houseid", StringComparison.OrdinalIgnoreCase, out type_tok))
-			{
-				return null;
-			}
-			if(type_tok == houseID && roomID != 0)
-				devices.Add(device);
-			else if(type_tok == houseID && roomID == 0)
-				registerDevice(device.Name, houseID, device.Content);
+			return null;
 		}
-			
+		//TODO: Query all devices in a given house.
+		try
+		{
+			var content = response.Content.ReadAsStringAsync();
+			content.Wait();
+			JArray unregisteredDevices = JArray.Parse(content.Result);
+			foreach(JToken Device in unregisteredDevices)
+			{
+				if(roomID == 0)
+					registerDevice(Device.ToString(), houseID, Device.ToString(), roomID);
+				else
+					devices.Add(CreateDevice(Device.ToString(),_frame));
+			}
+		}
+		catch(JsonException ex)
+		{
+			Debug.WriteLine("Error reading the list of devices" + ex.Message);
+			Debug.WriteLine("Error reading the list of devices" + ex.InnerException.Message);
+		}
 		return devices;
 	}
 
@@ -279,13 +279,15 @@ public class Interfaces
 			{
 				device = (Device)Activator.CreateInstance(device_type, null, null, frame);
 				update(device, info, update_id:true, force:true);
-
+				device.update();
 				device.resetIO(inp, outp); //this way, population doesn't trigger house comms
 			}
 		}
 		catch(JsonException ex)
 		{
 			//TODO: Figure out how to pass exceptions up, or record error
+			Debug.WriteLine("Error deserializing the list of devices" + ex.Message);
+			Debug.WriteLine("Error deserializing the list of devices" + ex.InnerException.Message);
 		}
 		return device;
 	}
