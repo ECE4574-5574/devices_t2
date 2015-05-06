@@ -68,7 +68,13 @@ public class HouseInput : IDeviceInput
 		
 			query.Wait();
 
-			result = query.Result.IsSuccessStatusCode;
+			response = query.Result.IsSuccessStatusCode;
+			if(response)
+			{
+				var data = query.Result.Content.ReadAsStringAsync();
+				data.Wait();
+				Interfaces.UpdateDevice(dev, data.Result, silence_io:false);
+			}
 		}
 		catch(Exception ex)
 		{
