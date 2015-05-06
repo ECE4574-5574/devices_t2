@@ -80,6 +80,11 @@ public class HouseMain
 		bool success = ParseConfig(config);
 		System.Diagnostics.Debug.Assert(success);
 
+		if(!success)
+		{
+			Console.WriteLine("Parsing configuration failed.");
+			return -1;
+		}
         if(_is_sim)
         {
             Console.WriteLine("OK");
@@ -131,6 +136,10 @@ public class HouseMain
 
 		_is_sim = GenerateSimulatedHouse(house_id, scenario);
 
+		if(!_is_sim) //we never made it to the real world
+		{
+			return false;
+		}
 		if(config.ContainsKey(TimeFrameKey))
 		{
 			UpdateTime(config[TimeFrameKey]);
