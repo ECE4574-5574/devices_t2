@@ -298,5 +298,41 @@ public class APITest
 		//List<Device> response2 = inter.getDevices(houseID, roomID);
 		//List<string> response = inter.enumerateDevices(houseID);
 	}
+
+	[Test]
+	public void TestUpdateDevice()
+	{
+		var id = new FullID(0, 0, 1);
+		var th1 = new Thermostat(null, null, null);
+		th1.Enabled = true;
+		th1.SetPoint = 100;
+		th1.ID = id;
+
+		var th2 = new Thermostat(null, null, null);
+		th2.Enabled = false;
+		th2.SetPoint = 0;
+		th2.ID = id;
+
+		Assert.AreNotEqual(th1.Enabled, th2.Enabled);
+		Assert.AreNotEqual(th1.SetPoint.C, th2.SetPoint.C);
+
+		Assert.IsTrue(Interfaces.UpdateDevice(th2, th1));
+		Assert.AreEqual(th1.Enabled, th2.Enabled);
+		Assert.AreEqual(th1.SetPoint, th2.SetPoint);
+
+		Assert.IsFalse(Interfaces.UpdateDevice(th2, th1));
+	}
+
+	[Test]
+	public void VerifyDeviceBuilders()
+	{
+		const string valid_string = "{class: \"LightSwitch\", enabled: true, Brightness: 1.0}";
+		var intf = new Interfaces("http://localhost");
+
+		var dev = intf.CreateDevice(valid_string, null);
+		Assert.IsNotNull(dev);
+		Assert.AreEqual(dev.Input.GetType(), typeof(ServerInput));
+		Assert.AreEqual(dev.Output.GetType(), typeof(ServerOutput));
+	}
 }
 }
