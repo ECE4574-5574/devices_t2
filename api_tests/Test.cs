@@ -333,6 +333,10 @@ public class APITest
 		Assert.IsNotNull(dev);
 		Assert.AreEqual(dev.Input.GetType(), typeof(ServerInput));
 		Assert.AreEqual(dev.Output.GetType(), typeof(ServerOutput));
+
+		dev.resetIO();
+		Assert.AreEqual(dev.Input.GetType(), typeof(NullDeviceInput));
+		Assert.AreEqual(dev.Output.GetType(), typeof(NullDeviceOutput));
 	}
 }
 }
