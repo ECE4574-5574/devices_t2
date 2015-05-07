@@ -309,7 +309,7 @@ public class Interfaces
 	public static bool UpdateDevice(Device dev, string json, bool silence_io = false,
 		bool update_id = false)
 	{
-		return update(dev, json, silence_io, update_id, force: false);
+		return update(dev, json, silence_io, update_id, force: true);
 	}
 
 	/**
