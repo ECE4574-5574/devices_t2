@@ -59,6 +59,12 @@ public class Temperature : ControlTypes
 			C = temp
 		};
 	}
+
+	public static implicit operator double(Temperature temp)
+	{
+		return temp._temp_c;
+	}
+
 	/**
 	 * Generic accessor, which returns underlying measure without explicit type.
 	 */

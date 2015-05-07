@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using api;
@@ -13,7 +14,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using RestSharp;
-using System.Reflection;
 
 namespace HouseTest
 {
@@ -127,12 +127,7 @@ public class Test
 	[Test]
 	public void SetThermoTest()
 	{
-		var id = new FullID(0, 0, 2);
-		const string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
-		const string DeviceString = "{\"ID\": 2, \"Class\": \"Thermostat\"}";
-		var dev_out = ServerSideAPI.CreateDevice(id, HouseString, DeviceString, _frame);
-
-		var therm = (Thermostat)dev_out;
+		var therm = GetThermostat();
 		Assert.IsNotNull(therm);
 		therm.Enabled = true;
 		Assert.IsTrue(therm.UpdateOk);
@@ -153,27 +148,33 @@ public class Test
 		{
 			var new_dev = GetThermostat();
 			//Temperatures they are a-changin'
-			Assert.AreNotEqual(old_dev.Value.C, new_dev.Value.C);
+			Assert.AreNotEqual(old_dev.Value, new_dev.Value);
+			if(new_dev.Enabled)
+			{
+				Assert.IsTrue(new_dev.Value >= old_dev.Value);
+			}
+			else
+			{
+				Assert.IsTrue(new_dev.Value <= old_dev.Value);
+			}
 			old_dev = new_dev;
+			old_dev.resetIO(); //cache the value
 			Thread.Sleep(150);
 		}
 	}
 
 	public Thermostat GetThermostat()
 	{
-		var client = new HttpClient();
-		client.BaseAddress = new Uri("http://127.0.0.1:8081");
-		var check = client.GetAsync("api/device/2");
-		check.Wait();
-		if(!check.Result.IsSuccessStatusCode)
-		{
-			return null;
-		}
+		var id = new FullID(0, 0, 2);
+		const string HouseString = "{\"house_url\":\"http://127.0.0.1:8081\"}";
+		const string DeviceString = "{\"ID\": 2, \"Class\": \"Thermostat\"}";
+		var dev_out = ServerSideAPI.CreateDevice(id, HouseString, DeviceString, _frame);
 
-		var resp = check.Result.Content.ReadAsStringAsync();
-		resp.Wait();
+		Assert.IsNotNull(dev_out);
+		Assert.AreEqual(dev_out.Input.GetType(), typeof(HouseInput));
+		Assert.AreEqual(dev_out.Output.GetType(), typeof(HouseOutput));
 
-		return (Thermostat)Interfaces.DeserializeDevice(resp.Result, null, null, _frame);
+		return dev_out as Thermostat;
 	}
 }
 
