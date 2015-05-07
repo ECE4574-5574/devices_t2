@@ -328,15 +328,8 @@ public class Interfaces
 			return false;
 		}
 
-		if(old_dev.ID != new_dev.ID)
-		{
-			return false;
-		}
-
-		var old_props = old_dev.GetType().GetRuntimeProperties();
-		var new_props = new_dev.GetType().GetRuntimeProperties();
+		var props = old_dev.GetType().GetRuntimeProperties();
 		bool update_field = false;
-
 
 		IDeviceInput inp = null;
 		IDeviceOutput outp = null;
@@ -345,28 +338,22 @@ public class Interfaces
 		{
 			inp = old_dev.Input;
 			outp = old_dev.Output;
+			old_dev.resetIO();
 		}
-		foreach(var old_info in old_props)
+		foreach(var info in props)
 		{
 			//Can't update this method
-			if(old_info.SetMethod == null || !old_info.SetMethod.IsPublic)
+			if(info.SetMethod == null || !info.SetMethod.IsPublic || info.GetMethod == null)
 			{
 				continue;
 			}
-			foreach(var new_info in new_props)
-			{
-				if(new_info.GetMethod == null || !new_info.GetMethod.IsPublic)
-				{
-					continue;
-				}
 
-				if(new_info.Name == old_info.Name)
-				{
-					update_field |= old_info.GetValue(old_dev) != new_info.GetValue(new_info);
-					old_info.SetValue(old_dev, new_info.GetValue(new_dev));
-					break;
-				}
+			if(info.Name != "LastUpdate")
+			{
+				var updated = !(info.GetValue(old_dev).Equals(info.GetValue(new_dev)));
+				update_field |= updated;
 			}
+			info.SetValue(old_dev, info.GetValue(new_dev));
 		}
 
 		if(silence_io)
